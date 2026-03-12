@@ -1,12 +1,58 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Index from "./pages/Index.tsx";
-import NotFound from "./pages/NotFound.tsx";
+import BottomNav from "@/components/BottomNav";
+import LandingPage from "./pages/LandingPage";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+import OnboardingPage from "./pages/OnboardingPage";
+import HomePage from "./pages/HomePage";
+import DiscoverPage from "./pages/DiscoverPage";
+import MapPage from "./pages/MapPage";
+import CourseDetailPage from "./pages/CourseDetailPage";
+import SubmitReviewPage from "./pages/SubmitReviewPage";
+import RankingsPage from "./pages/RankingsPage";
+import ProfilePage from "./pages/ProfilePage";
+import UserProfilePage from "./pages/UserProfilePage";
+import SavedListsPage from "./pages/SavedListsPage";
+import NotificationsPage from "./pages/NotificationsPage";
+import SettingsPage from "./pages/SettingsPage";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+const navPages = ['/home', '/discover', '/map', '/lists', '/profile', '/notifications', '/settings', '/course', '/user', '/review'];
+
+function AppContent() {
+  const location = useLocation();
+  const showNav = navPages.some(p => location.pathname.startsWith(p));
+
+  return (
+    <div className="mx-auto max-w-lg">
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/onboarding" element={<OnboardingPage />} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/discover" element={<DiscoverPage />} />
+        <Route path="/map" element={<MapPage />} />
+        <Route path="/course/:id" element={<CourseDetailPage />} />
+        <Route path="/review/:courseId" element={<SubmitReviewPage />} />
+        <Route path="/lists" element={<SavedListsPage />} />
+        <Route path="/rankings" element={<RankingsPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/user/:id" element={<UserProfilePage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      {showNav && <BottomNav />}
+    </div>
+  );
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -14,11 +60,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AppContent />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
