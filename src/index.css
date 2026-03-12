@@ -46,6 +46,13 @@
     --cream: 40 20% 97%;
     --cream-dark: 40 15% 93%;
     --sage: 145 15% 60%;
+    --golfer-deep: 154 46% 10%;
+    --golfer-deep-soft: 153 24% 25%;
+    --golfer-surface: 154 34% 14%;
+    --golfer-surface-soft: 150 23% 19%;
+    --golfer-line: 147 15% 83%;
+    --golfer-cream: 48 33% 97%;
+    --golfer-mist: 144 23% 93%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -91,8 +98,17 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   h1, h2, h3 {
     @apply font-display;
+  }
+
+  ::selection {
+    background: hsl(var(--forest) / 0.18);
+    color: hsl(var(--foreground));
   }
 }
 

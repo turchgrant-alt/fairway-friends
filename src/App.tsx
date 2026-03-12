@@ -1,9 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import BottomNav from "@/components/BottomNav";
+import AppShell from "@/components/dashboard/AppShell";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
@@ -23,19 +23,14 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const navPages = ['/home', '/discover', '/map', '/lists', '/profile', '/notifications', '/settings', '/course', '/user', '/review'];
-
 function AppContent() {
-  const location = useLocation();
-  const showNav = navPages.some(p => location.pathname.startsWith(p));
-
   return (
-    <div className="mx-auto max-w-lg">
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/onboarding" element={<OnboardingPage />} />
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/onboarding" element={<OnboardingPage />} />
+      <Route element={<AppShell />}>
         <Route path="/home" element={<HomePage />} />
         <Route path="/discover" element={<DiscoverPage />} />
         <Route path="/map" element={<MapPage />} />
@@ -47,10 +42,9 @@ function AppContent() {
         <Route path="/user/:id" element={<UserProfilePage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      {showNav && <BottomNav />}
-    </div>
+      </Route>
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 
