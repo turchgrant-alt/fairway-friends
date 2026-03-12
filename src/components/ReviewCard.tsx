@@ -14,15 +14,15 @@ export default function ReviewCard({ review, showCourse = true }: ReviewCardProp
   if (!user || !course) return null;
 
   return (
-    <div className="rounded-xl bg-card p-4 shadow-sm">
+    <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-5 shadow-[0_24px_60px_-48px_rgba(12,25,19,0.4)]">
       {/* User header */}
       <div className="flex items-center gap-3">
-        <img src={user.avatar} alt={user.name} className="h-9 w-9 rounded-full object-cover" />
+        <img src={user.avatar} alt={user.name} className="h-11 w-11 rounded-full object-cover" />
         <div className="flex-1">
-          <p className="text-sm font-semibold text-card-foreground">{user.name}</p>
+          <p className="text-base font-semibold text-card-foreground">{user.name}</p>
           <p className="text-xs text-muted-foreground">@{user.username}</p>
         </div>
-        <span className="flex items-center gap-1 rounded-full bg-gold/15 px-2 py-0.5 text-xs font-bold text-gold">
+        <span className="flex items-center gap-1 rounded-full bg-gold/15 px-3 py-1 text-xs font-bold text-gold">
           <Star size={10} fill="currentColor" /> {review.overallRating}
         </span>
       </div>
@@ -31,42 +31,42 @@ export default function ReviewCard({ review, showCourse = true }: ReviewCardProp
       {showCourse && (
         <button
           onClick={() => navigate(`/course/${course.id}`)}
-          className="mt-3 flex items-center gap-2.5 rounded-lg bg-secondary/60 p-2"
+          className="mt-4 flex items-center gap-3 rounded-[20px] bg-secondary/70 p-3"
         >
-          <img src={course.imageUrl} alt={course.name} className="h-10 w-10 rounded-md object-cover" />
+          <img src={course.imageUrl} alt={course.name} className="h-12 w-12 rounded-xl object-cover" />
           <div>
-            <p className="text-xs font-semibold text-card-foreground">{course.name}</p>
-            <p className="text-[11px] text-muted-foreground">{course.location}</p>
+            <p className="text-sm font-semibold text-card-foreground">{course.name}</p>
+            <p className="text-xs text-muted-foreground">{course.location}</p>
           </div>
         </button>
       )}
 
       {/* Review content */}
-      <h4 className="mt-3 text-sm font-semibold text-card-foreground">{review.headline}</h4>
-      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{review.body}</p>
+      <h4 className="mt-4 text-base font-semibold text-card-foreground">{review.headline}</h4>
+      <p className="mt-2 text-sm leading-7 text-muted-foreground">{review.body}</p>
 
       {/* Tags */}
-      <div className="mt-2.5 flex flex-wrap gap-1.5">
+      <div className="mt-3 flex flex-wrap gap-2">
         {review.wouldPlayAgain && (
-          <span className="rounded-full bg-forest-muted px-2 py-0.5 text-[10px] font-medium text-forest">Would play again</span>
+          <span className="rounded-full bg-forest-muted px-3 py-1 text-[11px] font-medium text-forest">Would play again</span>
         )}
         {review.worthThePrice && (
-          <span className="rounded-full bg-gold-muted px-2 py-0.5 text-[10px] font-medium text-gold-foreground">Worth the price</span>
+          <span className="rounded-full bg-gold-muted px-3 py-1 text-[11px] font-medium text-gold-foreground">Worth the price</span>
         )}
         {review.bestForTags.map(tag => (
-          <span key={tag} className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-muted-foreground">{tag}</span>
+          <span key={tag} className="rounded-full bg-secondary px-3 py-1 text-[11px] font-medium text-muted-foreground">{tag}</span>
         ))}
       </div>
 
       {/* Actions */}
-      <div className="mt-3 flex items-center gap-4 border-t border-border pt-3">
-        <button className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-destructive">
+      <div className="mt-5 flex items-center gap-4 border-t border-border pt-4">
+        <button className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-destructive">
           <Heart size={14} /> {review.likesCount}
         </button>
-        <button className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-primary">
+        <button className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-primary">
           <MessageCircle size={14} /> {review.commentsCount}
         </button>
-        <span className="ml-auto text-[11px] text-muted-foreground">{review.createdAt}</span>
+        <span className="ml-auto text-xs text-muted-foreground">{review.createdAt}</span>
       </div>
     </div>
   );
