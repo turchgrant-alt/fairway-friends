@@ -1,24 +1,14 @@
-import {
-  Bell,
-  Compass,
-  LayoutGrid,
-  ListChecks,
-  MapPinned,
-  Medal,
-  Settings,
-  UserCircle2,
-} from "lucide-react";
+import { Compass, LayoutGrid, ListChecks, MapPinned, Settings, UserCircle2 } from "lucide-react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { path: "/home", label: "Home", icon: LayoutGrid },
+  { path: "/home", label: "Overview", icon: LayoutGrid },
   { path: "/discover", label: "Discover", icon: Compass },
   { path: "/map", label: "Map", icon: MapPinned },
   { path: "/lists", label: "Lists", icon: ListChecks },
-  { path: "/rankings", label: "Rankings", icon: Medal },
-  { path: "/profile", label: "Profile", icon: UserCircle2 },
+  { path: "/profile", label: "Workspace", icon: UserCircle2 },
 ];
 
 function isActivePath(currentPath: string, itemPath: string) {
@@ -44,13 +34,18 @@ export default function AppShell() {
                 <div>
                   <p className="font-display text-2xl leading-none">GolfeR</p>
                   <p className="text-[10px] uppercase tracking-[0.32em] text-white/[0.56]">
-                    Product dashboard
+                    Developer demo
                   </p>
                 </div>
               </Link>
 
-              <div className="hidden rounded-full border border-white/10 bg-white/[0.08] px-3 py-1.5 text-xs text-white/[0.72] lg:block">
-                {activeItem?.label ?? "Workspace"}
+              <div className="hidden items-center gap-2 lg:flex">
+                <div className="rounded-full border border-white/10 bg-white/[0.08] px-3 py-1.5 text-xs text-white/[0.72]">
+                  {activeItem?.label ?? "Workspace"}
+                </div>
+                <div className="rounded-full border border-emerald-300/20 bg-emerald-100/10 px-3 py-1.5 text-xs text-white/[0.72]">
+                  New York dataset
+                </div>
               </div>
             </div>
 
@@ -77,17 +72,6 @@ export default function AppShell() {
             </nav>
 
             <div className="flex items-center gap-2">
-              <Link
-                to="/notifications"
-                className={cn(
-                  "inline-flex h-11 w-11 items-center justify-center rounded-full border transition",
-                  isActivePath(location.pathname, "/notifications")
-                    ? "border-white bg-white text-[hsl(var(--golfer-deep))]"
-                    : "border-white/10 bg-white/[0.06] text-white/[0.8] hover:bg-white/[0.12] hover:text-white",
-                )}
-              >
-                <Bell size={18} />
-              </Link>
               <Link
                 to="/settings"
                 className={cn(

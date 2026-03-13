@@ -1,110 +1,104 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCourseById, sortCoursesByRatingOrName } from '@/lib/course-data';
-import { sampleLists, users } from '@/lib/social-data';
-import PageHeader from '@/components/dashboard/PageHeader';
-import { Plus, Star, ChevronRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
-type Tab = 'rankings' | 'lists';
+import PageHeader from '@/components/dashboard/PageHeader';
+import { courses, sortCoursesByName } from '@/lib/course-data';
+
+type Tab = 'alphabetical' | 'metadata';
+
+function metadataScore(course: typeof courses[number]) {
+  return [
+    course.city,
+    course.addressLabel,
+    course.website,
+    course.phone,
+    course.par,
+    course.holes,
+  ].filter(Boolean).length;
+}
 
 export default function RankingsPage() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Tab>('rankings');
-  // Mock user's ranked courses
-  const rankedCourseIds = users[0].topCourses;
-  const rankedCourses = rankedCourseIds.map(getCourseById).filter(Boolean);
-  const fallbackRankedCourses = sortCoursesByRatingOrName(rankedCourses);
+  const [tab, setTab] = useState<Tab>('alphabetical');
+  const alphabeticalCourses = sortCoursesByName(courses).slice(0, 24);
+  const metadataRichCourses = [...courses]
+    .sort((a, b) => metadataScore(b) - metadataScore(a) || a.name.localeCompare(b.name))
+    .slice(0, 24);
 
   return (
     <div className="space-y-10">
       <PageHeader
-        eyebrow="Rankings"
-        title="Organize your golf taste into lists that are actually useful."
-        description="Keep your personal pecking order close, then turn saved ideas into trip-ready boards when you are planning with friends."
+        eyebrow="Catalog"
+        title="Alternative ways to browse the v1 course catalog."
+        description="This legacy route now acts as a utility catalog view instead of a fake personal rankings page."
         actions={
-          <button className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-4 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]">
-            <Plus size={16} /> New list
+          <button
+            onClick={() => navigate('/discover')}
+            className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-4 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]"
+          >
+            Open discovery <ArrowRight size={16} />
           </button>
         }
       />
 
       <section className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-8">
-      <div className="flex flex-wrap gap-2">
-        {(['rankings', 'lists'] as Tab[]).map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`rounded-full px-4 py-2 text-sm font-medium capitalize transition-colors ${
-              tab === t ? 'bg-[hsl(var(--golfer-deep))] text-white' : 'bg-secondary text-muted-foreground'
-            }`}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-6">
-        {tab === 'rankings' && (
-          <div className="grid gap-4 lg:grid-cols-2">
-            {fallbackRankedCourses.map((course, i) => course && (
-              <button
-                key={course.id}
-                onClick={() => navigate(`/course/${course.id}`)}
-                className="flex w-full items-center gap-4 rounded-[24px] bg-[hsl(var(--golfer-cream))] p-4 text-left transition hover:-translate-y-0.5"
-              >
-                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                  i < 3 ? 'bg-gold text-gold-foreground' : 'bg-secondary text-secondary-foreground'
-                }`}>
-                  {i + 1}
-                </span>
-                <img src={course.imageUrl} alt={course.name} className="h-16 w-16 rounded-[18px] object-cover" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-base font-semibold text-card-foreground">{course.name}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{course.location}</p>
-                </div>
-                <span className="flex items-center gap-1 rounded-full bg-gold/15 px-3 py-1 text-sm font-bold text-gold">
-                  <Star size={12} fill="currentColor" /> {course.overallRating != null ? course.overallRating : 'New'}
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {tab === 'lists' && (
-          <div className="grid gap-4 lg:grid-cols-2">
-            <button className="flex min-h-52 w-full items-center justify-center gap-2 rounded-[26px] border-2 border-dashed border-border bg-[hsl(var(--golfer-cream))] py-4 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-primary">
-              <Plus size={16} /> Create New List
+        <div className="flex flex-wrap gap-2">
+          {(['alphabetical', 'metadata'] as Tab[]).map((value) => (
+            <button
+              key={value}
+              onClick={() => setTab(value)}
+              className={`rounded-full px-4 py-2 text-sm font-medium capitalize transition-colors ${
+                tab === value ? 'bg-[hsl(var(--golfer-deep))] text-white' : 'bg-secondary text-muted-foreground'
+              }`}
+            >
+              {value}
             </button>
-            {sampleLists.map(list => {
-              const listCourses = list.courseIds.map(getCourseById).filter(Boolean);
-              const owner = users.find(u => u.id === list.userId);
-              return (
-                <div key={list.id} className="rounded-[26px] bg-[hsl(var(--golfer-cream))] p-5">
-                  <div className="flex items-center gap-2">
-                    {owner && <img src={owner.avatar} alt={owner.name} className="h-6 w-6 rounded-full object-cover" />}
-                    <span className="text-xs text-muted-foreground">{owner?.name}</span>
+          ))}
+        </div>
+
+        <div className="mt-6">
+          {tab === 'alphabetical' ? (
+            <div className="grid gap-4 lg:grid-cols-2">
+              {alphabeticalCourses.map((course, index) => (
+                <button
+                  key={course.id}
+                  onClick={() => navigate(`/course/${course.id}`)}
+                  className="flex w-full items-center gap-4 rounded-[24px] bg-[hsl(var(--golfer-cream))] p-4 text-left transition hover:-translate-y-0.5"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-sm font-bold text-[hsl(var(--golfer-deep))]">
+                    {index + 1}
+                  </span>
+                  <img src={course.imageUrl} alt={course.name} className="h-16 w-16 rounded-[18px] object-cover" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-base font-semibold text-card-foreground">{course.name}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{course.location}</p>
                   </div>
-                  <h3 className="mt-3 text-base font-semibold text-card-foreground">{list.title}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{list.description}</p>
-                  <div className="mt-3 flex -space-x-2">
-                    {listCourses.slice(0, 4).map(c => c && (
-                      <img key={c.id} src={c.imageUrl} alt={c.name} className="h-10 w-10 rounded-md border-2 border-card object-cover" />
-                    ))}
-                    {list.courseIds.length > 4 && (
-                      <div className="flex h-10 w-10 items-center justify-center rounded-md bg-secondary text-xs font-medium text-secondary-foreground">
-                        +{list.courseIds.length - 4}
-                      </div>
-                    )}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-4 lg:grid-cols-2">
+              {metadataRichCourses.map((course) => (
+                <button
+                  key={course.id}
+                  onClick={() => navigate(`/course/${course.id}`)}
+                  className="rounded-[26px] bg-[hsl(var(--golfer-cream))] p-5 text-left transition hover:-translate-y-0.5"
+                >
+                  <h3 className="text-base font-semibold text-card-foreground">{course.name}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{course.location}</p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {course.website ? <span className="rounded-full bg-white px-3 py-1 text-xs text-[hsl(var(--golfer-deep))]">Website</span> : null}
+                    {course.phone ? <span className="rounded-full bg-white px-3 py-1 text-xs text-[hsl(var(--golfer-deep))]">Phone</span> : null}
+                    {course.addressLabel ? <span className="rounded-full bg-white px-3 py-1 text-xs text-[hsl(var(--golfer-deep))]">Address</span> : null}
+                    {course.par != null ? <span className="rounded-full bg-white px-3 py-1 text-xs text-[hsl(var(--golfer-deep))]">Par {course.par}</span> : null}
+                    {course.holes != null ? <span className="rounded-full bg-white px-3 py-1 text-xs text-[hsl(var(--golfer-deep))]">{course.holes} holes</span> : null}
                   </div>
-                  <button className="mt-4 flex items-center gap-1 text-sm font-medium text-primary">
-                    View list <ChevronRight size={12} />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </section>
     </div>
   );

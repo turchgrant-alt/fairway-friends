@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
-import { courses } from '@/lib/course-data';
-import { collections } from '@/lib/social-data';
+
 import CourseCard from '@/components/CourseCard';
 import SectionHeader from '@/components/SectionHeader';
 import PageHeader from '@/components/dashboard/PageHeader';
+import { courses } from '@/lib/course-data';
+import { demoStats } from '@/lib/demo-v1';
 
-const courseTypes = ['All', 'Public', 'Resort', 'Private', 'Municipal', 'Semi-Private'];
-const tags = ['bucket-list', 'hidden-gem', 'ocean-views', 'desert', 'links-style', 'value', 'challenging', 'walkable'];
+const courseTypes = ['All', ...Array.from(new Set(courses.map((course) => course.type))).sort((a, b) => a.localeCompare(b))];
+const tags = Array.from(new Set(courses.flatMap((course) => course.tags))).slice(0, 10);
 
 export default function DiscoverPage() {
   const [query, setQuery] = useState('');
@@ -15,10 +16,17 @@ export default function DiscoverPage() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
 
-  const filtered = courses.filter(c => {
-    if (query && !c.name.toLowerCase().includes(query.toLowerCase()) && !c.location.toLowerCase().includes(query.toLowerCase())) return false;
-    if (selectedType !== 'All' && c.type.toLowerCase() !== selectedType.toLowerCase()) return false;
-    if (selectedTags.length > 0 && !selectedTags.some(t => c.tags.includes(t))) return false;
+  const filtered = courses.filter((course) => {
+    if (
+      query &&
+      !course.name.toLowerCase().includes(query.toLowerCase()) &&
+      !course.location.toLowerCase().includes(query.toLowerCase()) &&
+      !(course.addressLabel ?? '').toLowerCase().includes(query.toLowerCase())
+    ) return false;
+
+    if (selectedType !== 'All' && course.type.toLowerCase() !== selectedType.toLowerCase()) return false;
+    if (selectedTags.length > 0 && !selectedTags.some((tag) => course.tags.includes(tag))) return false;
+
     return true;
   });
 
@@ -27,7 +35,7 @@ export default function DiscoverPage() {
       <PageHeader
         eyebrow="Discovery"
         title="Search, filter, and compare courses with more room to think."
-        description="Explore by location, course type, and the tags golfers actually use when they recommend a place to friends."
+        description="Explore the real New York catalog by name, access type, and source tags. This page is intentionally simpler in v1 so discovery work stays easy to test."
         actions={
           <button
             onClick={() => setShowFilters(!showFilters)}
@@ -43,21 +51,39 @@ export default function DiscoverPage() {
         }
       />
 
+      <section className="grid gap-4 lg:grid-cols-3">
+        <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-5 shadow-[0_20px_50px_-42px_rgba(12,25,19,0.35)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Coverage</p>
+          <p className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">{demoStats.totalCourses}</p>
+          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">real golf courses in New York</p>
+        </div>
+        <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-5 shadow-[0_20px_50px_-42px_rgba(12,25,19,0.35)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Scope</p>
+          <p className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">NY only</p>
+          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">state-by-state expansion is next</p>
+        </div>
+        <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-5 shadow-[0_20px_50px_-42px_rgba(12,25,19,0.35)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Intent</p>
+          <p className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">Clean v1</p>
+          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">no fake users, no social filler</p>
+        </div>
+      </section>
+
       <section className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-8">
         <div className="flex flex-col gap-4 lg:flex-row">
           <div className="relative flex-1">
             <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Search courses or locations..."
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search courses, cities, or addresses..."
               className="w-full rounded-full border border-input bg-[hsl(var(--golfer-cream))] py-3 pl-11 pr-4 text-sm text-card-foreground outline-none focus:border-primary"
             />
-            {query && (
+            {query ? (
               <button onClick={() => setQuery('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
                 <X size={14} />
               </button>
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -65,7 +91,7 @@ export default function DiscoverPage() {
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">Course Type</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {courseTypes.map(type => (
+              {courseTypes.map((type) => (
                 <button
                   key={type}
                   onClick={() => setSelectedType(type)}
@@ -79,14 +105,14 @@ export default function DiscoverPage() {
             </div>
           </div>
           <div>
-            <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">Tags</p>
+            <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">Source Tags</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {tags.map(tag => {
+              {tags.map((tag) => {
                 const active = selectedTags.includes(tag);
                 return (
                   <button
                     key={tag}
-                    onClick={() => setSelectedTags(active ? selectedTags.filter(t => t !== tag) : [...selectedTags, tag])}
+                    onClick={() => setSelectedTags(active ? selectedTags.filter((value) => value !== tag) : [...selectedTags, tag])}
                     className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                       active ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
                     }`}
@@ -100,36 +126,22 @@ export default function DiscoverPage() {
         </div>
       </section>
 
-      {!query && selectedType === 'All' && selectedTags.length === 0 && (
-        <section className="space-y-5">
-          <SectionHeader
-            title="Collections"
-            description="Start with a mood or trip type, then drill down when you are ready to book."
-          />
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {collections.map(col => (
-              <button key={col.id} className="relative overflow-hidden rounded-[28px] text-left shadow-[0_24px_60px_-48px_rgba(12,25,19,0.35)]">
-                <img src={col.imageUrl} alt={col.title} className="h-full w-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-5">
-                  <p className="text-sm font-semibold text-primary-foreground">{col.title}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
-
       <section className="space-y-5">
         <SectionHeader
           title={query ? `Results for "${query}"` : 'Browse courses'}
-          description={`${filtered.length} courses matching your current filters.`}
+          description={`${filtered.length} courses matching your current filters in the New York dataset.`}
         />
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {filtered.map(course => (
-            <CourseCard key={course.id} course={course} />
-          ))}
-        </div>
+        {filtered.length > 0 ? (
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {filtered.map((course) => (
+              <CourseCard key={course.id} course={course} />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-[28px] border border-dashed border-[hsl(var(--golfer-line))] bg-white p-10 text-center text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+            No courses match the current query and filters. Try a broader search or clear a few filters.
+          </div>
+        )}
       </section>
     </div>
   );

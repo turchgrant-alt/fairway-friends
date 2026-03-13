@@ -1,21 +1,21 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronRight, LogOut, User, Bell, Shield, Palette, HelpCircle } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Code2, Database, RefreshCcw, Route } from 'lucide-react';
 import PageHeader from '@/components/dashboard/PageHeader';
 
 const settingGroups = [
   {
-    title: 'Account',
+    title: 'Demo mode',
     items: [
-      { icon: User, label: 'Edit Profile', action: '/profile' },
-      { icon: Bell, label: 'Notification Preferences' },
-      { icon: Shield, label: 'Privacy & Security' },
+      { icon: Route, label: 'Open workspace', action: '/profile' },
+      { icon: Database, label: 'Browse course catalog', action: '/discover' },
+      { icon: RefreshCcw, label: 'Review sync status', action: '/home' },
     ],
   },
   {
-    title: 'App',
+    title: 'Builder notes',
     items: [
-      { icon: Palette, label: 'Appearance' },
-      { icon: HelpCircle, label: 'Help & Support' },
+      { icon: Code2, label: 'Routes preserved for future features' },
+      { icon: Database, label: 'Real data comes from the local NY dataset' },
     ],
   },
 ];
@@ -27,8 +27,8 @@ export default function SettingsPage() {
     <div className="space-y-10">
       <PageHeader
         eyebrow="Settings"
-        title="Tune the product around how you golf."
-        description="Profile, notifications, privacy, and support now sit in a calmer desktop-friendly layout instead of a stacked app menu."
+        title="Developer/demo settings"
+        description="This page is now a practical reference point for the v1 shell instead of a fake authenticated account center."
         actions={
           <button
             onClick={() => navigate(-1)}
@@ -61,12 +61,14 @@ export default function SettingsPage() {
           </div>
         ))}
 
-        <button
-          onClick={() => navigate('/')}
-          className="flex w-full items-center justify-center gap-2 rounded-[30px] border border-[hsl(var(--golfer-line))] bg-white py-4 text-sm font-medium text-destructive shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] lg:col-span-2"
-        >
-          <LogOut size={16} /> Sign Out
-        </button>
+        <div className="rounded-[30px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-deep))] p-6 text-white shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] lg:col-span-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">Current behavior</p>
+          <p className="mt-4 text-2xl">Auth is bypassed and social activity is muted.</p>
+          <p className="mt-3 text-sm leading-8 text-white/72">
+            `/login`, `/signup`, and `/onboarding` now flow straight into the product. Notifications, public profiles,
+            and review author content stay out of the visible experience until they are worth building for real.
+          </p>
+        </div>
       </div>
     </div>
   );

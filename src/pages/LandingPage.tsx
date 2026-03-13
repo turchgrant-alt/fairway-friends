@@ -14,9 +14,9 @@ import { Link } from "react-router-dom";
 import FeaturedCourseCard from "@/components/marketing/FeaturedCourseCard";
 import SectionHeading from "@/components/marketing/SectionHeading";
 import { Button } from "@/components/ui/button";
-import { courses } from "@/lib/mock-data";
+import { demoStats, featuredV1Courses, formatDemoDate } from "@/lib/demo-v1";
 
-const featuredCourses = [courses[8], courses[10], courses[2]];
+const featuredCourses = featuredV1Courses;
 
 const steps = [
   {
@@ -61,9 +61,9 @@ const productHighlights = [
 ];
 
 const heroStats = [
-  { label: "Courses saved this week", value: "18.4K" },
-  { label: "Ratings from real golfers", value: "92K" },
-  { label: "Buddy trips inspired", value: "1.2K" },
+  { label: "New York courses in catalog", value: demoStats.totalCourses.toString() },
+  { label: "Completed states", value: demoStats.completedStates.toString() },
+  { label: "Next refresh", value: formatDemoDate(demoStats.nextRefreshDueAt) },
 ];
 
 const fadeInUp = {
@@ -108,13 +108,13 @@ export default function LandingPage() {
               variant="ghost"
               className="hidden rounded-full px-5 text-white hover:bg-white/10 hover:text-white sm:inline-flex"
             >
-              <Link to="/login">Sign in</Link>
+              <Link to="/home">Open workspace</Link>
             </Button>
             <Button
               asChild
               className="rounded-full bg-white px-5 text-[hsl(var(--golfer-deep))] shadow-[0_18px_50px_-30px_rgba(255,255,255,0.75)] hover:bg-white/90"
             >
-              <Link to="/signup">Get early access</Link>
+              <Link to="/discover">Open demo</Link>
             </Button>
           </div>
         </div>
@@ -132,7 +132,7 @@ export default function LandingPage() {
             >
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.08] px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-white/[0.78] backdrop-blur-md">
                 <Sparkles size={14} className="text-white" />
-                Beli-inspired golf discovery
+                New York v1 developer demo
               </div>
 
               <h1 className="mt-8 max-w-3xl text-5xl leading-[0.95] text-white sm:text-6xl lg:text-7xl">
@@ -140,8 +140,8 @@ export default function LandingPage() {
               </h1>
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-white/[0.72] sm:text-xl">
-                GolfeR turns scattered opinions, saved screenshots, and group-text recommendations into a polished home
-                for ratings, wishlists, and map-based course discovery.
+                GolfeR is now a cleaner course-discovery workspace: real New York course data, a calmer product shell,
+                and just enough structure to build explore, lists, and course pages without fake social noise.
               </p>
 
               <div className="mt-10 flex flex-col gap-3 sm:flex-row">
@@ -150,8 +150,8 @@ export default function LandingPage() {
                   size="lg"
                   className="h-12 rounded-full bg-white px-7 text-[hsl(var(--golfer-deep))] hover:bg-white/90"
                 >
-                  <Link to="/signup">
-                    Start your list
+                  <Link to="/discover">
+                    Open the demo
                     <ArrowRight />
                   </Link>
                 </Button>
@@ -204,26 +204,26 @@ export default function LandingPage() {
                   <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
                     <div className="flex items-center gap-2 text-sm text-white/70">
                       <Compass size={16} />
-                      Weekend escape
+                      Real course record
                     </div>
                     <h2 className="mt-3 max-w-md text-3xl leading-tight text-white sm:text-4xl">{heroCourse.name}</h2>
                     <p className="mt-3 max-w-lg text-sm leading-7 text-white/70 sm:text-base">
-                      Ocean-edge routing, unforgettable views, and the kind of course that resets the standard for a
-                      buddy trip.
+                      A real New York course record inside the v1 catalog, ready to test structure, metadata handling,
+                      and detail-page behavior as the state-by-state dataset grows.
                     </p>
 
                     <div className="mt-6 grid gap-3 sm:grid-cols-3">
                       <div className="rounded-[20px] border border-white/10 bg-black/20 p-4 text-white">
-                        <p className="text-xs uppercase tracking-[0.22em] text-white/45">Rating</p>
-                        <p className="mt-2 text-2xl">{heroCourse.overallRating.toFixed(1)}</p>
+                        <p className="text-xs uppercase tracking-[0.22em] text-white/45">Access</p>
+                        <p className="mt-2 text-2xl capitalize">{heroCourse.accessType ?? heroCourse.type}</p>
                       </div>
                       <div className="rounded-[20px] border border-white/10 bg-black/20 p-4 text-white">
                         <p className="text-xs uppercase tracking-[0.22em] text-white/45">Best for</p>
-                        <p className="mt-2 text-sm leading-6">{heroCourse.tags.slice(0, 2).join(" • ")}</p>
+                        <p className="mt-2 text-sm leading-6">{heroCourse.tags.slice(0, 2).join(" • ") || "Course structure"}</p>
                       </div>
                       <div className="rounded-[20px] border border-white/10 bg-black/20 p-4 text-white">
-                        <p className="text-xs uppercase tracking-[0.22em] text-white/45">Saved</p>
-                        <p className="mt-2 text-2xl">{heroCourse.savedCount}</p>
+                        <p className="text-xs uppercase tracking-[0.22em] text-white/45">Last synced</p>
+                        <p className="mt-2 text-base">{formatDemoDate(heroCourse.lastSyncedAt)}</p>
                       </div>
                     </div>
                   </div>
@@ -239,27 +239,28 @@ export default function LandingPage() {
                     <Search size={18} />
                   </span>
                   <div>
-                    <p className="text-sm font-semibold text-[hsl(var(--golfer-deep))]">Search by trip</p>
-                    <p className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.70]">Scottsdale in late April</p>
+                    <p className="text-sm font-semibold text-[hsl(var(--golfer-deep))]">Current coverage</p>
+                    <p className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.70]">New York statewide catalog</p>
                   </div>
                 </div>
               </div>
 
               <div className="absolute -bottom-6 -right-3 max-w-[18rem] rounded-[26px] border border-white/10 bg-[hsl(var(--golfer-surface))] p-5 text-white shadow-[0_38px_80px_-52px_rgba(0,0,0,0.95)] sm:right-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium">Wishlist momentum</p>
-                  <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/[0.74]">12 added</span>
+                  <p className="text-sm font-medium">Dataset status</p>
+                  <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/[0.74]">Monthly refresh</span>
                 </div>
                 <div className="mt-4 space-y-3">
-                  {featuredCourses.slice(0, 2).map((course) => (
-                    <div key={course.id} className="flex items-center gap-3 rounded-[18px] bg-white/[0.05] p-3">
-                      <img src={course.imageUrl} alt={course.name} className="h-12 w-12 rounded-2xl object-cover" />
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">{course.name}</p>
-                        <p className="text-xs text-white/[0.58]">{course.location}</p>
-                      </div>
-                    </div>
-                  ))}
+                  <div className="rounded-[18px] bg-white/[0.05] p-3">
+                    <p className="text-xs uppercase tracking-[0.22em] text-white/[0.5]">Website coverage</p>
+                    <p className="mt-2 text-2xl">{demoStats.withWebsiteCount}</p>
+                    <p className="mt-1 text-xs text-white/[0.58]">courses with a source website</p>
+                  </div>
+                  <div className="rounded-[18px] bg-white/[0.05] p-3">
+                    <p className="text-xs uppercase tracking-[0.22em] text-white/[0.5]">Phone coverage</p>
+                    <p className="mt-2 text-2xl">{demoStats.withPhoneCount}</p>
+                    <p className="mt-1 text-xs text-white/[0.58]">courses with a source phone number</p>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -300,7 +301,7 @@ export default function LandingPage() {
             <SectionHeading
               eyebrow="Featured courses"
               title="A preview of the kind of places GolfeR helps you discover, compare, and save."
-              description="Mock data for now, but the experience is built around the same questions golfers already ask each other: Is it worth the trip? Is it unforgettable? Would you book it again?"
+              description="These cards now pull from the real New York course catalog so the homepage still feels polished while staying grounded in the actual v1 data foundation."
               inverted
             />
 
@@ -440,7 +441,7 @@ export default function LandingPage() {
           <div>
             <p className="font-display text-3xl text-[hsl(var(--golfer-deep))]">GolfeR</p>
             <p className="mt-2 max-w-md text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-              A more sophisticated home for golf ratings, wishlists, and map-driven course discovery.
+              A cleaner v1 home for real course discovery, structured data, and steady product iteration.
             </p>
           </div>
 
@@ -454,8 +455,8 @@ export default function LandingPage() {
             <a href="#features" className="transition hover:text-[hsl(var(--golfer-deep))]">
               Features
             </a>
-            <Link to="/login" className="transition hover:text-[hsl(var(--golfer-deep))]">
-              Sign in
+            <Link to="/discover" className="transition hover:text-[hsl(var(--golfer-deep))]">
+              Open demo
             </Link>
           </div>
         </div>

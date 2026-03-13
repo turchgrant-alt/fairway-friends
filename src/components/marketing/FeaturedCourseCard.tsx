@@ -1,7 +1,7 @@
 import { ArrowUpRight, MapPin, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import type { Course } from "@/lib/mock-data";
+import type { Course } from "@/lib/course-data";
 
 interface FeaturedCourseCardProps {
   course: Course;
@@ -22,7 +22,7 @@ export default function FeaturedCourseCard({ course }: FeaturedCourseCardProps) 
         <div className="absolute inset-0 bg-gradient-to-t from-[rgba(7,19,14,0.88)] via-[rgba(7,19,14,0.2)] to-transparent" />
         <div className="absolute left-5 top-5 inline-flex items-center gap-2 rounded-full bg-white/[0.14] px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
           <Star size={13} className="fill-current text-white" />
-          {course.overallRating.toFixed(1)} community rating
+          {(course.accessType ?? course.type).replace("-", " ")} course
         </div>
       </div>
 
@@ -57,16 +57,16 @@ export default function FeaturedCourseCard({ course }: FeaturedCourseCardProps) 
 
         <div className="grid grid-cols-3 gap-3 rounded-[22px] border border-white/10 bg-black/10 p-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.18em] text-white/[0.45]">Price</p>
-            <p className="mt-2 text-sm font-medium text-white">{course.priceRange}</p>
+            <p className="text-xs uppercase tracking-[0.18em] text-white/[0.45]">Access</p>
+            <p className="mt-2 text-sm font-medium capitalize text-white">{course.accessType ?? course.type}</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-[0.18em] text-white/[0.45]">Reviews</p>
-            <p className="mt-2 text-sm font-medium text-white">{course.reviewCount}</p>
+            <p className="text-xs uppercase tracking-[0.18em] text-white/[0.45]">Par</p>
+            <p className="mt-2 text-sm font-medium text-white">{course.par ?? "Unknown"}</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-[0.18em] text-white/[0.45]">Saved</p>
-            <p className="mt-2 text-sm font-medium text-white">{course.savedCount}</p>
+            <p className="text-xs uppercase tracking-[0.18em] text-white/[0.45]">Holes</p>
+            <p className="mt-2 text-sm font-medium text-white">{course.holes ?? "Unknown"}</p>
           </div>
         </div>
       </div>
