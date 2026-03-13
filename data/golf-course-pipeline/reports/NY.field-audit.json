@@ -1,0 +1,2290 @@
+{
+  "stateCode": "NY",
+  "source": "osm_overpass",
+  "generatedAt": "2026-03-13T01:25:32.969Z",
+  "auditedFields": [
+    "streetAddress",
+    "city",
+    "state",
+    "postcode",
+    "country",
+    "addressLabel",
+    "website",
+    "phone",
+    "accessType",
+    "status",
+    "holes",
+    "par",
+    "operator",
+    "openingHours"
+  ],
+  "fieldCoverage": {
+    "streetAddress": {
+      "present": 290,
+      "missing": 358,
+      "bySourceType": {
+        "composed": 290,
+        "missing_from_source": 358
+      }
+    },
+    "city": {
+      "present": 293,
+      "missing": 355,
+      "bySourceType": {
+        "direct_tag": 293,
+        "missing_from_source": 355
+      }
+    },
+    "state": {
+      "present": 648,
+      "missing": 0,
+      "bySourceType": {
+        "direct_tag": 249,
+        "scope_fallback": 399
+      }
+    },
+    "postcode": {
+      "present": 276,
+      "missing": 372,
+      "bySourceType": {
+        "direct_tag": 276,
+        "missing_from_source": 372
+      }
+    },
+    "country": {
+      "present": 648,
+      "missing": 0,
+      "bySourceType": {
+        "scope_fallback": 643,
+        "direct_tag": 5
+      }
+    },
+    "addressLabel": {
+      "present": 299,
+      "missing": 349,
+      "bySourceType": {
+        "composed": 299,
+        "missing_from_source": 349
+      }
+    },
+    "website": {
+      "present": 300,
+      "missing": 348,
+      "bySourceType": {
+        "direct_tag": 292,
+        "missing_from_source": 348,
+        "alternate_tag": 8
+      }
+    },
+    "phone": {
+      "present": 232,
+      "missing": 416,
+      "bySourceType": {
+        "direct_tag": 232,
+        "missing_from_source": 416
+      }
+    },
+    "accessType": {
+      "present": 249,
+      "missing": 399,
+      "bySourceType": {
+        "composed": 249,
+        "missing_from_source": 399
+      }
+    },
+    "status": {
+      "present": 5,
+      "missing": 643,
+      "bySourceType": {
+        "missing_from_source": 643,
+        "derived_text": 3,
+        "direct_tag": 2
+      }
+    },
+    "holes": {
+      "present": 14,
+      "missing": 634,
+      "bySourceType": {
+        "derived_text": 4,
+        "missing_from_source": 634,
+        "alternate_tag": 10
+      }
+    },
+    "par": {
+      "present": 3,
+      "missing": 645,
+      "bySourceType": {
+        "missing_from_source": 645,
+        "direct_tag": 3
+      }
+    },
+    "operator": {
+      "present": 45,
+      "missing": 603,
+      "bySourceType": {
+        "missing_from_source": 603,
+        "direct_tag": 45
+      }
+    },
+    "openingHours": {
+      "present": 10,
+      "missing": 638,
+      "bySourceType": {
+        "missing_from_source": 638,
+        "direct_tag": 10
+      }
+    }
+  },
+  "sampleEvidence": [
+    {
+      "name": "Adams Country Club",
+      "sourceId": "osm_overpass:way:134938071",
+      "normalized": {
+        "streetAddress": "10700 US Route 11",
+        "city": "Adams",
+        "state": "NY",
+        "postcode": "13605",
+        "addressLabel": "10700 US Route 11, Adams, NY 13605",
+        "accessType": "private",
+        "status": null,
+        "holes": 9,
+        "par": null,
+        "website": "https://adamscountryclub.com/",
+        "phone": "+1-315-232-4842",
+        "operator": null,
+        "openingHours": null
+      },
+      "fieldAudit": {
+        "streetAddress": {
+          "value": "10700 US Route 11",
+          "source": "addr:housenumber + addr:street",
+          "sourceType": "composed",
+          "checked": [
+            "addr:housenumber",
+            "addr:street"
+          ],
+          "notes": []
+        },
+        "city": {
+          "value": "Adams",
+          "source": "addr:city",
+          "sourceType": "direct_tag",
+          "checked": [
+            "addr:city",
+            "addr:town",
+            "addr:village",
+            "addr:hamlet",
+            "addr:place",
+            "addr:suburb",
+            "addr:borough",
+            "is_in:city"
+          ],
+          "notes": []
+        },
+        "state": {
+          "value": "NY",
+          "source": "addr:state",
+          "sourceType": "direct_tag",
+          "checked": [
+            "addr:state"
+          ],
+          "notes": []
+        },
+        "postcode": {
+          "value": "13605",
+          "source": "addr:postcode",
+          "sourceType": "direct_tag",
+          "checked": [
+            "addr:postcode"
+          ],
+          "notes": []
+        },
+        "country": {
+          "value": "US",
+          "source": "state scope",
+          "sourceType": "scope_fallback",
+          "checked": [
+            "addr:country"
+          ],
+          "notes": [
+            "Country was populated from the configured ingestion scope."
+          ]
+        },
+        "addressLabel": {
+          "value": "10700 US Route 11, Adams, NY 13605",
+          "source": "address components",
+          "sourceType": "composed",
+          "checked": [
+            "addr:housenumber",
+            "addr:street",
+            "addr:city",
+            "addr:town",
+            "addr:village",
+            "addr:hamlet",
+            "addr:place",
+            "addr:suburb",
+            "addr:borough",
+            "is_in:city",
+            "addr:state",
+            "addr:postcode",
+            "addr:country"
+          ],
+          "notes": [
+            "Address label was composed from the source address parts."
+          ]
+        },
+        "accessType": {
+          "value": "private",
+          "source": "access/operator/name mapping",
+          "sourceType": "composed",
+          "checked": [
+            "access",
+            "operator:type",
+            "operator",
+            "name"
+          ],
+          "notes": []
+        },
+        "status": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "abandoned",
+            "abandoned:leisure",
+            "disused",
+            "disused:leisure",
+            "construction",
+            "construction:leisure",
+            "proposed",
+            "proposed:leisure"
+          ],
+          "notes": [
+            "No lifecycle/status tag was present in the source record."
+          ]
+        },
+        "par": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "golf:par",
+            "par",
+            "course:par",
+            "golf_course:par"
+          ],
+          "notes": [
+            "No par tag was present in the source record."
+          ]
+        },
+        "holes": {
+          "value": 9,
+          "source": "description",
+          "sourceType": "derived_text",
+          "checked": [
+            "holes",
+            "golf:holes",
+            "course:holes",
+            "golf_course:holes",
+            "golf:course",
+            "name",
+            "description",
+            "note",
+            "comment"
+          ],
+          "notes": [
+            "Hole count was parsed from explicit free text such as '9-hole' or '18 hole'."
+          ]
+        },
+        "website": {
+          "value": "https://adamscountryclub.com/",
+          "source": "website",
+          "sourceType": "direct_tag",
+          "checked": [
+            "website",
+            "contact:website",
+            "website:official",
+            "url"
+          ],
+          "notes": []
+        },
+        "phone": {
+          "value": "+1-315-232-4842",
+          "source": "phone",
+          "sourceType": "direct_tag",
+          "checked": [
+            "phone",
+            "contact:phone",
+            "telephone",
+            "mobile"
+          ],
+          "notes": []
+        },
+        "operator": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "operator"
+          ],
+          "notes": [
+            "No operator tag was present in the source record."
+          ]
+        },
+        "openingHours": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "opening_hours"
+          ],
+          "notes": [
+            "No opening_hours tag was present in the source record."
+          ]
+        },
+        "description": {
+          "value": "Adams Country Club, a 9-hole golf course and restaurant in Adams, New York.",
+          "source": "description",
+          "sourceType": "direct_tag",
+          "checked": [
+            "description"
+          ],
+          "notes": []
+        }
+      },
+      "sourceMembers": [
+        {
+          "sourceId": "osm_overpass:way:134938071",
+          "tags": {
+            "addr:city": "Adams",
+            "addr:housenumber": "10700",
+            "addr:postcode": "13605",
+            "addr:state": "NY",
+            "addr:street": "US Route 11",
+            "description": "Adams Country Club, a 9-hole golf course and restaurant in Adams, New York.",
+            "leisure": "golf_course",
+            "name": "Adams Country Club",
+            "phone": "+1-315-232-4842",
+            "website": "https://adamscountryclub.com/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Penfield Country Club",
+      "sourceId": "osm_overpass:way:134231346",
+      "normalized": {
+        "streetAddress": "1784 Jackson Road",
+        "city": "Penfield",
+        "state": "NY",
+        "postcode": "14526",
+        "addressLabel": "1784 Jackson Road, Penfield, NY 14526",
+        "accessType": "private",
+        "status": null,
+        "holes": 18,
+        "par": null,
+        "website": "https://www.penfieldcc.org/",
+        "phone": "+1 585-377-1240",
+        "operator": null,
+        "openingHours": null
+      },
+      "fieldAudit": {
+        "streetAddress": {
+          "value": "1784 Jackson Road",
+          "source": "addr:housenumber + addr:street",
+          "sourceType": "composed",
+          "checked": [
+            "addr:housenumber",
+            "addr:street"
+          ],
+          "notes": []
+        },
+        "city": {
+          "value": "Penfield",
+          "source": "addr:city",
+          "sourceType": "direct_tag",
+          "checked": [
+            "addr:city",
+            "addr:town",
+            "addr:village",
+            "addr:hamlet",
+            "addr:place",
+            "addr:suburb",
+            "addr:borough",
+            "is_in:city"
+          ],
+          "notes": []
+        },
+        "state": {
+          "value": "NY",
+          "source": "addr:state",
+          "sourceType": "direct_tag",
+          "checked": [
+            "addr:state"
+          ],
+          "notes": []
+        },
+        "postcode": {
+          "value": "14526",
+          "source": "addr:postcode",
+          "sourceType": "direct_tag",
+          "checked": [
+            "addr:postcode"
+          ],
+          "notes": []
+        },
+        "country": {
+          "value": "US",
+          "source": "state scope",
+          "sourceType": "scope_fallback",
+          "checked": [
+            "addr:country"
+          ],
+          "notes": [
+            "Country was populated from the configured ingestion scope."
+          ]
+        },
+        "addressLabel": {
+          "value": "1784 Jackson Road, Penfield, NY 14526",
+          "source": "address components",
+          "sourceType": "composed",
+          "checked": [
+            "addr:housenumber",
+            "addr:street",
+            "addr:city",
+            "addr:town",
+            "addr:village",
+            "addr:hamlet",
+            "addr:place",
+            "addr:suburb",
+            "addr:borough",
+            "is_in:city",
+            "addr:state",
+            "addr:postcode",
+            "addr:country"
+          ],
+          "notes": [
+            "Address label was composed from the source address parts."
+          ]
+        },
+        "accessType": {
+          "value": "private",
+          "source": "access/operator/name mapping",
+          "sourceType": "composed",
+          "checked": [
+            "access",
+            "operator:type",
+            "operator",
+            "name"
+          ],
+          "notes": []
+        },
+        "status": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "abandoned",
+            "abandoned:leisure",
+            "disused",
+            "disused:leisure",
+            "construction",
+            "construction:leisure",
+            "proposed",
+            "proposed:leisure"
+          ],
+          "notes": [
+            "No lifecycle/status tag was present in the source record."
+          ]
+        },
+        "par": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "golf:par",
+            "par",
+            "course:par",
+            "golf_course:par"
+          ],
+          "notes": [
+            "No par tag was present in the source record."
+          ]
+        },
+        "holes": {
+          "value": 18,
+          "source": "golf:course",
+          "sourceType": "alternate_tag",
+          "checked": [
+            "holes",
+            "golf:holes",
+            "course:holes",
+            "golf_course:holes",
+            "golf:course",
+            "name",
+            "description",
+            "note",
+            "comment"
+          ],
+          "notes": []
+        },
+        "website": {
+          "value": "https://www.penfieldcc.org/",
+          "source": "website",
+          "sourceType": "direct_tag",
+          "checked": [
+            "website",
+            "contact:website",
+            "website:official",
+            "url"
+          ],
+          "notes": []
+        },
+        "phone": {
+          "value": "+1 585-377-1240",
+          "source": "phone",
+          "sourceType": "direct_tag",
+          "checked": [
+            "phone",
+            "contact:phone",
+            "telephone",
+            "mobile"
+          ],
+          "notes": []
+        },
+        "operator": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "operator"
+          ],
+          "notes": [
+            "No operator tag was present in the source record."
+          ]
+        },
+        "openingHours": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "opening_hours"
+          ],
+          "notes": [
+            "No opening_hours tag was present in the source record."
+          ]
+        },
+        "description": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "description"
+          ],
+          "notes": [
+            "No description tag was present in the source record."
+          ]
+        }
+      },
+      "sourceMembers": [
+        {
+          "sourceId": "osm_overpass:way:134231346",
+          "tags": {
+            "access": "private",
+            "addr:city": "Penfield",
+            "addr:housenumber": "1784",
+            "addr:postcode": "14526",
+            "addr:state": "NY",
+            "addr:street": "Jackson Road",
+            "golf:course": "18_hole",
+            "leisure": "golf_course",
+            "name": "Penfield Country Club",
+            "phone": "+1 585-377-1240",
+            "website": "https://www.penfieldcc.org/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tecumseh Golf Club",
+      "sourceId": "osm_overpass:node:3697651935",
+      "normalized": {
+        "streetAddress": "200 Waring Road",
+        "city": null,
+        "state": "NY",
+        "postcode": "13224",
+        "addressLabel": "200 Waring Road, NY 13224",
+        "accessType": null,
+        "status": null,
+        "holes": null,
+        "par": null,
+        "website": "http://tecumsehclub.com/",
+        "phone": "+1-315-445-0963",
+        "operator": null,
+        "openingHours": null
+      },
+      "fieldAudit": {
+        "streetAddress": {
+          "value": "200 Waring Road",
+          "source": "addr:housenumber + addr:street",
+          "sourceType": "composed",
+          "checked": [
+            "addr:housenumber",
+            "addr:street"
+          ],
+          "notes": []
+        },
+        "city": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "addr:city",
+            "addr:town",
+            "addr:village",
+            "addr:hamlet",
+            "addr:place",
+            "addr:suburb",
+            "addr:borough",
+            "is_in:city"
+          ],
+          "notes": [
+            "No city/locality tag was present in the source record."
+          ]
+        },
+        "state": {
+          "value": "NY",
+          "source": "addr:state",
+          "sourceType": "direct_tag",
+          "checked": [
+            "addr:state"
+          ],
+          "notes": []
+        },
+        "postcode": {
+          "value": "13224",
+          "source": "addr:postcode",
+          "sourceType": "direct_tag",
+          "checked": [
+            "addr:postcode"
+          ],
+          "notes": []
+        },
+        "country": {
+          "value": "US",
+          "source": "addr:country",
+          "sourceType": "direct_tag",
+          "checked": [
+            "addr:country"
+          ],
+          "notes": []
+        },
+        "addressLabel": {
+          "value": "200 Waring Road, NY 13224",
+          "source": "address components",
+          "sourceType": "composed",
+          "checked": [
+            "addr:housenumber",
+            "addr:street",
+            "addr:city",
+            "addr:town",
+            "addr:village",
+            "addr:hamlet",
+            "addr:place",
+            "addr:suburb",
+            "addr:borough",
+            "is_in:city",
+            "addr:state",
+            "addr:postcode",
+            "addr:country"
+          ],
+          "notes": [
+            "Address label was composed from the source address parts."
+          ]
+        },
+        "accessType": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "access",
+            "operator:type",
+            "operator",
+            "name"
+          ],
+          "notes": [
+            "The source did not include enough access/operator metadata to classify access type confidently."
+          ]
+        },
+        "status": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "abandoned",
+            "abandoned:leisure",
+            "disused",
+            "disused:leisure",
+            "construction",
+            "construction:leisure",
+            "proposed",
+            "proposed:leisure"
+          ],
+          "notes": [
+            "No lifecycle/status tag was present in the source record."
+          ]
+        },
+        "par": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "golf:par",
+            "par",
+            "course:par",
+            "golf_course:par"
+          ],
+          "notes": [
+            "No par tag was present in the source record."
+          ]
+        },
+        "holes": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "holes",
+            "golf:holes",
+            "course:holes",
+            "golf_course:holes",
+            "golf:course",
+            "name",
+            "description",
+            "note",
+            "comment"
+          ],
+          "notes": [
+            "No direct hole-count tag was present, and no explicit hole count was found in name/description text."
+          ]
+        },
+        "website": {
+          "value": "http://tecumsehclub.com/",
+          "source": "contact:website",
+          "sourceType": "alternate_tag",
+          "checked": [
+            "website",
+            "contact:website",
+            "website:official",
+            "url"
+          ],
+          "notes": []
+        },
+        "phone": {
+          "value": "+1-315-445-0963",
+          "source": "phone",
+          "sourceType": "direct_tag",
+          "checked": [
+            "phone",
+            "contact:phone",
+            "telephone",
+            "mobile"
+          ],
+          "notes": []
+        },
+        "operator": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "operator"
+          ],
+          "notes": [
+            "No operator tag was present in the source record."
+          ]
+        },
+        "openingHours": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "opening_hours"
+          ],
+          "notes": [
+            "No opening_hours tag was present in the source record."
+          ]
+        },
+        "description": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "description"
+          ],
+          "notes": [
+            "No description tag was present in the source record."
+          ]
+        }
+      },
+      "sourceMembers": [
+        {
+          "sourceId": "osm_overpass:node:3697651935",
+          "tags": {
+            "addr:country": "US",
+            "addr:housenumber": "200",
+            "addr:postcode": "13224",
+            "addr:state": "NY",
+            "addr:street": "Waring Road",
+            "contact:website": "http://tecumsehclub.com/",
+            "leisure": "golf_course",
+            "name": "Tecumseh Golf Club",
+            "phone": "+1-315-445-0963",
+            "source:addr:postcode": "TIGER 2015"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Deerwood Golf Course",
+      "sourceId": "osm_overpass:way:24154378",
+      "normalized": {
+        "streetAddress": "1818 Sweeney St",
+        "city": null,
+        "state": "New York",
+        "postcode": null,
+        "addressLabel": "1818 Sweeney St, NY, US",
+        "accessType": "municipal",
+        "status": null,
+        "holes": null,
+        "par": null,
+        "website": "https://www.northtonawanda.org/Department%20Information/Parks%20&%20Recreation/Deerwood%20Golf%20Course%20.htm",
+        "phone": null,
+        "operator": "North Tonawanda Parks Dept",
+        "openingHours": null
+      },
+      "fieldAudit": {
+        "streetAddress": {
+          "value": "1818 Sweeney St",
+          "source": "addr:housenumber + addr:street",
+          "sourceType": "composed",
+          "checked": [
+            "addr:housenumber",
+            "addr:street"
+          ],
+          "notes": []
+        },
+        "city": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "addr:city",
+            "addr:town",
+            "addr:village",
+            "addr:hamlet",
+            "addr:place",
+            "addr:suburb",
+            "addr:borough",
+            "is_in:city"
+          ],
+          "notes": [
+            "No city/locality tag was present in the source record."
+          ]
+        },
+        "state": {
+          "value": "New York",
+          "source": "state scope",
+          "sourceType": "scope_fallback",
+          "checked": [
+            "addr:state"
+          ],
+          "notes": [
+            "State was populated from the configured ingestion scope."
+          ]
+        },
+        "postcode": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "addr:postcode"
+          ],
+          "notes": [
+            "No postcode tag was present in the source record."
+          ]
+        },
+        "country": {
+          "value": "US",
+          "source": "state scope",
+          "sourceType": "scope_fallback",
+          "checked": [
+            "addr:country"
+          ],
+          "notes": [
+            "Country was populated from the configured ingestion scope."
+          ]
+        },
+        "addressLabel": {
+          "value": "1818 Sweeney St, NY, US",
+          "source": "address components",
+          "sourceType": "composed",
+          "checked": [
+            "addr:housenumber",
+            "addr:street",
+            "addr:city",
+            "addr:town",
+            "addr:village",
+            "addr:hamlet",
+            "addr:place",
+            "addr:suburb",
+            "addr:borough",
+            "is_in:city",
+            "addr:state",
+            "addr:postcode",
+            "addr:country"
+          ],
+          "notes": [
+            "Address label was composed from the source address parts."
+          ]
+        },
+        "accessType": {
+          "value": "municipal",
+          "source": "access/operator/name mapping",
+          "sourceType": "composed",
+          "checked": [
+            "access",
+            "operator:type",
+            "operator",
+            "name"
+          ],
+          "notes": []
+        },
+        "status": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "abandoned",
+            "abandoned:leisure",
+            "disused",
+            "disused:leisure",
+            "construction",
+            "construction:leisure",
+            "proposed",
+            "proposed:leisure"
+          ],
+          "notes": [
+            "No lifecycle/status tag was present in the source record."
+          ]
+        },
+        "par": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "golf:par",
+            "par",
+            "course:par",
+            "golf_course:par"
+          ],
+          "notes": [
+            "No par tag was present in the source record."
+          ]
+        },
+        "holes": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "holes",
+            "golf:holes",
+            "course:holes",
+            "golf_course:holes",
+            "golf:course",
+            "name",
+            "description",
+            "note",
+            "comment"
+          ],
+          "notes": [
+            "No direct hole-count tag was present, and no explicit hole count was found in name/description text."
+          ]
+        },
+        "website": {
+          "value": "https://www.northtonawanda.org/Department%20Information/Parks%20&%20Recreation/Deerwood%20Golf%20Course%20.htm",
+          "source": "website",
+          "sourceType": "direct_tag",
+          "checked": [
+            "website",
+            "contact:website",
+            "website:official",
+            "url"
+          ],
+          "notes": []
+        },
+        "phone": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "phone",
+            "contact:phone",
+            "telephone",
+            "mobile"
+          ],
+          "notes": [
+            "No phone-like tag was present in the source record."
+          ]
+        },
+        "operator": {
+          "value": "North Tonawanda Parks Dept",
+          "source": "operator",
+          "sourceType": "direct_tag",
+          "checked": [
+            "operator"
+          ],
+          "notes": []
+        },
+        "openingHours": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "opening_hours"
+          ],
+          "notes": [
+            "No opening_hours tag was present in the source record."
+          ]
+        },
+        "description": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "description"
+          ],
+          "notes": [
+            "No description tag was present in the source record."
+          ]
+        }
+      },
+      "sourceMembers": [
+        {
+          "sourceId": "osm_overpass:way:24154378",
+          "tags": {
+            "addr:housenumber": "1818",
+            "addr:street": "Sweeney St",
+            "leisure": "golf_course",
+            "name": "Deerwood Golf Course",
+            "operator": "North Tonawanda Parks Dept",
+            "website": "https://www.northtonawanda.org/Department%20Information/Parks%20&%20Recreation/Deerwood%20Golf%20Course%20.htm"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bay Meadows",
+      "sourceId": "osm_overpass:way:137707949",
+      "normalized": {
+        "streetAddress": null,
+        "city": "Queensbury",
+        "state": "NY",
+        "postcode": "12804",
+        "addressLabel": "Queensbury, NY 12804",
+        "accessType": null,
+        "status": null,
+        "holes": null,
+        "par": null,
+        "website": null,
+        "phone": null,
+        "operator": null,
+        "openingHours": null
+      },
+      "fieldAudit": {
+        "streetAddress": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "addr:housenumber",
+            "addr:street"
+          ],
+          "notes": [
+            "No source street address tags were present."
+          ]
+        },
+        "city": {
+          "value": "Queensbury",
+          "source": "addr:city",
+          "sourceType": "direct_tag",
+          "checked": [
+            "addr:city",
+            "addr:town",
+            "addr:village",
+            "addr:hamlet",
+            "addr:place",
+            "addr:suburb",
+            "addr:borough",
+            "is_in:city"
+          ],
+          "notes": []
+        },
+        "state": {
+          "value": "NY",
+          "source": "addr:state",
+          "sourceType": "direct_tag",
+          "checked": [
+            "addr:state"
+          ],
+          "notes": []
+        },
+        "postcode": {
+          "value": "12804",
+          "source": "addr:postcode",
+          "sourceType": "direct_tag",
+          "checked": [
+            "addr:postcode"
+          ],
+          "notes": []
+        },
+        "country": {
+          "value": "US",
+          "source": "state scope",
+          "sourceType": "scope_fallback",
+          "checked": [
+            "addr:country"
+          ],
+          "notes": [
+            "Country was populated from the configured ingestion scope."
+          ]
+        },
+        "addressLabel": {
+          "value": "Queensbury, NY 12804",
+          "source": "address components",
+          "sourceType": "composed",
+          "checked": [
+            "addr:housenumber",
+            "addr:street",
+            "addr:city",
+            "addr:town",
+            "addr:village",
+            "addr:hamlet",
+            "addr:place",
+            "addr:suburb",
+            "addr:borough",
+            "is_in:city",
+            "addr:state",
+            "addr:postcode",
+            "addr:country"
+          ],
+          "notes": [
+            "Address label is partial because only locality/postcode components were available."
+          ]
+        },
+        "accessType": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "access",
+            "operator:type",
+            "operator",
+            "name"
+          ],
+          "notes": [
+            "The source did not include enough access/operator metadata to classify access type confidently."
+          ]
+        },
+        "status": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "abandoned",
+            "abandoned:leisure",
+            "disused",
+            "disused:leisure",
+            "construction",
+            "construction:leisure",
+            "proposed",
+            "proposed:leisure"
+          ],
+          "notes": [
+            "No lifecycle/status tag was present in the source record."
+          ]
+        },
+        "par": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "golf:par",
+            "par",
+            "course:par",
+            "golf_course:par"
+          ],
+          "notes": [
+            "No par tag was present in the source record."
+          ]
+        },
+        "holes": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "holes",
+            "golf:holes",
+            "course:holes",
+            "golf_course:holes",
+            "golf:course",
+            "name",
+            "description",
+            "note",
+            "comment"
+          ],
+          "notes": [
+            "No direct hole-count tag was present, and no explicit hole count was found in name/description text."
+          ]
+        },
+        "website": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "website",
+            "contact:website",
+            "website:official",
+            "url"
+          ],
+          "notes": [
+            "No website-like tag was present in the source record."
+          ]
+        },
+        "phone": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "phone",
+            "contact:phone",
+            "telephone",
+            "mobile"
+          ],
+          "notes": [
+            "No phone-like tag was present in the source record."
+          ]
+        },
+        "operator": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "operator"
+          ],
+          "notes": [
+            "No operator tag was present in the source record."
+          ]
+        },
+        "openingHours": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "opening_hours"
+          ],
+          "notes": [
+            "No opening_hours tag was present in the source record."
+          ]
+        },
+        "description": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "description"
+          ],
+          "notes": [
+            "No description tag was present in the source record."
+          ]
+        }
+      },
+      "sourceMembers": [
+        {
+          "sourceId": "osm_overpass:way:137707949",
+          "tags": {
+            "addr:city": "Queensbury",
+            "addr:postcode": "12804",
+            "addr:state": "NY",
+            "leisure": "golf_course",
+            "name": "Bay Meadows",
+            "source": "Bing;streetlevel imagery"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Battle Island State Park Golf Course",
+      "sourceId": "osm_overpass:way:135390679",
+      "normalized": {
+        "streetAddress": null,
+        "city": null,
+        "state": "New York",
+        "postcode": null,
+        "addressLabel": null,
+        "accessType": "municipal",
+        "status": null,
+        "holes": null,
+        "par": null,
+        "website": "https://parks.ny.gov/golf/battleisland/details.aspx",
+        "phone": "+1 315-593-3408",
+        "operator": null,
+        "openingHours": null
+      },
+      "fieldAudit": {
+        "streetAddress": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "addr:housenumber",
+            "addr:street"
+          ],
+          "notes": [
+            "No source street address tags were present."
+          ]
+        },
+        "city": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "addr:city",
+            "addr:town",
+            "addr:village",
+            "addr:hamlet",
+            "addr:place",
+            "addr:suburb",
+            "addr:borough",
+            "is_in:city"
+          ],
+          "notes": [
+            "No city/locality tag was present in the source record."
+          ]
+        },
+        "state": {
+          "value": "New York",
+          "source": "state scope",
+          "sourceType": "scope_fallback",
+          "checked": [
+            "addr:state"
+          ],
+          "notes": [
+            "State was populated from the configured ingestion scope."
+          ]
+        },
+        "postcode": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "addr:postcode"
+          ],
+          "notes": [
+            "No postcode tag was present in the source record."
+          ]
+        },
+        "country": {
+          "value": "US",
+          "source": "state scope",
+          "sourceType": "scope_fallback",
+          "checked": [
+            "addr:country"
+          ],
+          "notes": [
+            "Country was populated from the configured ingestion scope."
+          ]
+        },
+        "addressLabel": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "addr:housenumber",
+            "addr:street",
+            "addr:city",
+            "addr:town",
+            "addr:village",
+            "addr:hamlet",
+            "addr:place",
+            "addr:suburb",
+            "addr:borough",
+            "is_in:city",
+            "addr:state",
+            "addr:postcode",
+            "addr:country"
+          ],
+          "notes": [
+            "No usable address components were present; addressLabel remains null."
+          ]
+        },
+        "accessType": {
+          "value": "municipal",
+          "source": "access/operator/name mapping",
+          "sourceType": "composed",
+          "checked": [
+            "access",
+            "operator:type",
+            "operator",
+            "name"
+          ],
+          "notes": []
+        },
+        "status": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "abandoned",
+            "abandoned:leisure",
+            "disused",
+            "disused:leisure",
+            "construction",
+            "construction:leisure",
+            "proposed",
+            "proposed:leisure"
+          ],
+          "notes": [
+            "No lifecycle/status tag was present in the source record."
+          ]
+        },
+        "par": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "golf:par",
+            "par",
+            "course:par",
+            "golf_course:par"
+          ],
+          "notes": [
+            "No par tag was present in the source record."
+          ]
+        },
+        "holes": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "holes",
+            "golf:holes",
+            "course:holes",
+            "golf_course:holes",
+            "golf:course",
+            "name",
+            "description",
+            "note",
+            "comment"
+          ],
+          "notes": [
+            "No direct hole-count tag was present, and no explicit hole count was found in name/description text."
+          ]
+        },
+        "website": {
+          "value": "https://parks.ny.gov/golf/battleisland/details.aspx",
+          "source": "website",
+          "sourceType": "direct_tag",
+          "checked": [
+            "website",
+            "contact:website",
+            "website:official",
+            "url"
+          ],
+          "notes": []
+        },
+        "phone": {
+          "value": "+1 315-593-3408",
+          "source": "phone",
+          "sourceType": "direct_tag",
+          "checked": [
+            "phone",
+            "contact:phone",
+            "telephone",
+            "mobile"
+          ],
+          "notes": []
+        },
+        "operator": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "operator"
+          ],
+          "notes": [
+            "No operator tag was present in the source record."
+          ]
+        },
+        "openingHours": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "opening_hours"
+          ],
+          "notes": [
+            "No opening_hours tag was present in the source record."
+          ]
+        },
+        "description": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "description"
+          ],
+          "notes": [
+            "No description tag was present in the source record."
+          ]
+        }
+      },
+      "sourceMembers": [
+        {
+          "sourceId": "osm_overpass:way:135390679",
+          "tags": {
+            "communication:amateur_radio:pota": "US-2007",
+            "leisure": "golf_course",
+            "name": "Battle Island State Park Golf Course",
+            "phone": "+1 315-593-3408",
+            "ref": "5",
+            "website": "https://parks.ny.gov/golf/battleisland/details.aspx"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Eagle Bay Golf Course",
+      "sourceId": "osm_overpass:way:136842678",
+      "normalized": {
+        "streetAddress": null,
+        "city": null,
+        "state": "New York",
+        "postcode": null,
+        "addressLabel": null,
+        "accessType": null,
+        "status": "abandoned",
+        "holes": null,
+        "par": null,
+        "website": null,
+        "phone": null,
+        "operator": null,
+        "openingHours": null
+      },
+      "fieldAudit": {
+        "streetAddress": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "addr:housenumber",
+            "addr:street"
+          ],
+          "notes": [
+            "No source street address tags were present."
+          ]
+        },
+        "city": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "addr:city",
+            "addr:town",
+            "addr:village",
+            "addr:hamlet",
+            "addr:place",
+            "addr:suburb",
+            "addr:borough",
+            "is_in:city"
+          ],
+          "notes": [
+            "No city/locality tag was present in the source record."
+          ]
+        },
+        "state": {
+          "value": "New York",
+          "source": "state scope",
+          "sourceType": "scope_fallback",
+          "checked": [
+            "addr:state"
+          ],
+          "notes": [
+            "State was populated from the configured ingestion scope."
+          ]
+        },
+        "postcode": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "addr:postcode"
+          ],
+          "notes": [
+            "No postcode tag was present in the source record."
+          ]
+        },
+        "country": {
+          "value": "US",
+          "source": "state scope",
+          "sourceType": "scope_fallback",
+          "checked": [
+            "addr:country"
+          ],
+          "notes": [
+            "Country was populated from the configured ingestion scope."
+          ]
+        },
+        "addressLabel": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "addr:housenumber",
+            "addr:street",
+            "addr:city",
+            "addr:town",
+            "addr:village",
+            "addr:hamlet",
+            "addr:place",
+            "addr:suburb",
+            "addr:borough",
+            "is_in:city",
+            "addr:state",
+            "addr:postcode",
+            "addr:country"
+          ],
+          "notes": [
+            "No usable address components were present; addressLabel remains null."
+          ]
+        },
+        "accessType": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "access",
+            "operator:type",
+            "operator",
+            "name"
+          ],
+          "notes": [
+            "The source did not include enough access/operator metadata to classify access type confidently."
+          ]
+        },
+        "status": {
+          "value": "abandoned",
+          "source": "note/description/name",
+          "sourceType": "derived_text",
+          "checked": [
+            "abandoned",
+            "abandoned:leisure",
+            "disused",
+            "disused:leisure",
+            "construction",
+            "construction:leisure",
+            "proposed",
+            "proposed:leisure"
+          ],
+          "notes": [
+            "Explicit abandoned wording found in free text."
+          ]
+        },
+        "par": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "golf:par",
+            "par",
+            "course:par",
+            "golf_course:par"
+          ],
+          "notes": [
+            "No par tag was present in the source record."
+          ]
+        },
+        "holes": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "holes",
+            "golf:holes",
+            "course:holes",
+            "golf_course:holes",
+            "golf:course",
+            "name",
+            "description",
+            "note",
+            "comment"
+          ],
+          "notes": [
+            "No direct hole-count tag was present, and no explicit hole count was found in name/description text."
+          ]
+        },
+        "website": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "website",
+            "contact:website",
+            "website:official",
+            "url"
+          ],
+          "notes": [
+            "No website-like tag was present in the source record."
+          ]
+        },
+        "phone": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "phone",
+            "contact:phone",
+            "telephone",
+            "mobile"
+          ],
+          "notes": [
+            "No phone-like tag was present in the source record."
+          ]
+        },
+        "operator": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "operator"
+          ],
+          "notes": [
+            "No operator tag was present in the source record."
+          ]
+        },
+        "openingHours": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "opening_hours"
+          ],
+          "notes": [
+            "No opening_hours tag was present in the source record."
+          ]
+        },
+        "description": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "description"
+          ],
+          "notes": [
+            "No description tag was present in the source record."
+          ]
+        }
+      },
+      "sourceMembers": [
+        {
+          "sourceId": "osm_overpass:way:136842678",
+          "tags": {
+            "access": "no",
+            "leisure": "golf_course",
+            "name": "Eagle Bay Golf Course",
+            "note": "abandoned early 2000s because of market saturation",
+            "source": "Bing"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sanctuary Golf Course",
+      "sourceId": "osm_overpass:way:139514674",
+      "normalized": {
+        "streetAddress": null,
+        "city": null,
+        "state": "New York",
+        "postcode": null,
+        "addressLabel": null,
+        "accessType": null,
+        "status": "disused",
+        "holes": null,
+        "par": null,
+        "website": null,
+        "phone": null,
+        "operator": null,
+        "openingHours": null
+      },
+      "fieldAudit": {
+        "streetAddress": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "addr:housenumber",
+            "addr:street"
+          ],
+          "notes": [
+            "No source street address tags were present."
+          ]
+        },
+        "city": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "addr:city",
+            "addr:town",
+            "addr:village",
+            "addr:hamlet",
+            "addr:place",
+            "addr:suburb",
+            "addr:borough",
+            "is_in:city"
+          ],
+          "notes": [
+            "No city/locality tag was present in the source record."
+          ]
+        },
+        "state": {
+          "value": "New York",
+          "source": "state scope",
+          "sourceType": "scope_fallback",
+          "checked": [
+            "addr:state"
+          ],
+          "notes": [
+            "State was populated from the configured ingestion scope."
+          ]
+        },
+        "postcode": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "addr:postcode"
+          ],
+          "notes": [
+            "No postcode tag was present in the source record."
+          ]
+        },
+        "country": {
+          "value": "US",
+          "source": "state scope",
+          "sourceType": "scope_fallback",
+          "checked": [
+            "addr:country"
+          ],
+          "notes": [
+            "Country was populated from the configured ingestion scope."
+          ]
+        },
+        "addressLabel": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "addr:housenumber",
+            "addr:street",
+            "addr:city",
+            "addr:town",
+            "addr:village",
+            "addr:hamlet",
+            "addr:place",
+            "addr:suburb",
+            "addr:borough",
+            "is_in:city",
+            "addr:state",
+            "addr:postcode",
+            "addr:country"
+          ],
+          "notes": [
+            "No usable address components were present; addressLabel remains null."
+          ]
+        },
+        "accessType": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "access",
+            "operator:type",
+            "operator",
+            "name"
+          ],
+          "notes": [
+            "The source did not include enough access/operator metadata to classify access type confidently."
+          ]
+        },
+        "status": {
+          "value": "disused",
+          "source": "disused:leisure",
+          "sourceType": "direct_tag",
+          "checked": [
+            "abandoned",
+            "abandoned:leisure",
+            "disused",
+            "disused:leisure",
+            "construction",
+            "construction:leisure",
+            "proposed",
+            "proposed:leisure"
+          ],
+          "notes": []
+        },
+        "par": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "golf:par",
+            "par",
+            "course:par",
+            "golf_course:par"
+          ],
+          "notes": [
+            "No par tag was present in the source record."
+          ]
+        },
+        "holes": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "holes",
+            "golf:holes",
+            "course:holes",
+            "golf_course:holes",
+            "golf:course",
+            "name",
+            "description",
+            "note",
+            "comment"
+          ],
+          "notes": [
+            "No direct hole-count tag was present, and no explicit hole count was found in name/description text."
+          ]
+        },
+        "website": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "website",
+            "contact:website",
+            "website:official",
+            "url"
+          ],
+          "notes": [
+            "No website-like tag was present in the source record."
+          ]
+        },
+        "phone": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "phone",
+            "contact:phone",
+            "telephone",
+            "mobile"
+          ],
+          "notes": [
+            "No phone-like tag was present in the source record."
+          ]
+        },
+        "operator": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "operator"
+          ],
+          "notes": [
+            "No operator tag was present in the source record."
+          ]
+        },
+        "openingHours": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "opening_hours"
+          ],
+          "notes": [
+            "No opening_hours tag was present in the source record."
+          ]
+        },
+        "description": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "description"
+          ],
+          "notes": [
+            "No description tag was present in the source record."
+          ]
+        }
+      },
+      "sourceMembers": [
+        {
+          "sourceId": "osm_overpass:way:139514674",
+          "tags": {
+            "disused:leisure": "golf_course",
+            "leisure": "golf_course",
+            "name": "Sanctuary Golf Course",
+            "source": "Bing"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Willowcreek Golf Club - 18 Hole",
+      "sourceId": "osm_overpass:way:136194232",
+      "normalized": {
+        "streetAddress": "3069 STATE ROUTE 352",
+        "city": "Big Flats",
+        "state": "NY",
+        "postcode": "14814",
+        "addressLabel": "3069 STATE ROUTE 352, Big Flats, NY 14814",
+        "accessType": null,
+        "status": null,
+        "holes": 18,
+        "par": null,
+        "website": "https://www.willowcreekgolfclub.com/",
+        "phone": "+1-607-562-8898",
+        "operator": null,
+        "openingHours": null
+      },
+      "fieldAudit": {
+        "streetAddress": {
+          "value": "3069 STATE ROUTE 352",
+          "source": "addr:housenumber + addr:street",
+          "sourceType": "composed",
+          "checked": [
+            "addr:housenumber",
+            "addr:street"
+          ],
+          "notes": []
+        },
+        "city": {
+          "value": "Big Flats",
+          "source": "addr:city",
+          "sourceType": "direct_tag",
+          "checked": [
+            "addr:city",
+            "addr:town",
+            "addr:village",
+            "addr:hamlet",
+            "addr:place",
+            "addr:suburb",
+            "addr:borough",
+            "is_in:city"
+          ],
+          "notes": []
+        },
+        "state": {
+          "value": "NY",
+          "source": "addr:state",
+          "sourceType": "direct_tag",
+          "checked": [
+            "addr:state"
+          ],
+          "notes": []
+        },
+        "postcode": {
+          "value": "14814",
+          "source": "addr:postcode",
+          "sourceType": "direct_tag",
+          "checked": [
+            "addr:postcode"
+          ],
+          "notes": []
+        },
+        "country": {
+          "value": "US",
+          "source": "state scope",
+          "sourceType": "scope_fallback",
+          "checked": [
+            "addr:country"
+          ],
+          "notes": [
+            "Country was populated from the configured ingestion scope."
+          ]
+        },
+        "addressLabel": {
+          "value": "3069 STATE ROUTE 352, Big Flats, NY 14814",
+          "source": "address components",
+          "sourceType": "composed",
+          "checked": [
+            "addr:housenumber",
+            "addr:street",
+            "addr:city",
+            "addr:town",
+            "addr:village",
+            "addr:hamlet",
+            "addr:place",
+            "addr:suburb",
+            "addr:borough",
+            "is_in:city",
+            "addr:state",
+            "addr:postcode",
+            "addr:country"
+          ],
+          "notes": [
+            "Address label was composed from the source address parts."
+          ]
+        },
+        "accessType": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "access",
+            "operator:type",
+            "operator",
+            "name"
+          ],
+          "notes": [
+            "The source did not include enough access/operator metadata to classify access type confidently."
+          ]
+        },
+        "status": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "abandoned",
+            "abandoned:leisure",
+            "disused",
+            "disused:leisure",
+            "construction",
+            "construction:leisure",
+            "proposed",
+            "proposed:leisure"
+          ],
+          "notes": [
+            "No lifecycle/status tag was present in the source record."
+          ]
+        },
+        "par": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "golf:par",
+            "par",
+            "course:par",
+            "golf_course:par"
+          ],
+          "notes": [
+            "No par tag was present in the source record."
+          ]
+        },
+        "holes": {
+          "value": 18,
+          "source": "name",
+          "sourceType": "derived_text",
+          "checked": [
+            "holes",
+            "golf:holes",
+            "course:holes",
+            "golf_course:holes",
+            "golf:course",
+            "name",
+            "description",
+            "note",
+            "comment"
+          ],
+          "notes": [
+            "Hole count was parsed from explicit free text such as '9-hole' or '18 hole'."
+          ]
+        },
+        "website": {
+          "value": "https://www.willowcreekgolfclub.com/",
+          "source": "website",
+          "sourceType": "direct_tag",
+          "checked": [
+            "website",
+            "contact:website",
+            "website:official",
+            "url"
+          ],
+          "notes": []
+        },
+        "phone": {
+          "value": "+1-607-562-8898",
+          "source": "phone",
+          "sourceType": "direct_tag",
+          "checked": [
+            "phone",
+            "contact:phone",
+            "telephone",
+            "mobile"
+          ],
+          "notes": []
+        },
+        "operator": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "operator"
+          ],
+          "notes": [
+            "No operator tag was present in the source record."
+          ]
+        },
+        "openingHours": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "opening_hours"
+          ],
+          "notes": [
+            "No opening_hours tag was present in the source record."
+          ]
+        },
+        "description": {
+          "value": null,
+          "source": null,
+          "sourceType": "missing_from_source",
+          "checked": [
+            "description"
+          ],
+          "notes": [
+            "No description tag was present in the source record."
+          ]
+        }
+      },
+      "sourceMembers": [
+        {
+          "sourceId": "osm_overpass:way:136194232",
+          "tags": {
+            "addr:city": "Big Flats",
+            "addr:housenumber": "3069",
+            "addr:postcode": "14814",
+            "addr:state": "NY",
+            "addr:street": "STATE ROUTE 352",
+            "leisure": "golf_course",
+            "name": "Willowcreek Golf Club - 18 Hole",
+            "phone": "+1-607-562-8898",
+            "source": "Bing",
+            "website": "https://www.willowcreekgolfclub.com/"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -8,6 +8,15 @@ export type CourseAccessType =
   | "resort"
   | null;
 
+export type CourseStatus =
+  | "operating"
+  | "disused"
+  | "abandoned"
+  | "closed"
+  | "construction"
+  | "proposed"
+  | null;
+
 export interface CourseRatings {
   [key: string]: number;
 }
@@ -18,17 +27,22 @@ export interface NormalizedGolfCourseRecord {
   sourceId: string;
   stateCode: string;
   name: string;
+  streetAddress: string | null;
   city: string | null;
   state: string | null;
+  postcode: string | null;
   country: string | null;
   addressLabel: string | null;
   latitude: number | null;
   longitude: number | null;
   accessType: CourseAccessType;
+  status: CourseStatus;
   par: number | null;
   holes: number | null;
   website: string | null;
   phone: string | null;
+  operator: string | null;
+  openingHours: string | null;
   tags: string[];
   description: string | null;
   lastSyncedAt: string;
