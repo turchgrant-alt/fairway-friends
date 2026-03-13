@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { courses, sampleLists, users, getCourseById } from '@/lib/mock-data';
+import { getCourseById, sortCoursesByRatingOrName } from '@/lib/course-data';
+import { sampleLists, users } from '@/lib/social-data';
+import PageHeader from '@/components/dashboard/PageHeader';
 import { Plus, Star, ChevronRight } from 'lucide-react';
 
 type Tab = 'rankings' | 'lists';
@@ -8,27 +10,32 @@ type Tab = 'rankings' | 'lists';
 export default function RankingsPage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>('rankings');
-  const currentUser = users[0];
-
   // Mock user's ranked courses
-  const rankedCourseIds = ['9', '11', '5', '3', '7', '1', '4', '8', '2', '10'];
+  const rankedCourseIds = users[0].topCourses;
   const rankedCourses = rankedCourseIds.map(getCourseById).filter(Boolean);
+  const fallbackRankedCourses = sortCoursesByRatingOrName(rankedCourses);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      <div className="px-4 pt-4">
-        <h1 className="font-display text-2xl text-foreground">Lists & Rankings</h1>
-      </div>
+    <div className="space-y-10">
+      <PageHeader
+        eyebrow="Rankings"
+        title="Organize your golf taste into lists that are actually useful."
+        description="Keep your personal pecking order close, then turn saved ideas into trip-ready boards when you are planning with friends."
+        actions={
+          <button className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-4 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]">
+            <Plus size={16} /> New list
+          </button>
+        }
+      />
 
-      {/* Tabs */}
-      <div className="mt-4 flex border-b border-border px-4">
+      <section className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-8">
+      <div className="flex flex-wrap gap-2">
         {(['rankings', 'lists'] as Tab[]).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`border-b-2 px-4 pb-2.5 text-sm font-medium capitalize transition-colors ${
-              tab === t ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'
+            className={`rounded-full px-4 py-2 text-sm font-medium capitalize transition-colors ${
+              tab === t ? 'bg-[hsl(var(--golfer-deep))] text-white' : 'bg-secondary text-muted-foreground'
             }`}
           >
             {t}
@@ -36,28 +43,27 @@ export default function RankingsPage() {
         ))}
       </div>
 
-      <div className="mt-4 px-4">
+      <div className="mt-6">
         {tab === 'rankings' && (
-          <div className="space-y-2">
-            <p className="mb-3 text-xs text-muted-foreground">Your personal course rankings</p>
-            {rankedCourses.map((course, i) => course && (
+          <div className="grid gap-4 lg:grid-cols-2">
+            {fallbackRankedCourses.map((course, i) => course && (
               <button
                 key={course.id}
                 onClick={() => navigate(`/course/${course.id}`)}
-                className="flex w-full items-center gap-3 rounded-lg bg-card p-3 text-left shadow-sm transition-shadow hover:shadow-md"
+                className="flex w-full items-center gap-4 rounded-[24px] bg-[hsl(var(--golfer-cream))] p-4 text-left transition hover:-translate-y-0.5"
               >
-                <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
                   i < 3 ? 'bg-gold text-gold-foreground' : 'bg-secondary text-secondary-foreground'
                 }`}>
                   {i + 1}
                 </span>
-                <img src={course.imageUrl} alt={course.name} className="h-12 w-12 rounded-md object-cover" />
+                <img src={course.imageUrl} alt={course.name} className="h-16 w-16 rounded-[18px] object-cover" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-card-foreground">{course.name}</p>
-                  <p className="text-xs text-muted-foreground">{course.location}</p>
+                  <p className="truncate text-base font-semibold text-card-foreground">{course.name}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{course.location}</p>
                 </div>
-                <span className="flex items-center gap-0.5 text-sm font-bold text-gold">
-                  <Star size={12} fill="currentColor" /> {course.overallRating}
+                <span className="flex items-center gap-1 rounded-full bg-gold/15 px-3 py-1 text-sm font-bold text-gold">
+                  <Star size={12} fill="currentColor" /> {course.overallRating != null ? course.overallRating : 'New'}
                 </span>
               </button>
             ))}
@@ -65,21 +71,21 @@ export default function RankingsPage() {
         )}
 
         {tab === 'lists' && (
-          <div className="space-y-3">
-            <button className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border py-4 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-primary">
+          <div className="grid gap-4 lg:grid-cols-2">
+            <button className="flex min-h-52 w-full items-center justify-center gap-2 rounded-[26px] border-2 border-dashed border-border bg-[hsl(var(--golfer-cream))] py-4 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-primary">
               <Plus size={16} /> Create New List
             </button>
             {sampleLists.map(list => {
               const listCourses = list.courseIds.map(getCourseById).filter(Boolean);
               const owner = users.find(u => u.id === list.userId);
               return (
-                <div key={list.id} className="rounded-xl bg-card p-4 shadow-sm">
+                <div key={list.id} className="rounded-[26px] bg-[hsl(var(--golfer-cream))] p-5">
                   <div className="flex items-center gap-2">
                     {owner && <img src={owner.avatar} alt={owner.name} className="h-6 w-6 rounded-full object-cover" />}
                     <span className="text-xs text-muted-foreground">{owner?.name}</span>
                   </div>
-                  <h3 className="mt-2 text-sm font-semibold text-card-foreground">{list.title}</h3>
-                  <p className="text-xs text-muted-foreground">{list.description}</p>
+                  <h3 className="mt-3 text-base font-semibold text-card-foreground">{list.title}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{list.description}</p>
                   <div className="mt-3 flex -space-x-2">
                     {listCourses.slice(0, 4).map(c => c && (
                       <img key={c.id} src={c.imageUrl} alt={c.name} className="h-10 w-10 rounded-md border-2 border-card object-cover" />
@@ -90,7 +96,7 @@ export default function RankingsPage() {
                       </div>
                     )}
                   </div>
-                  <button className="mt-3 flex items-center gap-1 text-xs font-medium text-primary">
+                  <button className="mt-4 flex items-center gap-1 text-sm font-medium text-primary">
                     View list <ChevronRight size={12} />
                   </button>
                 </div>
@@ -99,6 +105,7 @@ export default function RankingsPage() {
           </div>
         )}
       </div>
+      </section>
     </div>
   );
 }

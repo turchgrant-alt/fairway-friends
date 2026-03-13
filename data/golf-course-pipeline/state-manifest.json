@@ -1,0 +1,17 @@
+{
+  "refreshCadence": "monthly",
+  "refreshWindowDays": 30,
+  "completedStates": [
+    "NY"
+  ],
+  "states": {
+    "NY": {
+      "completed": true,
+      "completedAt": "2026-03-13T00:00:32.413Z",
+      "lastSyncedAt": "2026-03-13T00:00:32.413Z",
+      "nextRefreshDueAt": "2026-04-12T00:00:32.413Z",
+      "recordCount": 648,
+      "source": "osm_overpass"
+    }
+  }
+}

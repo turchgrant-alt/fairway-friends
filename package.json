@@ -9,6 +9,8 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
+    "sync:courses": "node scripts/golf-data/ingest-state.mjs",
+    "sync:courses:ny": "node scripts/golf-data/ingest-state.mjs NY",
     "test": "vitest run",
     "test:watch": "vitest"
   },

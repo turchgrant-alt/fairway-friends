@@ -1,6 +1,6 @@
 import { Star, Bookmark, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import type { Course } from '@/lib/mock-data';
+import type { Course } from '@/lib/course-data';
 
 interface CourseCardProps {
   course: Course;
@@ -9,6 +9,8 @@ interface CourseCardProps {
 
 export default function CourseCard({ course, variant = 'default' }: CourseCardProps) {
   const navigate = useNavigate();
+  const ratingLabel = course.overallRating != null ? `${course.overallRating}` : 'New';
+  const reviewLabel = course.reviewCount > 0 ? `${course.reviewCount} reviews` : 'No reviews yet';
 
   if (variant === 'compact') {
     return (
@@ -28,10 +30,10 @@ export default function CourseCard({ course, variant = 'default' }: CourseCardPr
           </p>
           <div className="mt-3 flex items-center gap-2">
             <span className="flex items-center gap-0.5 text-sm font-semibold text-gold">
-              <Star size={11} fill="currentColor" /> {course.overallRating}
+              <Star size={11} fill="currentColor" /> {ratingLabel}
             </span>
             <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] capitalize text-secondary-foreground">{course.type}</span>
-            <span className="text-sm text-muted-foreground">{course.priceRange}</span>
+            {course.priceRange ? <span className="text-sm text-muted-foreground">{course.priceRange}</span> : null}
           </div>
         </div>
       </button>
@@ -57,10 +59,10 @@ export default function CourseCard({ course, variant = 'default' }: CourseCardPr
           </p>
           <div className="mt-4 flex items-center gap-3">
             <span className="flex items-center gap-1 rounded-full bg-gold/90 px-2 py-0.5 text-xs font-bold text-gold-foreground">
-              <Star size={10} fill="currentColor" /> {course.overallRating}
+              <Star size={10} fill="currentColor" /> {ratingLabel}
             </span>
             <span className="rounded-full bg-primary-foreground/20 px-2 py-0.5 text-xs text-primary-foreground">{course.type}</span>
-            <span className="text-xs text-primary-foreground/80">{course.priceRange}</span>
+            {course.priceRange ? <span className="text-xs text-primary-foreground/80">{course.priceRange}</span> : null}
           </div>
         </div>
       </button>
@@ -88,7 +90,7 @@ export default function CourseCard({ course, variant = 'default' }: CourseCardPr
         </div>
         <div className="absolute bottom-3 left-3">
           <span className="flex items-center gap-1 rounded-full bg-gold/90 px-3 py-1.5 text-xs font-bold text-gold-foreground shadow-sm">
-            <Star size={11} fill="currentColor" /> {course.overallRating}
+            <Star size={11} fill="currentColor" /> {ratingLabel}
           </span>
         </div>
       </div>
@@ -99,9 +101,13 @@ export default function CourseCard({ course, variant = 'default' }: CourseCardPr
         </p>
         <div className="mt-4 flex items-center gap-2">
           <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] font-medium capitalize text-secondary-foreground">{course.type}</span>
-          <span className="text-sm text-muted-foreground">{course.priceRange}</span>
-          <span className="text-sm text-muted-foreground">·</span>
-          <span className="text-sm text-muted-foreground">{course.reviewCount} reviews</span>
+          {course.priceRange ? (
+            <>
+              <span className="text-sm text-muted-foreground">{course.priceRange}</span>
+              <span className="text-sm text-muted-foreground">·</span>
+            </>
+          ) : null}
+          <span className="text-sm text-muted-foreground">{reviewLabel}</span>
         </div>
       </div>
     </button>

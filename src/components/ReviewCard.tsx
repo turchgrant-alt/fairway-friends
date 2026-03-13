@@ -1,6 +1,7 @@
 import { Heart, MessageCircle, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { getUserById, getCourseById, type Review } from '@/lib/mock-data';
+import { getCourseById } from '@/lib/course-data';
+import { getUserById, type Review } from '@/lib/social-data';
 
 interface ReviewCardProps {
   review: Review;

@@ -1,6 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { users, getReviewsByUser, getCourseById } from '@/lib/mock-data';
+import { getCourseById } from '@/lib/course-data';
+import { users, getReviewsByUser } from '@/lib/social-data';
 import ReviewCard from '@/components/ReviewCard';
+import PageHeader from '@/components/dashboard/PageHeader';
 import { ArrowLeft, MapPin, UserPlus } from 'lucide-react';
 import { useState } from 'react';
 
@@ -19,76 +21,85 @@ export default function UserProfilePage() {
   );
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="flex items-center gap-3 px-4 pt-4">
-        <button onClick={() => navigate(-1)}><ArrowLeft size={20} className="text-foreground" /></button>
-        <h1 className="font-display text-lg text-foreground">@{user.username}</h1>
-      </div>
-
-      <div className="mt-4 px-4">
-        <div className="rounded-xl bg-card p-5 shadow-sm">
-          <div className="flex items-center gap-4">
-            <img src={user.avatar} alt={user.name} className="h-16 w-16 rounded-full object-cover" />
-            <div className="flex-1">
-              <h2 className="text-lg font-semibold text-card-foreground">{user.name}</h2>
-              <p className="flex items-center gap-1 text-xs text-muted-foreground"><MapPin size={11} /> {user.homeCity}</p>
-            </div>
+    <div className="space-y-10">
+      <PageHeader
+        eyebrow="Community profile"
+        title={user.name}
+        description={`@${user.username}`}
+        actions={
+          <>
+            <button
+              onClick={() => navigate(-1)}
+              className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-4 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]"
+            >
+              <ArrowLeft size={16} /> Back
+            </button>
             <button
               onClick={() => setFollowing(!following)}
-              className={`flex items-center gap-1 rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
-                following ? 'bg-secondary text-secondary-foreground' : 'bg-primary text-primary-foreground'
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold transition-colors ${
+                following ? 'bg-secondary text-secondary-foreground' : 'bg-[hsl(var(--golfer-deep))] text-white'
               }`}
             >
-              <UserPlus size={12} /> {following ? 'Following' : 'Follow'}
+              <UserPlus size={14} /> {following ? 'Following' : 'Follow'}
             </button>
+          </>
+        }
+      />
+
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+        <div className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.38)] sm:p-8">
+          <div className="flex items-center gap-4">
+            <img src={user.avatar} alt={user.name} className="h-24 w-24 rounded-full object-cover" />
+            <div className="flex-1">
+              <h2 className="text-2xl font-semibold text-card-foreground">{user.name}</h2>
+              <p className="mt-2 flex items-center gap-1 text-sm text-muted-foreground"><MapPin size={12} /> {user.homeCity}</p>
+            </div>
           </div>
-          <p className="mt-3 text-sm text-muted-foreground">{user.bio}</p>
-          <div className="mt-4 grid grid-cols-4 gap-2">
+          <p className="mt-5 text-sm leading-7 text-muted-foreground">{user.bio}</p>
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
               { label: 'Played', value: user.playedCount },
               { label: 'Saved', value: user.savedCount },
               { label: 'Followers', value: user.followersCount },
               { label: 'Following', value: user.followingCount },
             ].map(s => (
-              <div key={s.label} className="text-center">
-                <p className="text-lg font-bold text-card-foreground">{s.value}</p>
-                <p className="text-[10px] text-muted-foreground">{s.label}</p>
+              <div key={s.label} className="rounded-[22px] bg-[hsl(var(--golfer-cream))] p-4 text-center">
+                <p className="text-2xl font-bold text-card-foreground">{s.value}</p>
+                <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{s.label}</p>
               </div>
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Top courses */}
-      {topCourses.length > 0 && (
-        <div className="mt-5 px-4">
-          <h3 className="text-xs font-medium text-muted-foreground">TOP COURSES</h3>
-          <div className="mt-2 flex gap-2">
+        {topCourses.length > 0 && (
+          <div className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">Top courses</p>
+            <div className="mt-6 grid gap-4 sm:grid-cols-3">
             {topCourses.map((c, i) => c && (
-              <button key={c.id} onClick={() => navigate(`/course/${c.id}`)} className="relative flex-1 overflow-hidden rounded-lg">
-                <img src={c.imageUrl} alt={c.name} className="h-20 w-full object-cover" />
+                <button key={c.id} onClick={() => navigate(`/course/${c.id}`)} className="relative overflow-hidden rounded-[24px] text-left">
+                <img src={c.imageUrl} alt={c.name} className="h-48 w-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-gold-foreground">{i + 1}</span>
-                  <p className="mt-0.5 truncate text-[10px] font-medium text-primary-foreground">{c.name}</p>
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gold text-[11px] font-bold text-gold-foreground">{i + 1}</span>
+                  <p className="mt-2 truncate text-sm font-medium text-primary-foreground">{c.name}</p>
                 </div>
               </button>
             ))}
           </div>
-        </div>
-      )}
+          </div>
+        )}
+      </section>
 
-      {/* Reviews */}
-      <div className="mt-5 px-4">
-        <h3 className="text-xs font-medium text-muted-foreground">RECENT REVIEWS</h3>
-        <div className="mt-3 space-y-3">
+      <section className="space-y-5">
+        <h3 className="font-display text-2xl text-[hsl(var(--golfer-deep))]">Recent reviews</h3>
+        <div className="space-y-4">
           {userReviews.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">No reviews yet</p>
           ) : (
             userReviews.map(r => <ReviewCard key={r.id} review={r} />)
           )}
         </div>
-      </div>
+      </section>
     </div>
   );
 }
