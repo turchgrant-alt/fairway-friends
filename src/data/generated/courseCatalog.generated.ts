@@ -1,6 +1,6 @@
-import catalogData from "@/data/generated/courseCatalog.generated.json";
 import manifestData from "@/data/generated/courseCatalog.manifest.generated.json";
-import type { AppGolfCourseRecord, CourseCatalogManifest } from "@/lib/course-data-model";
+import summaryData from "@/data/generated/courseCatalog.summary.generated.json";
+import type { CourseCatalogManifest, CourseCatalogSummary } from "@/lib/course-data-model";
 
-export const generatedCourses = catalogData as AppGolfCourseRecord[];
 export const generatedCourseManifest = manifestData as CourseCatalogManifest;
+export const generatedCourseSummary = summaryData as CourseCatalogSummary;

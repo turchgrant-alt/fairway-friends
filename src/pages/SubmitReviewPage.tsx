@@ -1,12 +1,16 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { getCourseById } from '@/lib/course-data';
+import { findCourseById } from '@/lib/course-data';
+import { useCourseCatalog } from '@/hooks/use-course-catalog';
 import PageHeader from '@/components/dashboard/PageHeader';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 export default function SubmitReviewPage() {
   const { courseId } = useParams();
   const navigate = useNavigate();
-  const course = getCourseById(courseId || '');
+  const { data: courseCatalog = [], isLoading } = useCourseCatalog();
+  const course = findCourseById(courseCatalog, courseId || '');
+
+  if (isLoading) return null;
 
   if (!course) return null;
 

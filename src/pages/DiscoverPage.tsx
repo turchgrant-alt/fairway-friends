@@ -1,34 +1,53 @@
-import { useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 
 import CourseCard from '@/components/CourseCard';
 import SectionHeader from '@/components/SectionHeader';
 import PageHeader from '@/components/dashboard/PageHeader';
-import { courses } from '@/lib/course-data';
+import { sortCoursesByName } from '@/lib/course-data';
+import { useCourseCatalog } from '@/hooks/use-course-catalog';
 import { demoStats } from '@/lib/demo-v1';
 
-const courseTypes = ['All', ...Array.from(new Set(courses.map((course) => course.type))).sort((a, b) => a.localeCompare(b))];
-const tags = Array.from(new Set(courses.flatMap((course) => course.tags))).slice(0, 10);
-
 export default function DiscoverPage() {
+  const { data: courseCatalog = [], isLoading } = useCourseCatalog();
   const [query, setQuery] = useState('');
   const [selectedType, setSelectedType] = useState('All');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const deferredQuery = useDeferredValue(query);
+  const normalizedQuery = deferredQuery.trim().toLowerCase();
+  const activeQuery = normalizedQuery.length >= 2 ? normalizedQuery : '';
 
-  const filtered = courses.filter((course) => {
-    if (
-      query &&
-      !course.name.toLowerCase().includes(query.toLowerCase()) &&
-      !course.location.toLowerCase().includes(query.toLowerCase()) &&
-      !(course.addressLabel ?? '').toLowerCase().includes(query.toLowerCase())
-    ) return false;
+  const courseTypes = useMemo(
+    () => ['All', ...Array.from(new Set(courseCatalog.map((course) => course.type))).sort((a, b) => a.localeCompare(b))],
+    [courseCatalog],
+  );
+  const tags = useMemo(
+    () => Array.from(new Set(courseCatalog.flatMap((course) => course.tags))).slice(0, 10),
+    [courseCatalog],
+  );
 
-    if (selectedType !== 'All' && course.type.toLowerCase() !== selectedType.toLowerCase()) return false;
-    if (selectedTags.length > 0 && !selectedTags.some((tag) => course.tags.includes(tag))) return false;
+  const filtered = useMemo(
+    () =>
+      sortCoursesByName(
+        courseCatalog.filter((course) => {
+          if (
+            activeQuery &&
+            !course.name.toLowerCase().includes(activeQuery) &&
+            !course.location.toLowerCase().includes(activeQuery) &&
+            !(course.addressLabel ?? '').toLowerCase().includes(activeQuery)
+          ) {
+            return false;
+          }
 
-    return true;
-  });
+          if (selectedType !== 'All' && course.type.toLowerCase() !== selectedType.toLowerCase()) return false;
+          if (selectedTags.length > 0 && !selectedTags.some((tag) => course.tags.includes(tag))) return false;
+
+          return true;
+        }),
+      ),
+    [activeQuery, courseCatalog, selectedTags, selectedType],
+  );
 
   return (
     <div className="space-y-10">
@@ -131,7 +150,11 @@ export default function DiscoverPage() {
           title={query ? `Results for "${query}"` : 'Browse courses'}
           description={`${filtered.length} courses matching your current filters in the stored catalog.`}
         />
-        {filtered.length > 0 ? (
+        {isLoading ? (
+          <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-10 text-center text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+            Loading the stored course catalog...
+          </div>
+        ) : filtered.length > 0 ? (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
             {filtered.map((course) => (
               <CourseCard key={course.id} course={course} />
@@ -139,7 +162,9 @@ export default function DiscoverPage() {
           </div>
         ) : (
           <div className="rounded-[28px] border border-dashed border-[hsl(var(--golfer-line))] bg-white p-10 text-center text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-            No courses match the current query and filters. Try a broader search or clear a few filters.
+            {activeQuery || selectedType !== 'All' || selectedTags.length > 0
+              ? 'No courses match the current query and filters. Try a broader search or clear a few filters.'
+              : 'No course rows are available yet.'}
           </div>
         )}
       </section>

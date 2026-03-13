@@ -75,6 +75,8 @@ export default function CourseDiscoveryMap({
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerLayerRef = useRef<L.LayerGroup | null>(null);
+  const markersByIdRef = useRef<Map<string, L.Marker>>(new Map());
+  const previousSelectedCourseIdRef = useRef<string | null>(null);
   const onViewportChangeRef = useRef(onViewportChange);
 
   useEffect(() => {
@@ -126,6 +128,8 @@ export default function CourseDiscoveryMap({
       map.remove();
       mapRef.current = null;
       markerLayerRef.current = null;
+      markersByIdRef.current = new Map();
+      previousSelectedCourseIdRef.current = null;
     };
   }, [focusTarget.bounds, focusTarget.maxZoom]);
 
@@ -133,6 +137,7 @@ export default function CourseDiscoveryMap({
     if (!mapRef.current || !markerLayerRef.current) return;
 
     markerLayerRef.current.clearLayers();
+    markersByIdRef.current = new Map();
 
     courses.filter(hasCoordinates).forEach((course) => {
       const marker = L.marker([course.latitude as number, course.longitude as number], {
@@ -141,8 +146,32 @@ export default function CourseDiscoveryMap({
 
       marker.on('click', () => onSelectCourse(course.id));
       marker.addTo(markerLayerRef.current as L.LayerGroup);
+      markersByIdRef.current.set(course.id, marker);
     });
-  }, [courses, onSelectCourse, selectedCourseId]);
+    previousSelectedCourseIdRef.current = selectedCourseId;
+  }, [courses, onSelectCourse]);
+
+  useEffect(() => {
+    const previousSelectedCourseId = previousSelectedCourseIdRef.current;
+
+    if (previousSelectedCourseId === selectedCourseId) return;
+
+    if (previousSelectedCourseId) {
+      const previousMarker = markersByIdRef.current.get(previousSelectedCourseId);
+      if (previousMarker) {
+        previousMarker.setIcon(createMarkerIcon(false));
+      }
+    }
+
+    if (selectedCourseId) {
+      const selectedMarker = markersByIdRef.current.get(selectedCourseId);
+      if (selectedMarker) {
+        selectedMarker.setIcon(createMarkerIcon(true));
+      }
+    }
+
+    previousSelectedCourseIdRef.current = selectedCourseId;
+  }, [selectedCourseId]);
 
   useEffect(() => {
     if (!mapRef.current) return;

@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
 import PageHeader from '@/components/dashboard/PageHeader';
-import { courses, sortCoursesByName } from '@/lib/course-data';
+import { sortCoursesByName, type Course } from '@/lib/course-data';
+import { useCourseCatalog } from '@/hooks/use-course-catalog';
 
 type Tab = 'alphabetical' | 'metadata';
 
-function metadataScore(course: typeof courses[number]) {
+function metadataScore(course: Course) {
   return [
     course.city,
     course.addressLabel,
@@ -20,11 +21,16 @@ function metadataScore(course: typeof courses[number]) {
 
 export default function RankingsPage() {
   const navigate = useNavigate();
+  const { data: courseCatalog = [], isLoading } = useCourseCatalog();
   const [tab, setTab] = useState<Tab>('alphabetical');
-  const alphabeticalCourses = sortCoursesByName(courses).slice(0, 24);
-  const metadataRichCourses = [...courses]
-    .sort((a, b) => metadataScore(b) - metadataScore(a) || a.name.localeCompare(b.name))
-    .slice(0, 24);
+  const alphabeticalCourses = useMemo(() => sortCoursesByName(courseCatalog).slice(0, 24), [courseCatalog]);
+  const metadataRichCourses = useMemo(
+    () =>
+      [...courseCatalog]
+        .sort((a, b) => metadataScore(b) - metadataScore(a) || a.name.localeCompare(b.name))
+        .slice(0, 24),
+    [courseCatalog],
+  );
 
   return (
     <div className="space-y-10">
@@ -58,7 +64,11 @@ export default function RankingsPage() {
         </div>
 
         <div className="mt-6">
-          {tab === 'alphabetical' ? (
+          {isLoading ? (
+            <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-6 text-sm text-muted-foreground">
+              Loading the stored course catalog...
+            </div>
+          ) : tab === 'alphabetical' ? (
             <div className="grid gap-4 lg:grid-cols-2">
               {alphabeticalCourses.map((course, index) => (
                 <button

@@ -4,7 +4,8 @@ import { ArrowRight, Compass, List, Map as MapIcon, MapPin, Search } from 'lucid
 
 import CourseCard from '@/components/CourseCard';
 import CourseDiscoveryMap from '@/components/maps/CourseDiscoveryMap';
-import { courses, hasVerifiedCoordinates, searchCourses, sortCoursesByName, type Course } from '@/lib/course-data';
+import { hasVerifiedCoordinates, searchCourses, sortCoursesByName, type Course } from '@/lib/course-data';
+import { useCourseCatalog } from '@/hooks/use-course-catalog';
 import { findUsStateCode, getUsStateName } from '@/lib/us-states';
 import {
   findMapSearchPreset,
@@ -73,8 +74,12 @@ function buildBoundsForCourses(courseList: Course[]) {
 
 export default function MapPage() {
   const navigate = useNavigate();
-  const courseById = useMemo(() => new Map(courses.map((course) => [course.id, course])), []);
-  const mappableCourses = useMemo(() => sortCoursesByName(courses.filter(hasVerifiedCoordinates)), []);
+  const { data: courseCatalog = [], isLoading } = useCourseCatalog();
+  const courseById = useMemo(() => new Map(courseCatalog.map((course) => [course.id, course])), [courseCatalog]);
+  const mappableCourses = useMemo(
+    () => sortCoursesByName(courseCatalog.filter(hasVerifiedCoordinates)),
+    [courseCatalog],
+  );
 
   const [viewMode, setViewMode] = useState<ViewMode>('map');
   const [query, setQuery] = useState('');
@@ -145,7 +150,12 @@ export default function MapPage() {
     }
 
     const preset = findMapSearchPreset(normalizedQuery);
-    const datasetMatches = sortCoursesByName(searchCourses(normalizedQuery));
+    if (isLoading) {
+      setSearchMessage('Loading the stored course catalog. Try the search again in a moment.');
+      return;
+    }
+
+    const datasetMatches = sortCoursesByName(searchCourses(courseCatalog, normalizedQuery));
     const mappableMatches = datasetMatches.filter(hasVerifiedCoordinates);
     const matchedStateCode = findUsStateCode(trimmedQuery);
     const label = preset?.label ?? getUsStateName(matchedStateCode) ?? trimmedQuery;
@@ -255,7 +265,7 @@ export default function MapPage() {
 
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-            Search loads the stored catalog first. Map pins only appear when a course row has verified coordinates.
+            Search loads the stored catalog on demand. Map pins only appear when a course row has verified coordinates.
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
@@ -267,7 +277,9 @@ export default function MapPage() {
               </span>
             ) : (
               <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
-                {visibleMappableCourses.length} verified pin{visibleMappableCourses.length === 1 ? '' : 's'} in view
+                {isLoading
+                  ? 'Loading catalog...'
+                  : `${visibleMappableCourses.length} verified pin${visibleMappableCourses.length === 1 ? '' : 's'} in view`}
               </span>
             )}
           </div>
@@ -366,7 +378,11 @@ export default function MapPage() {
             </div>
           </div>
 
-          {!activeSearch && viewport.zoom < 7 ? (
+          {isLoading ? (
+            <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-10 text-center text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+              Loading the stored course catalog...
+            </div>
+          ) : !activeSearch && viewport.zoom < 7 ? (
             <div className="rounded-[28px] border border-dashed border-[hsl(var(--golfer-line))] bg-white p-10 text-center">
               <div className="mx-auto max-w-2xl">
                 <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">

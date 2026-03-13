@@ -9,14 +9,21 @@ const sourceCsvPath = path.join(repoRoot, "data", "course-catalog", "source", "u
 const normalizedDir = path.join(repoRoot, "data", "course-catalog", "normalized");
 const normalizedCatalogPath = path.join(normalizedDir, "us-golf-courses.normalized.json");
 const generatedDir = path.join(repoRoot, "src", "data", "generated");
-const generatedCatalogJsonPath = path.join(generatedDir, "courseCatalog.generated.json");
+const publicDataDir = path.join(repoRoot, "public", "data");
+const publicCatalogJsonPath = path.join(publicDataDir, "courseCatalog.generated.json");
 const generatedManifestJsonPath = path.join(generatedDir, "courseCatalog.manifest.generated.json");
+const generatedSummaryJsonPath = path.join(generatedDir, "courseCatalog.summary.generated.json");
 const nyOsmCatalogPath = path.join(repoRoot, "data", "golf-course-pipeline", "normalized", "NY.normalized.json");
 
 const SOURCE = "csv_catalog";
 const UNITED_STATES = "United States";
 const UNKNOWN_ACCESS = "unknown";
 const UNKNOWN_STATUS = "unknown";
+const FEATURED_COURSE_NAMES = [
+  "Bethpage State Park (The Black Course)",
+  "Oak Hill Country Club (East Course)",
+  "Pebble Beach Golf Links",
+];
 
 const US_STATE_NAMES = {
   AL: "Alabama",
@@ -594,12 +601,62 @@ function buildFrontendCourseRecord(record) {
   };
 }
 
+function findCourseByName(records, name) {
+  const normalized = normalizeName(name);
+  return records.find((record) => normalizeName(record.name) === normalized);
+}
+
+function buildSummary(frontendRecords, manifest) {
+  const fallbackCourses = frontendRecords.slice(0, 6);
+  const featuredCourses = FEATURED_COURSE_NAMES
+    .map((name) => findCourseByName(frontendRecords, name))
+    .filter(Boolean);
+  const resolvedFeaturedCourses = featuredCourses.length > 0 ? featuredCourses : fallbackCourses.slice(0, 3);
+  const publicAccessCourses = frontendRecords.filter((record) =>
+    ["public", "municipal", "semi-private"].includes(record.accessType ?? ""),
+  );
+  const privateCourses = frontendRecords.filter((record) => record.accessType === "private");
+
+  return {
+    stats: {
+      totalCourses: frontendRecords.length,
+      statesRepresented: manifest.stateCodes.length,
+      representedStateCodes: manifest.stateCodes,
+      mappableCourses: manifest.mappableRecordCount,
+      coordinateCoveragePercent: Math.round(manifest.coordinateCoverageRatio * 1000) / 10,
+      lastImportedAt: manifest.importedAt,
+    },
+    featuredCourses: resolvedFeaturedCourses,
+    starterLists: [
+      {
+        id: "starter-public",
+        title: "Public access starter set",
+        description: "A practical starting slice of public and municipal golf from the stored catalog.",
+        courses: publicAccessCourses.slice(0, 6),
+      },
+      {
+        id: "starter-private",
+        title: "Private club references",
+        description: "Useful structure for private-course pages and metadata review without fake member/social context.",
+        courses: privateCourses.slice(0, 6),
+      },
+      {
+        id: "starter-featured",
+        title: "Core catalog anchors",
+        description: "A few recognizable courses to keep the v1 demo grounded while the stored catalog expands.",
+        courses: resolvedFeaturedCourses,
+      },
+    ],
+  };
+}
+
 async function ensureDir(directoryPath) {
   await fs.mkdir(directoryPath, { recursive: true });
 }
 
-async function writeJson(filePath, value) {
-  await fs.writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+async function writeJson(filePath, value, spacing = 2) {
+  const json = spacing == null ? JSON.stringify(value) : JSON.stringify(value, null, spacing);
+  await fs.writeFile(filePath, `${json}\n`, "utf8");
 }
 
 async function loadNyOsmCatalog() {
@@ -658,20 +715,24 @@ async function main() {
       "Website, status, and ratings remain nullable when the source snapshot does not supply them.",
     ],
   };
+  const summary = buildSummary(frontendRecords, manifest);
 
   await ensureDir(normalizedDir);
   await ensureDir(generatedDir);
+  await ensureDir(publicDataDir);
   await writeJson(normalizedCatalogPath, normalizedRecords);
-  await writeJson(generatedCatalogJsonPath, frontendRecords);
+  await writeJson(publicCatalogJsonPath, frontendRecords, null);
   await writeJson(generatedManifestJsonPath, manifest);
+  await writeJson(generatedSummaryJsonPath, summary);
 
   process.stdout.write(
     `${JSON.stringify(
       {
         sourceCsvPath: path.relative(repoRoot, sourceCsvPath),
         normalizedCatalogPath: path.relative(repoRoot, normalizedCatalogPath),
-        generatedCatalogJsonPath: path.relative(repoRoot, generatedCatalogJsonPath),
+        publicCatalogJsonPath: path.relative(repoRoot, publicCatalogJsonPath),
         generatedManifestJsonPath: path.relative(repoRoot, generatedManifestJsonPath),
+        generatedSummaryJsonPath: path.relative(repoRoot, generatedSummaryJsonPath),
         sourceRows: csvRows.length,
         canonicalRecords: normalizedRecords.length,
         mappableRecordCount,

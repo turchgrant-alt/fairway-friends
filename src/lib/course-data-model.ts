@@ -115,3 +115,25 @@ export interface CourseCatalogManifest {
   coordinateCoverageRatio: number;
   enrichmentNotes: string[];
 }
+
+export interface CourseCatalogStats {
+  totalCourses: number;
+  statesRepresented: number;
+  representedStateCodes: string[];
+  mappableCourses: number;
+  coordinateCoveragePercent: number;
+  lastImportedAt: string;
+}
+
+export interface CourseCatalogStarterList {
+  id: string;
+  title: string;
+  description: string;
+  courses: AppGolfCourseRecord[];
+}
+
+export interface CourseCatalogSummary {
+  stats: CourseCatalogStats;
+  featuredCourses: AppGolfCourseRecord[];
+  starterLists: CourseCatalogStarterList[];
+}

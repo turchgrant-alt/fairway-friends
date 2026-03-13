@@ -1,19 +1,52 @@
-import type { AppGolfCourseRecord, CourseCatalogManifest } from "@/lib/course-data-model";
-import { generatedCourseManifest, generatedCourses } from "@/data/generated/courseCatalog.generated";
+import type { AppGolfCourseRecord, CourseCatalogManifest, CourseCatalogSummary } from "@/lib/course-data-model";
+import { generatedCourseManifest, generatedCourseSummary } from "@/data/generated/courseCatalog.generated";
 import { findUsStateCode } from "@/lib/us-states";
 
 export type Course = AppGolfCourseRecord;
 
-export const courseManifest: CourseCatalogManifest = generatedCourseManifest;
-export const representedCourseStates = generatedCourseManifest.stateCodes;
-export const courses: Course[] = generatedCourses;
+export const COURSE_CATALOG_QUERY_KEY = ["course-catalog"] as const;
+export const COURSE_CATALOG_PUBLIC_PATH = "/data/courseCatalog.generated.json";
 
-export function getCourseById(id: string): Course | undefined {
-  return courses.find((course) => course.id === id);
+export const courseManifest: CourseCatalogManifest = generatedCourseManifest;
+export const courseSummary: CourseCatalogSummary = generatedCourseSummary;
+export const representedCourseStates = generatedCourseManifest.stateCodes;
+
+// Keep a small synchronous course slice available for lightweight summary surfaces.
+export const courses: Course[] = Array.from(
+  new Map(
+    [...courseSummary.featuredCourses, ...courseSummary.starterLists.flatMap((list) => list.courses)].map((course) => [
+      course.id,
+      course,
+    ]),
+  ).values(),
+);
+
+let courseCatalogPromise: Promise<Course[]> | null = null;
+
+export async function loadCourseCatalog(): Promise<Course[]> {
+  if (!courseCatalogPromise) {
+    courseCatalogPromise = fetch(COURSE_CATALOG_PUBLIC_PATH).then(async (response) => {
+      if (!response.ok) {
+        throw new Error(`Failed to load course catalog (${response.status})`);
+      }
+
+      return (await response.json()) as Course[];
+    });
+  }
+
+  return courseCatalogPromise;
 }
 
-export function getCoursesByState(stateCode: string): Course[] {
-  return courses.filter((course) => course.stateCode === stateCode.toUpperCase());
+export function findCourseById(courseList: Course[], id: string): Course | undefined {
+  return courseList.find((course) => course.id === id);
+}
+
+export function getCourseById(id: string): Course | undefined {
+  return findCourseById(courses, id);
+}
+
+export function getCoursesByState(courseList: Course[], stateCode: string): Course[] {
+  return courseList.filter((course) => course.stateCode === stateCode.toUpperCase());
 }
 
 export function hasVerifiedCoordinates(course: Course): boolean {
@@ -35,19 +68,19 @@ export function getCourseSearchTargets(course: Course): string[] {
   ].filter(Boolean) as string[];
 }
 
-export function searchCourses(query: string): Course[] {
+export function searchCourses(courseList: Course[], query: string): Course[] {
   const normalizedQuery = query.trim().toLowerCase();
-  if (!normalizedQuery) return courses;
+  if (!normalizedQuery) return courseList;
 
   const matchingStateCode = findUsStateCode(normalizedQuery);
 
   if (matchingStateCode) {
-    return courses.filter((course) => course.stateCode === matchingStateCode);
+    return courseList.filter((course) => course.stateCode === matchingStateCode);
   }
 
-  return courses.filter((course) => {
-    return getCourseSearchTargets(course).some((value) => value.toLowerCase().includes(normalizedQuery));
-  });
+  return courseList.filter((course) =>
+    getCourseSearchTargets(course).some((value) => value.toLowerCase().includes(normalizedQuery)),
+  );
 }
 
 export function sortCoursesByName(courseList: Course[]): Course[] {
