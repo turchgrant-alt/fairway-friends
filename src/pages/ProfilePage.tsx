@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Database, Globe, RefreshCcw, Settings } from 'lucide-react';
+import { ArrowRight, Database, MapPinned, RefreshCcw, Settings } from 'lucide-react';
 
 import PageHeader from '@/components/dashboard/PageHeader';
 import { demoStats, demoWorkspaceCards, formatDemoDate, starterLists } from '@/lib/demo-v1';
@@ -26,9 +26,9 @@ export default function ProfilePage() {
       <section className="grid gap-6 lg:grid-cols-4">
         {[
           { label: 'Courses loaded', value: demoStats.totalCourses, icon: Database },
-          { label: 'Completed states', value: demoStats.completedStates, icon: RefreshCcw },
-          { label: 'Website coverage', value: demoStats.withWebsiteCount, icon: Globe },
-          { label: 'Next refresh', value: formatDemoDate(demoStats.nextRefreshDueAt), icon: RefreshCcw },
+          { label: 'States represented', value: demoStats.statesRepresented, icon: MapPinned },
+          { label: 'Verified map pins', value: demoStats.mappableCourses, icon: MapPinned },
+          { label: 'Latest import', value: formatDemoDate(demoStats.lastImportedAt), icon: RefreshCcw },
         ].map(({ label, value, icon: Icon }) => (
           <article
             key={label}
@@ -49,7 +49,8 @@ export default function ProfilePage() {
           <h2 className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">No-auth demo workspace</h2>
           <p className="mt-4 text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
             The visible app is intentionally trimmed down. Fake profiles, followers, activity feeds, and authored
-            reviews are hidden so the current product can focus on real course ingestion and the core browsing flow.
+            reviews are hidden so the current product can focus on real course data, map discovery, and the core
+            browsing flow.
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">

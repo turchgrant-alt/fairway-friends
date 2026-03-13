@@ -110,7 +110,7 @@ export default function CourseCard({ course, variant = 'default' }: CourseCardPr
             </span>
           ) : (
             <span className="rounded-full bg-white/88 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep))] shadow-sm">
-              NY source
+              Catalog record
             </span>
           )}
         </div>

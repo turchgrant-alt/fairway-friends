@@ -132,7 +132,7 @@ export default function CourseDetailPage() {
           {tab === 'overview' ? (
             <div className="space-y-4">
               <p className="max-w-4xl text-sm leading-8 text-muted-foreground">
-                {course.description ?? 'This course is included because it appears to be a real New York golf-course record from the current ingestion pipeline. Some fields are still sparse, which is expected with free-source data.'}
+                {course.description ?? 'This course is included because it appears in the current stored GolfeR catalog. Some fields are still sparse, which is expected when the source snapshot does not provide them.'}
               </p>
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-5">

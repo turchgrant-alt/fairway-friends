@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, CalendarClock, Database, Globe, MapPinned, Phone, RefreshCcw } from 'lucide-react';
+import { ArrowRight, CalendarClock, Database, MapPinned, RefreshCcw } from 'lucide-react';
 
 import CourseCard from '@/components/CourseCard';
 import SectionHeader from '@/components/SectionHeader';
@@ -38,11 +38,12 @@ export default function HomePage() {
         <div className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-deep))] p-8 text-white shadow-[0_30px_80px_-48px_rgba(12,25,19,0.55)]">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/55">Current scope</p>
           <h2 className="mt-5 max-w-xl text-3xl leading-tight sm:text-4xl">
-            Real New York golf-course records, monthly refreshes, and a smaller product surface to iterate on.
+            A stored U.S. course catalog, a cleaner v1 shell, and a calmer surface for product work.
           </h2>
           <p className="mt-5 max-w-2xl text-sm leading-8 text-white/72 sm:text-base">
-            Use this v1 shell to test discovery, list structure, map flow, and course pages while the state-by-state
-            pipeline expands. The social layer is still in code for later, but it is no longer driving the visible app.
+            Use this v1 shell to test discovery, list structure, map flow, and course pages without pretending the
+            product is fuller than the source data really is. The social layer is still in code for later, but it is no
+            longer driving the visible app.
           </p>
           <div className="mt-8 grid gap-3 sm:grid-cols-2">
             {demoWorkspaceCards.map((card) => (
@@ -60,10 +61,10 @@ export default function HomePage() {
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
           {[
-            { label: 'Courses in NY catalog', value: demoStats.totalCourses, icon: Database },
-            { label: 'Courses with websites', value: demoStats.withWebsiteCount, icon: Globe },
-            { label: 'Courses with phone data', value: demoStats.withPhoneCount, icon: Phone },
-            { label: 'Completed states', value: demoStats.completedStates, icon: MapPinned },
+            { label: 'Courses in catalog', value: demoStats.totalCourses, icon: Database },
+            { label: 'States represented', value: demoStats.statesRepresented, icon: MapPinned },
+            { label: 'Verified map pins', value: demoStats.mappableCourses, icon: MapPinned },
+            { label: 'Coordinate coverage', value: `${demoStats.coordinateCoveragePercent}%`, icon: CalendarClock },
           ].map(({ label, value, icon: Icon }) => (
             <div
               key={label}
@@ -80,8 +81,8 @@ export default function HomePage() {
             <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
               <CalendarClock size={18} />
             </span>
-            <p className="mt-5 text-xl text-[hsl(var(--golfer-deep))]">{formatDemoDate(demoStats.nextRefreshDueAt)}</p>
-            <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">Next monthly refresh target</p>
+            <p className="mt-5 text-xl text-[hsl(var(--golfer-deep))]">{formatDemoDate(demoStats.lastImportedAt)}</p>
+            <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">Latest local catalog import</p>
           </div>
         </div>
       </section>
@@ -143,9 +144,10 @@ export default function HomePage() {
             <RefreshCcw size={16} />
             Refresh status
           </div>
-          <p className="mt-5 text-2xl text-[hsl(var(--golfer-deep))]">{formatDemoDate(demoStats.lastSyncedAt)}</p>
+          <p className="mt-5 text-2xl text-[hsl(var(--golfer-deep))]">{formatDemoDate(demoStats.lastImportedAt)}</p>
           <p className="mt-3 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-            New York is the first completed state and the current source of truth for discovery pages in this v1 demo.
+            The current app now reads from a stored CSV-backed course catalog. Map pins only appear where the dataset
+            has verified coordinates.
           </p>
         </article>
 

@@ -1,4 +1,4 @@
-import { completedCourseStates, courseManifest, courses } from "@/lib/course-data";
+import { courseManifest, courses, representedCourseStates } from "@/lib/course-data";
 
 function findCourseByName(name: string) {
   const normalized = name.toLowerCase();
@@ -10,9 +10,9 @@ function fallbackCourses(limit: number, excludedIds: string[] = []) {
 }
 
 const featuredNames = [
-  "Bethpage Black",
-  "Shinnecock Hills Golf Club",
+  "Bethpage State Park (The Black Course)",
   "Oak Hill Country Club (East Course)",
+  "Pebble Beach Golf Links",
 ];
 
 const resolvedFeatured = featuredNames
@@ -30,7 +30,7 @@ export const starterLists = [
   {
     id: "starter-public",
     title: "Public access starter set",
-    description: "A simple starting slice of public and municipal New York golf for discovery/testing.",
+    description: "A practical starting slice of public and municipal golf from the stored catalog.",
     courses: publicAccessCourses.slice(0, 6),
   },
   {
@@ -41,8 +41,8 @@ export const starterLists = [
   },
   {
     id: "starter-featured",
-    title: "Core New York anchors",
-    description: "A few recognizable courses to keep the v1 demo grounded while the data pipeline expands.",
+    title: "Core catalog anchors",
+    description: "A few recognizable courses to keep the v1 demo grounded while the stored catalog expands.",
     courses: featuredV1Courses,
   },
 ];
@@ -50,7 +50,7 @@ export const starterLists = [
 export const demoWorkspaceCards = [
   {
     title: "Discover",
-    description: "Search, filter, and sanity-check the New York catalog.",
+    description: "Search, filter, and sanity-check the stored course catalog.",
     path: "/discover",
   },
   {
@@ -70,16 +70,13 @@ export const demoWorkspaceCards = [
   },
 ];
 
-const nyStatus = courseManifest.states.NY;
-
 export const demoStats = {
   totalCourses: courses.length,
-  completedStates: completedCourseStates.length,
-  completedStateCodes: completedCourseStates,
-  nextRefreshDueAt: nyStatus?.nextRefreshDueAt ?? null,
-  lastSyncedAt: nyStatus?.lastSyncedAt ?? null,
-  withWebsiteCount: courses.filter((course) => Boolean(course.website)).length,
-  withPhoneCount: courses.filter((course) => Boolean(course.phone)).length,
+  statesRepresented: representedCourseStates.length,
+  representedStateCodes: representedCourseStates,
+  mappableCourses: courseManifest.mappableRecordCount,
+  coordinateCoveragePercent: Math.round(courseManifest.coordinateCoverageRatio * 1000) / 10,
+  lastImportedAt: courseManifest.importedAt,
 };
 
 export function formatDemoDate(value: string | null) {

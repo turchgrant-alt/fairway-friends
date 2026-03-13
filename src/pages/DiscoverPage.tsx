@@ -35,7 +35,7 @@ export default function DiscoverPage() {
       <PageHeader
         eyebrow="Discovery"
         title="Search, filter, and compare courses with more room to think."
-        description="Explore the real New York catalog by name, access type, and source tags. This page is intentionally simpler in v1 so discovery work stays easy to test."
+        description="Explore the stored course catalog by name, access type, and lightweight tags. This page is intentionally simpler in v1 so discovery work stays easy to test."
         actions={
           <button
             onClick={() => setShowFilters(!showFilters)}
@@ -55,17 +55,17 @@ export default function DiscoverPage() {
         <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-5 shadow-[0_20px_50px_-42px_rgba(12,25,19,0.35)]">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Coverage</p>
           <p className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">{demoStats.totalCourses}</p>
-          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">real golf courses in New York</p>
+          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">stored golf-course rows in the current catalog</p>
         </div>
         <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-5 shadow-[0_20px_50px_-42px_rgba(12,25,19,0.35)]">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Scope</p>
-          <p className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">NY only</p>
-          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">state-by-state expansion is next</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">States</p>
+          <p className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">{demoStats.statesRepresented}</p>
+          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">represented in the stored dataset</p>
         </div>
         <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-5 shadow-[0_20px_50px_-42px_rgba(12,25,19,0.35)]">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Intent</p>
-          <p className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">Clean v1</p>
-          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">no fake users, no social filler</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Map-ready</p>
+          <p className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">{demoStats.mappableCourses}</p>
+          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">courses with verified map coordinates</p>
         </div>
       </section>
 
@@ -129,7 +129,7 @@ export default function DiscoverPage() {
       <section className="space-y-5">
         <SectionHeader
           title={query ? `Results for "${query}"` : 'Browse courses'}
-          description={`${filtered.length} courses matching your current filters in the New York dataset.`}
+          description={`${filtered.length} courses matching your current filters in the stored catalog.`}
         />
         {filtered.length > 0 ? (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">

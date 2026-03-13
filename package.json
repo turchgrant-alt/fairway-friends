@@ -9,8 +9,9 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "sync:courses": "node scripts/golf-data/ingest-state.mjs",
-    "sync:courses:ny": "node scripts/golf-data/ingest-state.mjs NY",
+    "sync:courses": "node scripts/golf-data/import-csv-catalog.mjs",
+    "sync:courses:csv": "node scripts/golf-data/import-csv-catalog.mjs",
+    "sync:courses:ny:osm": "node scripts/golf-data/ingest-state.mjs NY",
     "test": "vitest run",
     "test:watch": "vitest"
   },

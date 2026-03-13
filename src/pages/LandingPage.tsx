@@ -61,9 +61,9 @@ const productHighlights = [
 ];
 
 const heroStats = [
-  { label: "New York courses in catalog", value: demoStats.totalCourses.toString() },
-  { label: "Completed states", value: demoStats.completedStates.toString() },
-  { label: "Next refresh", value: formatDemoDate(demoStats.nextRefreshDueAt) },
+  { label: "Courses in catalog", value: demoStats.totalCourses.toString() },
+  { label: "States represented", value: demoStats.statesRepresented.toString() },
+  { label: "Latest import", value: formatDemoDate(demoStats.lastImportedAt) },
 ];
 
 const fadeInUp = {
@@ -132,7 +132,7 @@ export default function LandingPage() {
             >
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.08] px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-white/[0.78] backdrop-blur-md">
                 <Sparkles size={14} className="text-white" />
-                New York v1 developer demo
+                V1 developer demo
               </div>
 
               <h1 className="mt-8 max-w-3xl text-5xl leading-[0.95] text-white sm:text-6xl lg:text-7xl">
@@ -140,8 +140,8 @@ export default function LandingPage() {
               </h1>
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-white/[0.72] sm:text-xl">
-                GolfeR is now a cleaner course-discovery workspace: real New York course data, a calmer product shell,
-                and just enough structure to build explore, lists, and course pages without fake social noise.
+                GolfeR is now a cleaner course-discovery workspace: a stored U.S. course catalog, a calmer product
+                shell, and just enough structure to build explore, lists, and course pages without fake social noise.
               </p>
 
               <div className="mt-10 flex flex-col gap-3 sm:flex-row">
@@ -208,8 +208,8 @@ export default function LandingPage() {
                     </div>
                     <h2 className="mt-3 max-w-md text-3xl leading-tight text-white sm:text-4xl">{heroCourse.name}</h2>
                     <p className="mt-3 max-w-lg text-sm leading-7 text-white/70 sm:text-base">
-                      A real New York course record inside the v1 catalog, ready to test structure, metadata handling,
-                      and detail-page behavior as the state-by-state dataset grows.
+                      A real course record inside the v1 catalog, ready to test structure, metadata handling, and
+                      detail-page behavior as the stored dataset grows.
                     </p>
 
                     <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -240,7 +240,7 @@ export default function LandingPage() {
                   </span>
                   <div>
                     <p className="text-sm font-semibold text-[hsl(var(--golfer-deep))]">Current coverage</p>
-                    <p className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.70]">New York statewide catalog</p>
+                    <p className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.70]">Stored U.S. course catalog</p>
                   </div>
                 </div>
               </div>
@@ -248,18 +248,18 @@ export default function LandingPage() {
               <div className="absolute -bottom-6 -right-3 max-w-[18rem] rounded-[26px] border border-white/10 bg-[hsl(var(--golfer-surface))] p-5 text-white shadow-[0_38px_80px_-52px_rgba(0,0,0,0.95)] sm:right-4">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium">Dataset status</p>
-                  <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/[0.74]">Monthly refresh</span>
+                  <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/[0.74]">Stored source</span>
                 </div>
                 <div className="mt-4 space-y-3">
                   <div className="rounded-[18px] bg-white/[0.05] p-3">
-                    <p className="text-xs uppercase tracking-[0.22em] text-white/[0.5]">Website coverage</p>
-                    <p className="mt-2 text-2xl">{demoStats.withWebsiteCount}</p>
-                    <p className="mt-1 text-xs text-white/[0.58]">courses with a source website</p>
+                    <p className="text-xs uppercase tracking-[0.22em] text-white/[0.5]">Verified pins</p>
+                    <p className="mt-2 text-2xl">{demoStats.mappableCourses}</p>
+                    <p className="mt-1 text-xs text-white/[0.58]">courses with coordinates on the map</p>
                   </div>
                   <div className="rounded-[18px] bg-white/[0.05] p-3">
-                    <p className="text-xs uppercase tracking-[0.22em] text-white/[0.5]">Phone coverage</p>
-                    <p className="mt-2 text-2xl">{demoStats.withPhoneCount}</p>
-                    <p className="mt-1 text-xs text-white/[0.58]">courses with a source phone number</p>
+                    <p className="text-xs uppercase tracking-[0.22em] text-white/[0.5]">Coordinate coverage</p>
+                    <p className="mt-2 text-2xl">{demoStats.coordinateCoveragePercent}%</p>
+                    <p className="mt-1 text-xs text-white/[0.58]">of the current stored catalog</p>
                   </div>
                 </div>
               </div>
@@ -301,7 +301,7 @@ export default function LandingPage() {
             <SectionHeading
               eyebrow="Featured courses"
               title="A preview of the kind of places GolfeR helps you discover, compare, and save."
-              description="These cards now pull from the real New York course catalog so the homepage still feels polished while staying grounded in the actual v1 data foundation."
+              description="These cards pull from the stored course catalog so the homepage stays polished while remaining grounded in the actual v1 data foundation."
               inverted
             />
 

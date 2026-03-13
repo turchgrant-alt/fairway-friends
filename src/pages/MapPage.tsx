@@ -4,7 +4,8 @@ import { ArrowRight, Compass, List, Map as MapIcon, MapPin, Search } from 'lucid
 
 import CourseCard from '@/components/CourseCard';
 import CourseDiscoveryMap from '@/components/maps/CourseDiscoveryMap';
-import { courses, sortCoursesByName } from '@/lib/course-data';
+import { courses, hasVerifiedCoordinates, searchCourses, sortCoursesByName, type Course } from '@/lib/course-data';
+import { findUsStateCode, getUsStateName } from '@/lib/us-states';
 import {
   findMapSearchPreset,
   normalizeMapSearchValue,
@@ -13,6 +14,9 @@ import {
 } from '@/lib/map-search-locations';
 
 type ViewMode = 'map' | 'list';
+
+const MAP_PIN_LIMIT = 300;
+const LIST_RESULT_LIMIT = 120;
 
 interface FocusTarget {
   id: string;
@@ -26,12 +30,13 @@ interface ViewportState {
   zoom: number;
 }
 
-function hasCoordinates(course: typeof courses[number]) {
-  return course.latitude != null && course.longitude != null;
+interface ActiveSearch {
+  label: string;
+  results: Course[];
 }
 
-function isCourseInsideBounds(course: typeof courses[number], bounds: MapBoundsTuple) {
-  if (!hasCoordinates(course)) return false;
+function isCourseInsideBounds(course: Course, bounds: MapBoundsTuple) {
+  if (!hasVerifiedCoordinates(course)) return false;
 
   const [[south, west], [north, east]] = bounds;
   return (
@@ -42,8 +47,8 @@ function isCourseInsideBounds(course: typeof courses[number], bounds: MapBoundsT
   );
 }
 
-function buildBoundsForCourses(courseList: typeof courses) {
-  const mappableCourses = courseList.filter(hasCoordinates);
+function buildBoundsForCourses(courseList: Course[]) {
+  const mappableCourses = courseList.filter(hasVerifiedCoordinates);
 
   if (mappableCourses.length === 0) {
     return UNITED_STATES_BOUNDS;
@@ -57,8 +62,8 @@ function buildBoundsForCourses(courseList: typeof courses) {
   const minLon = Math.min(...longitudes);
   const maxLon = Math.max(...longitudes);
 
-  const latPadding = Math.max((maxLat - minLat) * 0.16, 0.08);
-  const lonPadding = Math.max((maxLon - minLon) * 0.16, 0.08);
+  const latPadding = Math.max((maxLat - minLat) * 0.18, 0.08);
+  const lonPadding = Math.max((maxLon - minLon) * 0.18, 0.08);
 
   return [
     [minLat - latPadding, minLon - lonPadding],
@@ -68,10 +73,13 @@ function buildBoundsForCourses(courseList: typeof courses) {
 
 export default function MapPage() {
   const navigate = useNavigate();
-  const mappableCourses = useMemo(() => courses.filter(hasCoordinates), []);
+  const courseById = useMemo(() => new Map(courses.map((course) => [course.id, course])), []);
+  const mappableCourses = useMemo(() => sortCoursesByName(courses.filter(hasVerifiedCoordinates)), []);
+
   const [viewMode, setViewMode] = useState<ViewMode>('map');
   const [query, setQuery] = useState('');
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+  const [activeSearch, setActiveSearch] = useState<ActiveSearch | null>(null);
   const [focusTarget, setFocusTarget] = useState<FocusTarget>({
     id: 'united-states',
     label: 'United States',
@@ -84,15 +92,37 @@ export default function MapPage() {
   });
   const [searchMessage, setSearchMessage] = useState<string | null>(null);
 
-  const selectedCourse = mappableCourses.find((course) => course.id === selectedCourseId) ?? null;
-  const visibleCourses = useMemo(
+  const visibleMappableCourses = useMemo(
     () => sortCoursesByName(mappableCourses.filter((course) => isCourseInsideBounds(course, viewport.bounds))),
     [mappableCourses, viewport.bounds],
   );
-  const canBrowseList = viewport.zoom >= 5.5 || focusTarget.id !== 'united-states';
+
+  const shouldShowPins = activeSearch !== null || viewport.zoom >= 6.5;
+  const mapCourses = shouldShowPins ? visibleMappableCourses.slice(0, MAP_PIN_LIMIT) : [];
+  const selectedCourse = selectedCourseId ? courseById.get(selectedCourseId) ?? null : null;
+
+  const listCourses = useMemo(() => {
+    if (activeSearch) {
+      return sortCoursesByName(
+        activeSearch.results.filter((course) => !hasVerifiedCoordinates(course) || isCourseInsideBounds(course, viewport.bounds)),
+      );
+    }
+
+    if (viewport.zoom >= 7) {
+      return visibleMappableCourses;
+    }
+
+    return [];
+  }, [activeSearch, viewport.bounds, viewport.zoom, visibleMappableCourses]);
+
+  const displayedListCourses = listCourses.slice(0, LIST_RESULT_LIMIT);
+  const mapCourseOverflow = Math.max(visibleMappableCourses.length - mapCourses.length, 0);
+  const listOverflow = Math.max(listCourses.length - displayedListCourses.length, 0);
 
   function resetToUnitedStates() {
+    setQuery('');
     setSelectedCourseId(null);
+    setActiveSearch(null);
     setFocusTarget({
       id: 'united-states',
       label: 'United States',
@@ -105,7 +135,9 @@ export default function MapPage() {
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const normalizedQuery = normalizeMapSearchValue(query);
+
+    const trimmedQuery = query.trim();
+    const normalizedQuery = normalizeMapSearchValue(trimmedQuery);
 
     if (!normalizedQuery) {
       resetToUnitedStates();
@@ -113,48 +145,49 @@ export default function MapPage() {
     }
 
     const preset = findMapSearchPreset(normalizedQuery);
-    if (preset) {
-      setSelectedCourseId(null);
-      setFocusTarget({
-        id: preset.id,
-        label: preset.label,
-        bounds: preset.bounds,
-        maxZoom: preset.maxZoom,
-      });
-      setSearchMessage(null);
-      setViewMode('map');
-      return;
+    const datasetMatches = sortCoursesByName(searchCourses(normalizedQuery));
+    const mappableMatches = datasetMatches.filter(hasVerifiedCoordinates);
+    const matchedStateCode = findUsStateCode(trimmedQuery);
+    const label = preset?.label ?? getUsStateName(matchedStateCode) ?? trimmedQuery;
+
+    let nextBounds = preset?.bounds ?? UNITED_STATES_BOUNDS;
+    let nextMaxZoom = preset?.maxZoom ?? 7;
+
+    if (mappableMatches.length > 0) {
+      nextBounds = buildBoundsForCourses(mappableMatches);
+      nextMaxZoom = datasetMatches.length === 1 ? 11 : preset?.maxZoom ?? 9;
     }
 
-    const datasetMatches = mappableCourses.filter((course) => {
-      const searchTargets = [
-        course.name,
-        course.city,
-        course.state,
-        course.location,
-        course.addressLabel,
-      ].filter(Boolean) as string[];
-
-      return searchTargets.some((value) => value.toLowerCase().includes(normalizedQuery));
+    setActiveSearch({
+      label,
+      results: datasetMatches,
     });
+    setSelectedCourseId(mappableMatches[0]?.id ?? null);
+    setFocusTarget({
+      id: preset?.id ?? `search-${normalizedQuery}`,
+      label,
+      bounds: nextBounds,
+      maxZoom: nextMaxZoom,
+    });
+    setViewMode('map');
 
-    if (datasetMatches.length > 0) {
-      const bounds = buildBoundsForCourses(datasetMatches);
-      const label = datasetMatches.length === 1 ? datasetMatches[0].name : query.trim();
-
-      setSelectedCourseId(datasetMatches[0]?.id ?? null);
-      setFocusTarget({
-        id: `dataset-${normalizedQuery}`,
-        label,
-        bounds,
-        maxZoom: datasetMatches.length === 1 ? 11 : 9,
-      });
-      setSearchMessage(null);
-      setViewMode('map');
+    if (datasetMatches.length === 0) {
+      setSearchMessage(
+        preset
+          ? `The map moved to ${label}, but the stored catalog does not have matching course records there yet.`
+          : `No courses in the stored catalog matched "${trimmedQuery}".`,
+      );
       return;
     }
 
-    setSearchMessage('No matching city or state is configured yet. Try Scottsdale, New York, or a New York course city.');
+    if (mappableMatches.length === 0) {
+      setSearchMessage(
+        `${datasetMatches.length} catalog result${datasetMatches.length === 1 ? '' : 's'} found for ${label}, but this snapshot does not include verified coordinates for those rows yet. Switch to List View to browse them.`,
+      );
+      return;
+    }
+
+    setSearchMessage(null);
   }
 
   return (
@@ -166,11 +199,11 @@ export default function MapPage() {
               Map Discovery
             </p>
             <h1 className="mt-3 text-3xl leading-tight text-[hsl(var(--golfer-deep))] sm:text-4xl">
-              Explore golf by map first.
+              Search first, then explore the map naturally.
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78] sm:text-base">
-              Start with a wide U.S. view, search for a city or state, then pan and zoom naturally from there. The map
-              is the product here, and the list only appears when you actually want to browse results.
+              GolfeR opens on a full U.S. view. Search a city or state, then use the map as the main discovery surface.
+              Pins only appear for courses with verified coordinates in the stored dataset.
             </p>
           </div>
 
@@ -201,7 +234,7 @@ export default function MapPage() {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search by city or state, like Scottsdale or New York"
+              placeholder="Search by city or state, like Scottsdale or Arizona"
               className="w-full rounded-full border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] py-3.5 pl-11 pr-4 text-sm text-card-foreground outline-none transition focus:border-[hsl(var(--golfer-deep))]"
             />
           </div>
@@ -222,15 +255,21 @@ export default function MapPage() {
 
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-            Try Scottsdale, Arizona, New York, or a New York course city from the current dataset.
+            Search loads the stored catalog first. Map pins only appear when a course row has verified coordinates.
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
               Current area: {focusTarget.label}
             </span>
-            <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
-              {visibleCourses.length} course{visibleCourses.length === 1 ? '' : 's'} in view
-            </span>
+            {activeSearch ? (
+              <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
+                {activeSearch.results.length} catalog result{activeSearch.results.length === 1 ? '' : 's'}
+              </span>
+            ) : (
+              <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
+                {visibleMappableCourses.length} verified pin{visibleMappableCourses.length === 1 ? '' : 's'} in view
+              </span>
+            )}
           </div>
         </div>
 
@@ -245,7 +284,7 @@ export default function MapPage() {
         <section className="relative overflow-hidden rounded-[34px] border border-[hsl(var(--golfer-line))] bg-white shadow-[0_32px_90px_-55px_rgba(12,25,19,0.45)]">
           <div className="h-[72vh] min-h-[34rem]">
             <CourseDiscoveryMap
-              courses={mappableCourses}
+              courses={mapCourses}
               selectedCourseId={selectedCourseId}
               onSelectCourse={setSelectedCourseId}
               onViewportChange={setViewport}
@@ -253,7 +292,7 @@ export default function MapPage() {
             />
           </div>
 
-          {selectedCourse ? (
+          {selectedCourse && hasVerifiedCoordinates(selectedCourse) ? (
             <div className="pointer-events-none absolute inset-x-4 bottom-4 z-[500] sm:left-6 sm:right-auto sm:max-w-xl">
               <div className="pointer-events-auto overflow-hidden rounded-[28px] bg-white shadow-[0_24px_70px_-45px_rgba(12,25,19,0.45)]">
                 <button
@@ -293,8 +332,15 @@ export default function MapPage() {
                   Map first
                 </p>
                 <p className="mt-2 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
-                  Search a city or state, then tap a pin for course details.
+                  {shouldShowPins
+                    ? 'Pan or zoom to keep exploring. Pins only appear for verified coordinates.'
+                    : 'Search a city or state to load map pins from the stored dataset.'}
                 </p>
+                {mapCourseOverflow > 0 ? (
+                  <p className="mt-2 text-xs text-[hsl(var(--golfer-deep-soft))]/[0.68]">
+                    Showing the first {mapCourses.length} pins in view for clarity.
+                  </p>
+                ) : null}
               </div>
             </div>
           )}
@@ -306,17 +352,21 @@ export default function MapPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
                 List View
               </p>
-              <h2 className="mt-2 text-3xl text-[hsl(var(--golfer-deep))]">Courses in the current map area</h2>
+              <h2 className="mt-2 text-3xl text-[hsl(var(--golfer-deep))]">
+                {activeSearch ? `Results for ${activeSearch.label}` : 'Courses in the current map area'}
+              </h2>
               <p className="mt-2 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-                {focusTarget.label} is active. Pan or zoom the map, then switch back here to browse what is currently in view.
+                {activeSearch
+                  ? 'Browse the stored catalog for the active search. Records without verified coordinates still show up here so the list remains useful.'
+                  : 'Search first or zoom into a region, then use List View as a cleaner browse surface for the current area.'}
               </p>
             </div>
             <div className="rounded-full bg-[hsl(var(--golfer-mist))] px-4 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
-              {visibleCourses.length} result{visibleCourses.length === 1 ? '' : 's'}
+              {listCourses.length} result{listCourses.length === 1 ? '' : 's'}
             </div>
           </div>
 
-          {!canBrowseList ? (
+          {!activeSearch && viewport.zoom < 7 ? (
             <div className="rounded-[28px] border border-dashed border-[hsl(var(--golfer-line))] bg-white p-10 text-center">
               <div className="mx-auto max-w-2xl">
                 <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
@@ -324,16 +374,23 @@ export default function MapPage() {
                 </span>
                 <h3 className="mt-5 text-2xl text-[hsl(var(--golfer-deep))]">Search or zoom in to browse results</h3>
                 <p className="mt-3 text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-                  The initial U.S. view is intentionally broad. Search for a city or state, or zoom into a region on the
-                  map first, then switch back to List View for a cleaner results page.
+                  The initial U.S. view stays intentionally broad. Search for a city or state first, or zoom into a
+                  tighter region on the map, then switch back here for a calmer results page.
                 </p>
               </div>
             </div>
-          ) : visibleCourses.length > 0 ? (
-            <div className="grid gap-4 xl:grid-cols-2">
-              {visibleCourses.map((course) => (
-                <CourseCard key={course.id} course={course} variant="compact" />
-              ))}
+          ) : displayedListCourses.length > 0 ? (
+            <div className="space-y-4">
+              <div className="grid gap-4 xl:grid-cols-2">
+                {displayedListCourses.map((course) => (
+                  <CourseCard key={course.id} course={course} variant="compact" />
+                ))}
+              </div>
+              {listOverflow > 0 ? (
+                <p className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
+                  Showing the first {displayedListCourses.length} results to keep List View readable.
+                </p>
+              ) : null}
             </div>
           ) : (
             <div className="rounded-[28px] border border-dashed border-[hsl(var(--golfer-line))] bg-white p-10 text-center">
@@ -341,10 +398,11 @@ export default function MapPage() {
                 <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
                   <MapPin size={18} />
                 </span>
-                <h3 className="mt-5 text-2xl text-[hsl(var(--golfer-deep))]">No courses in this view yet</h3>
+                <h3 className="mt-5 text-2xl text-[hsl(var(--golfer-deep))]">No courses to show here yet</h3>
                 <p className="mt-3 text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-                  The current viewport is ready, but the New York-first dataset does not have courses inside this area yet.
-                  Try New York or another supported search target.
+                  {activeSearch
+                    ? 'This search does not currently return any browseable records in the visible area. Try a broader state search or reset the map.'
+                    : 'This part of the map does not currently contain verified coordinates in the stored dataset. Try another search or switch to a different region.'}
                 </p>
               </div>
             </div>

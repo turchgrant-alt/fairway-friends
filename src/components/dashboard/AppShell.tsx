@@ -44,7 +44,7 @@ export default function AppShell() {
                   {activeItem?.label ?? "Workspace"}
                 </div>
                 <div className="rounded-full border border-emerald-300/20 bg-emerald-100/10 px-3 py-1.5 text-xs text-white/[0.72]">
-                  New York dataset
+                  Stored course catalog
                 </div>
               </div>
             </div>
