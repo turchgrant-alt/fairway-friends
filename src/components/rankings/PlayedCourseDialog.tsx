@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, CheckCircle2, Trophy } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Scale, Trophy } from "lucide-react";
 
 import {
   Dialog,
@@ -8,13 +8,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useCourseRankings } from "@/hooks/use-course-rankings";
+import { useRankedCourseRecords } from "@/hooks/use-ranked-course-records";
 import {
   COURSE_BUCKET_PRIORITY,
   MINIMUM_TRUE_RANKING_COUNT,
   type CourseRankingBucket,
 } from "@/lib/course-rankings";
 
-type FlowStep = "bucket" | "compare-placeholder" | "saved";
+type FlowStep = "bucket" | "compare" | "saved";
+
+interface ComparisonState {
+  low: number;
+  high: number;
+  skippedIndices: number[];
+}
 
 interface PlayedCourseDialogProps {
   courseId: string;
@@ -51,6 +58,62 @@ function formatBucketLabel(bucket: CourseRankingBucket | null) {
   return bucket ? BUCKET_COPY[bucket].label : "Unknown";
 }
 
+function createInitialComparisonState(bucketSize: number): ComparisonState | null {
+  if (bucketSize <= 0) return null;
+
+  return {
+    low: 0,
+    high: bucketSize,
+    skippedIndices: [],
+  };
+}
+
+function getCandidateIndices(state: ComparisonState) {
+  const nextIndices = [];
+
+  for (let index = state.low; index < state.high; index += 1) {
+    if (!state.skippedIndices.includes(index)) {
+      nextIndices.push(index);
+    }
+  }
+
+  return nextIndices;
+}
+
+function getComparisonIndex(state: ComparisonState | null) {
+  if (!state) return null;
+
+  const candidateIndices = getCandidateIndices(state);
+  if (candidateIndices.length === 0) return null;
+
+  const midpoint = (state.low + state.high - 1) / 2;
+
+  return [...candidateIndices].sort((a, b) => {
+    const distanceDifference = Math.abs(a - midpoint) - Math.abs(b - midpoint);
+    if (distanceDifference !== 0) return distanceDifference;
+    return a - b;
+  })[0];
+}
+
+function canSkipComparison(state: ComparisonState | null) {
+  if (!state) return false;
+  return getCandidateIndices(state).length > 1;
+}
+
+function hasResolvedPlacement(state: ComparisonState | null) {
+  return Boolean(state && state.low >= state.high);
+}
+
+function getResolvedBucketOrder(state: ComparisonState | null) {
+  if (!state || !hasResolvedPlacement(state)) return null;
+  return state.low + 1;
+}
+
+function formatBucketTitle(bucket: CourseRankingBucket | null) {
+  if (!bucket) return "Unknown";
+  return formatBucketLabel(bucket);
+}
+
 export default function PlayedCourseDialog({
   courseId,
   courseName,
@@ -68,50 +131,157 @@ export default function PlayedCourseDialog({
   const [step, setStep] = useState<FlowStep>("bucket");
   const [selectedBucket, setSelectedBucket] = useState<CourseRankingBucket | null>(null);
   const [insertedDuringCurrentFlow, setInsertedDuringCurrentFlow] = useState(false);
+  const [comparisonState, setComparisonState] = useState<ComparisonState | null>(null);
+  const [comparisonHistory, setComparisonHistory] = useState<ComparisonState[]>([]);
+  const [comparisonHint, setComparisonHint] = useState<string | null>(null);
 
   const selectedBucketCourses = useMemo(
     () => (selectedBucket ? getBucketCourses(selectedBucket) : []),
     [getBucketCourses, selectedBucket],
   );
+  const { records: rankedBucketRecords, isLoading: isRankedBucketRecordsLoading } =
+    useRankedCourseRecords(selectedBucketCourses);
   const currentCourseRanking = getCourseRankingRecord(courseId);
   const rankedCourseThresholdRemaining = Math.max(
     MINIMUM_TRUE_RANKING_COUNT - (currentCourseRanking ? rankedCourseCount : rankedCourseCount + 1),
     0,
   );
+  const currentComparisonIndex = useMemo(() => getComparisonIndex(comparisonState), [comparisonState]);
+  const currentComparedRecord =
+    currentComparisonIndex != null ? rankedBucketRecords[currentComparisonIndex] ?? null : null;
+  const skipDisabled = !canSkipComparison(comparisonState);
+  const canUndoComparison = comparisonHistory.length > 0;
+  const savedBucketOrder = currentCourseRanking?.bucketOrder ?? getResolvedBucketOrder(comparisonState);
 
   useEffect(() => {
     if (!open) {
       setStep("bucket");
       setSelectedBucket(null);
       setInsertedDuringCurrentFlow(false);
+      setComparisonState(null);
+      setComparisonHistory([]);
+      setComparisonHint(null);
     }
   }, [open]);
 
+  function finalizePlacement(bucket: CourseRankingBucket, bucketOrder?: number | null) {
+    markPlayedCourse({
+      courseId,
+      bucket,
+      bucketOrder,
+    });
+    setInsertedDuringCurrentFlow(true);
+    setComparisonHint(null);
+    setStep("saved");
+  }
+
   function handleSelectBucket(bucket: CourseRankingBucket) {
     const bucketCourses = getBucketCourses(bucket);
+    const initialState = createInitialComparisonState(bucketCourses.length);
+
     setSelectedBucket(bucket);
+    setComparisonHistory([]);
+    setComparisonHint(null);
 
     if (bucketCourses.length === 0) {
-      markPlayedCourse({
-        courseId,
-        bucket,
-      });
-      setInsertedDuringCurrentFlow(true);
-      setStep("saved");
+      finalizePlacement(bucket, 1);
       return;
     }
 
     setInsertedDuringCurrentFlow(false);
-    setStep("compare-placeholder");
+    setComparisonState(initialState);
+    setStep("compare");
+  }
+
+  function applyComparisonState(nextState: ComparisonState) {
+    setComparisonState(nextState);
+    setComparisonHint(null);
+
+    if (hasResolvedPlacement(nextState) && selectedBucket) {
+      finalizePlacement(selectedBucket, getResolvedBucketOrder(nextState));
+    }
+  }
+
+  function handleComparisonDecision(preferNewCourse: boolean) {
+    if (!comparisonState || currentComparisonIndex == null) return;
+
+    const nextState: ComparisonState = preferNewCourse
+      ? {
+          low: comparisonState.low,
+          high: currentComparisonIndex,
+          skippedIndices: [],
+        }
+      : {
+          low: currentComparisonIndex + 1,
+          high: comparisonState.high,
+          skippedIndices: [],
+        };
+
+    setComparisonHistory((currentHistory) => [...currentHistory, comparisonState]);
+    applyComparisonState(nextState);
+  }
+
+  function handleTooHardToDecide() {
+    if (!comparisonState || currentComparisonIndex == null) return;
+
+    const nextState: ComparisonState = {
+      ...comparisonState,
+      skippedIndices: [...comparisonState.skippedIndices, currentComparisonIndex],
+    };
+
+    if (getComparisonIndex(nextState) == null) {
+      setComparisonHint("No other useful comparison is left in this bucket. Choose between these two to finish placement.");
+      return;
+    }
+
+    setComparisonHistory((currentHistory) => [...currentHistory, comparisonState]);
+    setComparisonState(nextState);
+    setComparisonHint("Skipped this matchup. GolfeR moved to the next best comparison inside the same bucket.");
   }
 
   function handleBack() {
     if (step === "saved" && insertedDuringCurrentFlow) {
       removePlayedCourse(courseId);
+      setInsertedDuringCurrentFlow(false);
+
+      if (comparisonHistory.length > 0) {
+        const previousState = comparisonHistory[comparisonHistory.length - 1];
+        setComparisonHistory((currentHistory) => currentHistory.slice(0, -1));
+        setComparisonState(previousState);
+        setComparisonHint(null);
+        setStep("compare");
+        return;
+      }
+
+      setComparisonState(null);
+      setComparisonHistory([]);
+      setSelectedBucket(null);
+      setComparisonHint(null);
+      setStep("bucket");
+      return;
+    }
+
+    if (step === "compare") {
+      if (comparisonHistory.length > 0) {
+        const previousState = comparisonHistory[comparisonHistory.length - 1];
+        setComparisonHistory((currentHistory) => currentHistory.slice(0, -1));
+        setComparisonState(previousState);
+        setComparisonHint(null);
+        return;
+      }
+
+      setComparisonState(null);
+      setSelectedBucket(null);
+      setComparisonHint(null);
+      setStep("bucket");
+      return;
     }
 
     setInsertedDuringCurrentFlow(false);
+    setComparisonState(null);
+    setComparisonHistory([]);
     setSelectedBucket(null);
+    setComparisonHint(null);
     setStep("bucket");
   }
 
@@ -121,7 +291,7 @@ export default function PlayedCourseDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-0 shadow-[0_32px_90px_-55px_rgba(12,25,19,0.5)]">
+      <DialogContent className="max-w-3xl rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-0 shadow-[0_32px_90px_-55px_rgba(12,25,19,0.5)]">
         <div className="overflow-hidden rounded-[32px]">
           <div className="border-b border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-7 py-6">
             <div className="flex items-center justify-between gap-4">
@@ -130,14 +300,18 @@ export default function PlayedCourseDialog({
                   Played flow
                 </p>
                 <DialogTitle className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">
-                  {step === "bucket" ? "Where does this round belong?" : courseName}
+                  {step === "bucket"
+                    ? "Where does this round belong?"
+                    : step === "compare"
+                      ? `Place ${courseName} inside ${formatBucketTitle(selectedBucket)}`
+                      : courseName}
                 </DialogTitle>
                 <DialogDescription className="mt-3 max-w-2xl text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
                   {step === "bucket"
                     ? `Mark ${courseName} as played, then start the ranking flow by choosing a bucket.`
-                    : step === "saved"
-                      ? "The course has been added locally on this device."
-                      : "This bucket already has courses, so the next step will become the head-to-head ranking flow."}
+                    : step === "compare"
+                      ? "Pick the course you prefer more. GolfeR will use the fewest bucket-level comparisons it can."
+                      : "The course has been added locally on this device."}
                 </DialogDescription>
               </div>
             </div>
@@ -160,9 +334,7 @@ export default function PlayedCourseDialog({
                         <div className="flex items-start justify-between gap-3">
                           <span className="text-xl font-semibold">{bucketCopy.label}</span>
                           <span className={`rounded-full px-3 py-1 text-xs font-medium ${bucketCopy.badgeClassName}`}>
-                            {bucketCourses.length === 0
-                              ? "Empty bucket"
-                              : `${bucketCourses.length} ranked`}
+                            {bucketCourses.length === 0 ? "Empty bucket" : `${bucketCourses.length} ranked`}
                           </span>
                         </div>
                         <p className="mt-4 text-sm leading-7 opacity-90">{bucketCopy.description}</p>
@@ -193,53 +365,81 @@ export default function PlayedCourseDialog({
               </div>
             ) : null}
 
-            {step === "compare-placeholder" && selectedBucket ? (
+            {step === "compare" && selectedBucket ? (
               <div className="space-y-6">
-                <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-6">
-                  <div className="flex items-center gap-3">
-                    <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
-                      <Trophy size={18} />
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-stretch">
+                  <button
+                    onClick={() => handleComparisonDecision(false)}
+                    disabled={currentComparedRecord == null}
+                    className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-6 text-left shadow-[0_20px_55px_-46px_rgba(12,25,19,0.35)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
+                      Already ranked
+                    </p>
+                    <h3 className="mt-4 text-2xl text-[hsl(var(--golfer-deep))]">
+                      {currentComparedRecord?.course?.name ?? currentComparedRecord?.fallbackName ?? "Loading course..."}
+                    </h3>
+                    <p className="mt-3 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+                      {currentComparedRecord
+                        ? `Currently #${currentComparedRecord.ranking.bucketOrder} in ${formatBucketTitle(selectedBucket)}`
+                        : isRankedBucketRecordsLoading
+                          ? "Loading local comparison target..."
+                          : "Comparison target unavailable"}
+                    </p>
+                    <span className="mt-8 inline-flex items-center gap-2 rounded-full bg-[hsl(var(--golfer-cream))] px-4 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
+                      Prefer this course <ArrowRight size={14} />
                     </span>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
-                        Next step placeholder
-                      </p>
-                      <h3 className="mt-2 text-2xl text-[hsl(var(--golfer-deep))]">
-                        Compare inside {formatBucketLabel(selectedBucket)}
-                      </h3>
-                    </div>
+                  </button>
+
+                  <div className="flex items-center justify-center">
+                    <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
+                      <Scale size={18} />
+                    </span>
                   </div>
 
-                  <p className="mt-5 text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
-                    {formatBucketLabel(selectedBucket)} already contains {selectedBucketCourses.length} course
-                    {selectedBucketCourses.length === 1 ? "" : "s"}. The next prompt can replace this screen with the
-                    actual Beli-style comparison flow and use the existing back button location and state handoff.
-                  </p>
+                  <button
+                    onClick={() => handleComparisonDecision(true)}
+                    className="rounded-[28px] border border-[hsl(var(--golfer-deep))] bg-[hsl(var(--golfer-deep))] p-6 text-left text-white shadow-[0_28px_70px_-52px_rgba(12,25,19,0.65)] transition hover:-translate-y-0.5"
+                  >
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/0.7">
+                      New course
+                    </p>
+                    <h3 className="mt-4 text-2xl">{courseName}</h3>
+                    <p className="mt-3 text-sm leading-7 text-white/0.78">
+                      Click here if this new round belongs above the ranked course on the left.
+                    </p>
+                    <span className="mt-8 inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-2 text-sm font-medium text-white">
+                      Prefer this course <ArrowRight size={14} />
+                    </span>
+                  </button>
+                </div>
 
-                  <div className="mt-5 rounded-[22px] bg-[hsl(var(--golfer-cream))] p-5">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">
-                      Comparison handoff
-                    </p>
-                    <p className="mt-3 text-sm leading-7 text-[hsl(var(--golfer-deep))]">
-                      Future prompts can replace this panel with matchups against the {selectedBucketCourses.length} existing{" "}
-                      {formatBucketLabel(selectedBucket).toLowerCase()} course
-                      {selectedBucketCourses.length === 1 ? "" : "s"} already stored locally.
-                    </p>
-                  </div>
+                <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] px-5 py-4 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
+                  {comparisonHint ??
+                    `GolfeR is narrowing a ${formatBucketTitle(selectedBucket).toLowerCase()} insertion point using the current bucket order.`}
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <button
-                    onClick={handleBack}
-                    className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-5 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]"
-                  >
-                    <ArrowLeft size={15} /> Undo
-                  </button>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      onClick={handleBack}
+                      className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-5 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]"
+                    >
+                      <ArrowLeft size={15} /> {canUndoComparison ? "Undo" : "Back"}
+                    </button>
+                    <button
+                      onClick={handleTooHardToDecide}
+                      disabled={skipDisabled}
+                      className="rounded-full border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-5 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))] disabled:cursor-not-allowed disabled:opacity-55"
+                    >
+                      Too hard to decide
+                    </button>
+                  </div>
                   <button
                     onClick={handleClose}
                     className="rounded-full bg-[hsl(var(--golfer-deep))] px-5 py-3 text-sm font-medium text-white"
                   >
-                    Close for now
+                    Close
                   </button>
                 </div>
               </div>
@@ -257,7 +457,7 @@ export default function PlayedCourseDialog({
                         Stored locally
                       </p>
                       <h3 className="mt-2 text-2xl text-[hsl(var(--golfer-deep))]">
-                        Added to {formatBucketLabel(selectedBucket)}
+                        Added to {formatBucketTitle(selectedBucket)}
                       </h3>
                     </div>
                   </div>
@@ -276,7 +476,7 @@ export default function PlayedCourseDialog({
                         Bucket order
                       </p>
                       <p className="mt-2 text-xl text-[hsl(var(--golfer-deep))]">
-                        {currentCourseRanking?.bucketOrder ?? "Pending"}
+                        {savedBucketOrder ?? "Pending"}
                       </p>
                     </div>
                     <div className="rounded-[22px] bg-[hsl(var(--golfer-cream))] p-4">
@@ -292,12 +492,18 @@ export default function PlayedCourseDialog({
                   </div>
                 </div>
 
+                <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] px-5 py-4 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
+                  {comparisonHistory.length > 0
+                    ? "Undo will remove this saved placement and reopen the last comparison so you can answer differently."
+                    : "This bucket was empty, so GolfeR saved the course immediately without needing a comparison."}
+                </div>
+
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <button
                     onClick={handleBack}
                     className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-5 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]"
                   >
-                    <ArrowLeft size={15} /> Undo
+                    <ArrowLeft size={15} /> {comparisonHistory.length > 0 ? "Undo" : "Back"}
                   </button>
                   <button
                     onClick={handleClose}
