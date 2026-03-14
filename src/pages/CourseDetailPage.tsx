@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Database, Globe, MapPin, Star } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Database, Globe, MapPin, Star } from 'lucide-react';
 
 import CourseCard from '@/components/CourseCard';
 import PageHeader from '@/components/dashboard/PageHeader';
+import PlayedCourseDialog from '@/components/rankings/PlayedCourseDialog';
 import { useCourseRecord, useStateCourseCatalog } from '@/hooks/use-course-catalog';
+import { useCourseRankings } from '@/hooks/use-course-rankings';
 import { formatDemoDate } from '@/lib/demo-v1';
 
 type Tab = 'overview' | 'source' | 'nearby';
@@ -13,8 +15,15 @@ export default function CourseDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>('overview');
+  const [isPlayedDialogOpen, setIsPlayedDialogOpen] = useState(false);
   const { data: course, isLoading } = useCourseRecord(id);
   const { data: stateCourseCatalog = [] } = useStateCourseCatalog(course?.stateCode);
+  const {
+    hasCourseBeenPlayed,
+    getCourseBucket,
+    getCourseGlobalOrder,
+    getCoursePlayCount,
+  } = useCourseRankings();
   const nearbyCourses = useMemo(() => {
     if (!course) return [];
 
@@ -42,6 +51,11 @@ export default function CourseDetailPage() {
       </div>
     );
   }
+
+  const isPlayed = hasCourseBeenPlayed(course.id);
+  const playedBucket = getCourseBucket(course.id);
+  const playedGlobalOrder = getCourseGlobalOrder(course.id);
+  const playedCount = getCoursePlayCount(course.id);
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'overview', label: 'Overview' },
@@ -114,6 +128,28 @@ export default function CourseDetailPage() {
               <p className="flex items-center gap-2"><Star size={14} /> Last synced {formatDemoDate(course.lastSyncedAt)}</p>
             </div>
           </div>
+
+          {!isPlayed ? (
+            <button
+              onClick={() => setIsPlayedDialogOpen(true)}
+              className="flex w-full items-center justify-center gap-2 rounded-[24px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] py-4 text-sm font-medium text-[hsl(var(--golfer-deep))] transition hover:bg-[hsl(var(--golfer-mist))]"
+            >
+              <CheckCircle2 size={14} /> Played this course
+            </button>
+          ) : (
+            <div className="rounded-[24px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
+                Played locally
+              </p>
+              <p className="mt-3 text-lg text-[hsl(var(--golfer-deep))]">
+                {playedBucket ? `${playedBucket[0].toUpperCase()}${playedBucket.slice(1)} bucket` : 'Stored in rankings'}
+              </p>
+              <p className="mt-2 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+                {playedGlobalOrder ? `Current position #${playedGlobalOrder}. ` : ''}
+                Played {playedCount} time{playedCount === 1 ? '' : 's'} on this device.
+              </p>
+            </div>
+          )}
 
           <button
             onClick={() => navigate('/map')}
@@ -221,6 +257,13 @@ export default function CourseDetailPage() {
           ) : null}
         </div>
       </section>
+
+      <PlayedCourseDialog
+        courseId={course.id}
+        courseName={course.name}
+        open={isPlayedDialogOpen}
+        onOpenChange={setIsPlayedDialogOpen}
+      />
     </div>
   );
 }
