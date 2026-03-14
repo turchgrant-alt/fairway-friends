@@ -122,31 +122,28 @@ export default function MapPage() {
   const [searchMessage, setSearchMessage] = useState<string | null>(null);
   const isCatalogLoading = isLocationIndexLoading || isSearching;
 
-  const visibleMappableCourses = useMemo(
+  const visibleAreaCourses = useMemo(
     () => sortCoursesByName(mappableCourses.filter((course) => isCourseInsideBounds(course, viewport.bounds))),
     [mappableCourses, viewport.bounds],
   );
 
   const shouldShowPins = activeSearch !== null || viewport.zoom >= 6.5;
-  const mapCourses = shouldShowPins ? visibleMappableCourses.slice(0, MAP_PIN_LIMIT) : [];
-  const selectedCourse = selectedCourseId ? courseById.get(selectedCourseId) ?? null : null;
+  const mapCourses = shouldShowPins ? visibleAreaCourses.slice(0, MAP_PIN_LIMIT) : [];
+  const selectedCourse = useMemo(() => {
+    const course = selectedCourseId ? courseById.get(selectedCourseId) ?? null : null;
+    return course && isCourseInsideBounds(course, viewport.bounds) ? course : null;
+  }, [courseById, selectedCourseId, viewport.bounds]);
 
   const listCourses = useMemo(() => {
-    if (activeSearch) {
-      return sortCoursesByName(
-        activeSearch.results.filter((course) => !hasVerifiedCoordinates(course) || isCourseInsideBounds(course, viewport.bounds)),
-      );
-    }
-
-    if (viewport.zoom >= 7) {
-      return visibleMappableCourses;
+    if (activeSearch || viewport.zoom >= 7) {
+      return visibleAreaCourses;
     }
 
     return [];
-  }, [activeSearch, viewport.bounds, viewport.zoom, visibleMappableCourses]);
+  }, [activeSearch, viewport.zoom, visibleAreaCourses]);
 
   const displayedListCourses = listCourses.slice(0, LIST_RESULT_LIMIT);
-  const mapCourseOverflow = Math.max(visibleMappableCourses.length - mapCourses.length, 0);
+  const mapCourseOverflow = Math.max(visibleAreaCourses.length - mapCourses.length, 0);
   const listOverflow = Math.max(listCourses.length - displayedListCourses.length, 0);
 
   function resetToUnitedStates() {
@@ -264,7 +261,7 @@ export default function MapPage() {
 
       if (mappableMatches.length === 0) {
         setSearchMessage(
-          `${datasetMatches.length} catalog result${datasetMatches.length === 1 ? '' : 's'} found for ${label}, but this snapshot does not include verified coordinates for those rows yet. Switch to List View to browse them.`,
+          `${datasetMatches.length} catalog result${datasetMatches.length === 1 ? '' : 's'} found for ${label}, but this snapshot does not include verified coordinates for those rows yet. Visible-area results only show courses that can be placed on the map.`,
         );
         return;
       }
@@ -290,7 +287,8 @@ export default function MapPage() {
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78] sm:text-base">
               GolfeR opens on a full U.S. view. Search a city or state, then use the map as the main discovery surface.
-              Pins only appear for courses with verified coordinates in the stored dataset.
+              Pins and list results stay tied to the current visible map area, and only courses with verified coordinates
+              can appear there.
             </p>
           </div>
 
@@ -342,21 +340,22 @@ export default function MapPage() {
 
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-            Search uses a lightweight location index first, then loads only the matching state data. Map pins only appear when a course row has verified coordinates.
+            Search uses a lightweight location index first, then loads only the matching state data. Pan or zoom the map to
+            narrow the active results.
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
               Current area: {focusTarget.label}
             </span>
-            {activeSearch ? (
+            {activeSearch || loadedCourses.length > 0 ? (
               <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
-                {activeSearch.results.length} catalog result{activeSearch.results.length === 1 ? '' : 's'}
+                {visibleAreaCourses.length} course{visibleAreaCourses.length === 1 ? '' : 's'} in view
               </span>
             ) : (
               <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
                 {isCatalogLoading
                   ? 'Loading search data...'
-                  : `${visibleMappableCourses.length} verified pin${visibleMappableCourses.length === 1 ? '' : 's'} in view`}
+                  : `${visibleAreaCourses.length} verified pin${visibleAreaCourses.length === 1 ? '' : 's'} in view`}
               </span>
             )}
           </div>
@@ -422,7 +421,7 @@ export default function MapPage() {
                 </p>
                 <p className="mt-2 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
                   {shouldShowPins
-                    ? 'Pan or zoom to keep exploring. Pins only appear for verified coordinates.'
+                    ? 'Pan or zoom to keep exploring. Only courses inside the current map bounds stay active.'
                     : 'Search a city or state to load map pins from the stored dataset.'}
                 </p>
                 {mapCourseOverflow > 0 ? (
@@ -442,12 +441,12 @@ export default function MapPage() {
                 List View
               </p>
               <h2 className="mt-2 text-3xl text-[hsl(var(--golfer-deep))]">
-                {activeSearch ? `Results for ${activeSearch.label}` : 'Courses in the current map area'}
+                {activeSearch ? `Visible results near ${activeSearch.label}` : 'Courses in the current map area'}
               </h2>
               <p className="mt-2 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
                 {activeSearch
-                  ? 'Browse the stored catalog for the active search. Records without verified coordinates still show up here so the list remains useful.'
-                  : 'Search first or zoom into a region, then use List View as a cleaner browse surface for the current area.'}
+                  ? 'This list stays synced to the current map bounds. Pan or zoom in Map View, then come back here to browse the visible area.'
+                  : 'Search first or zoom into a region, then use List View as a cleaner browse surface for the visible map area.'}
               </p>
             </div>
             <div className="rounded-full bg-[hsl(var(--golfer-mist))] px-4 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
@@ -494,8 +493,8 @@ export default function MapPage() {
                 <h3 className="mt-5 text-2xl text-[hsl(var(--golfer-deep))]">No courses to show here yet</h3>
                 <p className="mt-3 text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
                   {activeSearch
-                    ? 'This search does not currently return any browseable records in the visible area. Try a broader state search or reset the map.'
-                    : 'This part of the map does not currently contain verified coordinates in the stored dataset. Try another search or switch to a different region.'}
+                    ? 'The current map bounds do not contain courses with verified coordinates yet. Pan wider, zoom out, or try another search.'
+                    : 'This part of the map does not currently contain courses with verified coordinates in the stored dataset. Try another region.'}
                 </p>
               </div>
             </div>
