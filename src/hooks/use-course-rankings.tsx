@@ -30,6 +30,7 @@ interface CourseRankingContextValue {
   rankedCourses: ReturnType<typeof getRankedCourses>;
   rankedCourseCount: number;
   hasTrueRankingThreshold: boolean;
+  replaceRankingState: (nextState: CourseRankingState) => void;
   markPlayedCourse: (input: MarkCoursePlayedInput) => void;
   saveCourseRanking: (input: UpdateCourseRankingInput) => void;
   removePlayedCourse: (courseId: string) => void;
@@ -85,6 +86,9 @@ export function CourseRankingProvider({ children }: { children: ReactNode }) {
         rankedCourses,
         rankedCourseCount,
         hasTrueRankingThreshold,
+        replaceRankingState: (nextState) => {
+          setRankingState(normalizeCourseRankingState(nextState));
+        },
         markPlayedCourse: (input) => {
           setRankingState((currentState) => markCoursePlayed(currentState, input));
         },

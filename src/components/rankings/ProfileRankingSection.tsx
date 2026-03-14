@@ -123,7 +123,7 @@ export default function ProfileRankingSection() {
           </h2>
           <p className="mt-3 max-w-3xl text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
             One full local list with visible bucket labels. After manual reorder, the saved display order becomes the
-            source of truth for how this list is shown on the Profile page.
+            source of truth for both the list order and the numeric ranking values once they unlock.
           </p>
         </div>
 
@@ -169,13 +169,13 @@ export default function ProfileRankingSection() {
         {hasTrueRankingThreshold ? (
           <span className="inline-flex items-center gap-2">
             <Medal size={15} />
-            The five-course threshold has been reached. This list now reads as the full local ranking view.
+            The five-course threshold has been reached. Numeric rankings now reflect the current visible order.
           </span>
         ) : (
           <span className="inline-flex items-center gap-2">
             <Sparkles size={15} />
-            Fewer than five courses are ranked, so this stays a softer early-stage list. The numbering and order are
-            still real and will carry forward.
+            Fewer than five courses are ranked, so this stays a softer early-stage list. Order is saved, but final
+            numeric ranks stay hidden until five courses are ranked.
           </span>
         )}
       </div>
@@ -237,15 +237,17 @@ export default function ProfileRankingSection() {
                   ) : null}
 
                   <div className="flex items-center gap-3">
-                    <span
-                      className={`inline-flex h-12 w-12 items-center justify-center rounded-full text-base font-semibold ${
-                        hasTrueRankingThreshold
-                          ? bucketStyle.numberClassName
-                          : "border border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep))]"
-                      }`}
-                    >
-                      {ranking.globalOrder}
-                    </span>
+                    {hasTrueRankingThreshold ? (
+                      <span
+                        className={`inline-flex h-12 min-w-12 items-center justify-center rounded-full px-3 text-base font-semibold ${bucketStyle.numberClassName}`}
+                      >
+                        #{ranking.globalOrder}
+                      </span>
+                    ) : (
+                      <span className="inline-flex h-12 min-w-12 items-center justify-center rounded-full border border-[hsl(var(--golfer-line))] bg-white px-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.62]">
+                        Early
+                      </span>
+                    )}
                     {isReorderMode ? (
                       <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep))]">
                         <GripVertical size={16} />
@@ -267,6 +269,11 @@ export default function ProfileRankingSection() {
                       <span className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${bucketStyle.badgeClassName}`}>
                         {ranking.bucket}
                       </span>
+                      {hasTrueRankingThreshold ? (
+                        <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-[hsl(var(--golfer-deep))]">
+                          Rank #{ranking.globalOrder}
+                        </span>
+                      ) : null}
                     </div>
 
                     <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">

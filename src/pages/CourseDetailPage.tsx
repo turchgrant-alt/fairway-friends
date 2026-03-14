@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, Database, Globe, MapPin, Star } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Database, Globe, MapPin, RotateCcw, Star } from 'lucide-react';
 
 import CourseCard from '@/components/CourseCard';
 import PageHeader from '@/components/dashboard/PageHeader';
@@ -16,13 +16,13 @@ export default function CourseDetailPage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>('overview');
   const [isPlayedDialogOpen, setIsPlayedDialogOpen] = useState(false);
+  const [playedDialogMode, setPlayedDialogMode] = useState<'play' | 'rerank'>('play');
   const { data: course, isLoading } = useCourseRecord(id);
   const { data: stateCourseCatalog = [] } = useStateCourseCatalog(course?.stateCode);
   const {
-    hasCourseBeenPlayed,
-    getCourseBucket,
-    getCourseGlobalOrder,
-    getCoursePlayCount,
+    getCourseRankingRecord,
+    hasTrueRankingThreshold,
+    markPlayedCourse,
   } = useCourseRankings();
   const nearbyCourses = useMemo(() => {
     if (!course) return [];
@@ -52,10 +52,8 @@ export default function CourseDetailPage() {
     );
   }
 
-  const isPlayed = hasCourseBeenPlayed(course.id);
-  const playedBucket = getCourseBucket(course.id);
-  const playedGlobalOrder = getCourseGlobalOrder(course.id);
-  const playedCount = getCoursePlayCount(course.id);
+  const courseRanking = getCourseRankingRecord(course.id);
+  const isPlayed = Boolean(courseRanking);
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'overview', label: 'Overview' },
@@ -131,7 +129,10 @@ export default function CourseDetailPage() {
 
           {!isPlayed ? (
             <button
-              onClick={() => setIsPlayedDialogOpen(true)}
+              onClick={() => {
+                setPlayedDialogMode('play');
+                setIsPlayedDialogOpen(true);
+              }}
               className="flex w-full items-center justify-center gap-2 rounded-[24px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] py-4 text-sm font-medium text-[hsl(var(--golfer-deep))] transition hover:bg-[hsl(var(--golfer-mist))]"
             >
               <CheckCircle2 size={14} /> Played this course
@@ -141,13 +142,59 @@ export default function CourseDetailPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
                 Played locally
               </p>
-              <p className="mt-3 text-lg text-[hsl(var(--golfer-deep))]">
-                {playedBucket ? `${playedBucket[0].toUpperCase()}${playedBucket.slice(1)} bucket` : 'Stored in rankings'}
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-[20px] bg-white/80 p-4">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Bucket</p>
+                  <p className="mt-2 text-base capitalize text-[hsl(var(--golfer-deep))]">{courseRanking?.bucket ?? 'Unknown'}</p>
+                </div>
+                <div className="rounded-[20px] bg-white/80 p-4">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
+                    {hasTrueRankingThreshold ? 'Numeric rank' : 'Ranking stage'}
+                  </p>
+                  <p className="mt-2 text-base text-[hsl(var(--golfer-deep))]">
+                    {hasTrueRankingThreshold
+                      ? courseRanking?.globalOrder
+                        ? `#${courseRanking.globalOrder}`
+                        : 'Unranked'
+                      : 'Early list'}
+                  </p>
+                </div>
+                <div className="rounded-[20px] bg-white/80 p-4">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Bucket position</p>
+                  <p className="mt-2 text-base text-[hsl(var(--golfer-deep))]">
+                    {courseRanking?.bucketOrder ? `#${courseRanking.bucketOrder} in ${courseRanking.bucket}` : 'Unknown'}
+                  </p>
+                </div>
+                <div className="rounded-[20px] bg-white/80 p-4">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Play count</p>
+                  <p className="mt-2 text-base text-[hsl(var(--golfer-deep))]">
+                    {courseRanking?.playCount ?? 0} time{courseRanking?.playCount === 1 ? '' : 's'}
+                  </p>
+                </div>
+              </div>
+              <p className="mt-4 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+                {hasTrueRankingThreshold
+                  ? `Numeric ranking follows the current Profile list order. `
+                  : 'Numeric ranking unlocks after 5 ranked courses. '}
+                Last played {courseRanking?.lastPlayedAt ? formatDemoDate(courseRanking.lastPlayedAt) : 'not recorded yet'}.
               </p>
-              <p className="mt-2 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-                {playedGlobalOrder ? `Current position #${playedGlobalOrder}. ` : ''}
-                Played {playedCount} time{playedCount === 1 ? '' : 's'} on this device.
-              </p>
+              <div className="mt-5 flex flex-col gap-3">
+                <button
+                  onClick={() => {
+                    setPlayedDialogMode('rerank');
+                    setIsPlayedDialogOpen(true);
+                  }}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-[20px] border border-[hsl(var(--golfer-line))] bg-white px-4 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]"
+                >
+                  <RotateCcw size={14} /> Rerank
+                </button>
+                <button
+                  onClick={() => markPlayedCourse({ courseId: course.id })}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-[20px] bg-[hsl(var(--golfer-deep))] px-4 py-3 text-sm font-medium text-white"
+                >
+                  <CheckCircle2 size={14} /> Played again
+                </button>
+              </div>
             </div>
           )}
 
@@ -263,6 +310,7 @@ export default function CourseDetailPage() {
         courseName={course.name}
         open={isPlayedDialogOpen}
         onOpenChange={setIsPlayedDialogOpen}
+        mode={playedDialogMode}
       />
     </div>
   );

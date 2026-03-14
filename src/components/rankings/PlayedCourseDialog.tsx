@@ -12,6 +12,8 @@ import { useRankedCourseRecords } from "@/hooks/use-ranked-course-records";
 import {
   COURSE_BUCKET_PRIORITY,
   MINIMUM_TRUE_RANKING_COUNT,
+  normalizeCourseRankingState,
+  type CourseRankingState,
   type CourseRankingBucket,
 } from "@/lib/course-rankings";
 
@@ -28,6 +30,7 @@ interface PlayedCourseDialogProps {
   courseName: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  mode?: "play" | "rerank";
 }
 
 const BUCKET_COPY: Record<
@@ -119,28 +122,31 @@ export default function PlayedCourseDialog({
   courseName,
   open,
   onOpenChange,
+  mode = "play",
 }: PlayedCourseDialogProps) {
   const {
+    rankingState,
     rankedCourseCount,
     hasTrueRankingThreshold,
     getBucketCourses,
     getCourseRankingRecord,
     markPlayedCourse,
-    removePlayedCourse,
+    replaceRankingState,
+    saveCourseRanking,
   } = useCourseRankings();
   const [step, setStep] = useState<FlowStep>("bucket");
   const [selectedBucket, setSelectedBucket] = useState<CourseRankingBucket | null>(null);
-  const [insertedDuringCurrentFlow, setInsertedDuringCurrentFlow] = useState(false);
+  const [savedDuringCurrentFlow, setSavedDuringCurrentFlow] = useState(false);
   const [comparisonState, setComparisonState] = useState<ComparisonState | null>(null);
   const [comparisonHistory, setComparisonHistory] = useState<ComparisonState[]>([]);
   const [comparisonHint, setComparisonHint] = useState<string | null>(null);
+  const [flowStartRankingState, setFlowStartRankingState] = useState<CourseRankingState | null>(null);
 
-  const selectedBucketCourses = useMemo(
-    () => (selectedBucket ? getBucketCourses(selectedBucket) : []),
-    [getBucketCourses, selectedBucket],
-  );
-  const { records: rankedBucketRecords, isLoading: isRankedBucketRecordsLoading } =
-    useRankedCourseRecords(selectedBucketCourses);
+  const selectedBucketCourses = useMemo(() => {
+    if (!selectedBucket) return [];
+    return getBucketCourses(selectedBucket).filter((course) => course.courseId !== courseId);
+  }, [courseId, getBucketCourses, selectedBucket]);
+  const { records: rankedBucketRecords, isLoading: isRankedBucketRecordsLoading } = useRankedCourseRecords(selectedBucketCourses);
   const currentCourseRanking = getCourseRankingRecord(courseId);
   const rankedCourseThresholdRemaining = Math.max(
     MINIMUM_TRUE_RANKING_COUNT - (currentCourseRanking ? rankedCourseCount : rankedCourseCount + 1),
@@ -155,28 +161,50 @@ export default function PlayedCourseDialog({
 
   useEffect(() => {
     if (!open) {
+      setFlowStartRankingState(null);
+      return;
+    }
+
+    if (!flowStartRankingState) {
+      setFlowStartRankingState(normalizeCourseRankingState(rankingState));
+    }
+  }, [flowStartRankingState, open, rankingState]);
+
+  useEffect(() => {
+    if (!open) {
       setStep("bucket");
       setSelectedBucket(null);
-      setInsertedDuringCurrentFlow(false);
+      setSavedDuringCurrentFlow(false);
       setComparisonState(null);
       setComparisonHistory([]);
       setComparisonHint(null);
     }
   }, [open]);
 
+  const isRerankMode = mode === "rerank";
+
   function finalizePlacement(bucket: CourseRankingBucket, bucketOrder?: number | null) {
-    markPlayedCourse({
-      courseId,
-      bucket,
-      bucketOrder,
-    });
-    setInsertedDuringCurrentFlow(true);
+    if (isRerankMode) {
+      saveCourseRanking({
+        courseId,
+        bucket,
+        bucketOrder,
+      });
+    } else {
+      markPlayedCourse({
+        courseId,
+        bucket,
+        bucketOrder,
+      });
+    }
+
+    setSavedDuringCurrentFlow(true);
     setComparisonHint(null);
     setStep("saved");
   }
 
   function handleSelectBucket(bucket: CourseRankingBucket) {
-    const bucketCourses = getBucketCourses(bucket);
+    const bucketCourses = getBucketCourses(bucket).filter((course) => course.courseId !== courseId);
     const initialState = createInitialComparisonState(bucketCourses.length);
 
     setSelectedBucket(bucket);
@@ -188,7 +216,7 @@ export default function PlayedCourseDialog({
       return;
     }
 
-    setInsertedDuringCurrentFlow(false);
+    setSavedDuringCurrentFlow(false);
     setComparisonState(initialState);
     setStep("compare");
   }
@@ -240,9 +268,12 @@ export default function PlayedCourseDialog({
   }
 
   function handleBack() {
-    if (step === "saved" && insertedDuringCurrentFlow) {
-      removePlayedCourse(courseId);
-      setInsertedDuringCurrentFlow(false);
+    if (step === "saved" && savedDuringCurrentFlow) {
+      if (flowStartRankingState) {
+        replaceRankingState(flowStartRankingState);
+      }
+
+      setSavedDuringCurrentFlow(false);
 
       if (comparisonHistory.length > 0) {
         const previousState = comparisonHistory[comparisonHistory.length - 1];
@@ -277,7 +308,7 @@ export default function PlayedCourseDialog({
       return;
     }
 
-    setInsertedDuringCurrentFlow(false);
+    setSavedDuringCurrentFlow(false);
     setComparisonState(null);
     setComparisonHistory([]);
     setSelectedBucket(null);
@@ -301,17 +332,23 @@ export default function PlayedCourseDialog({
                 </p>
                 <DialogTitle className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">
                   {step === "bucket"
-                    ? "Where does this round belong?"
+                    ? isRerankMode
+                      ? "Rerank this course"
+                      : "Where does this round belong?"
                     : step === "compare"
                       ? `Place ${courseName} inside ${formatBucketTitle(selectedBucket)}`
                       : courseName}
                 </DialogTitle>
                 <DialogDescription className="mt-3 max-w-2xl text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
                   {step === "bucket"
-                    ? `Mark ${courseName} as played, then start the ranking flow by choosing a bucket.`
+                    ? isRerankMode
+                      ? `Choose a bucket again for ${courseName}, then place it where it belongs.`
+                      : `Mark ${courseName} as played, then start the ranking flow by choosing a bucket.`
                     : step === "compare"
                       ? "Pick the course you prefer more. GolfeR will use the fewest bucket-level comparisons it can."
-                      : "The course has been added locally on this device."}
+                      : isRerankMode
+                        ? "The course ranking has been updated locally on this device."
+                        : "The course has been added locally on this device."}
                 </DialogDescription>
               </div>
             </div>
@@ -322,7 +359,7 @@ export default function PlayedCourseDialog({
               <div className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-3">
                   {COURSE_BUCKET_PRIORITY.map((bucket) => {
-                    const bucketCourses = getBucketCourses(bucket);
+                    const bucketCourses = getBucketCourses(bucket).filter((course) => course.courseId !== courseId);
                     const bucketCopy = BUCKET_COPY[bucket];
 
                     return (
@@ -338,6 +375,9 @@ export default function PlayedCourseDialog({
                           </span>
                         </div>
                         <p className="mt-4 text-sm leading-7 opacity-90">{bucketCopy.description}</p>
+                        {isRerankMode && currentCourseRanking?.bucket === bucket ? (
+                          <p className="mt-3 text-xs uppercase tracking-[0.18em] opacity-70">Current bucket</p>
+                        ) : null}
                         <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium">
                           Choose bucket <ArrowRight size={15} />
                         </span>
@@ -351,9 +391,9 @@ export default function PlayedCourseDialog({
                   courses. This popup already stores the same underlying order locally.
                 </div>
 
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-                    {rankedCourseCount} course{rankedCourseCount === 1 ? "" : "s"} currently stored in local rankings
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+                      {rankedCourseCount} course{rankedCourseCount === 1 ? "" : "s"} currently stored in local rankings
                   </span>
                   <button
                     onClick={handleClose}
@@ -376,9 +416,9 @@ export default function PlayedCourseDialog({
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
                       Already ranked
                     </p>
-                    <h3 className="mt-4 text-2xl text-[hsl(var(--golfer-deep))]">
-                      {currentComparedRecord?.course?.name ?? currentComparedRecord?.fallbackName ?? "Loading course..."}
-                    </h3>
+                      <h3 className="mt-4 text-2xl text-[hsl(var(--golfer-deep))]">
+                        {currentComparedRecord?.course?.name ?? currentComparedRecord?.fallbackName ?? "Loading course..."}
+                      </h3>
                     <p className="mt-3 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
                       {currentComparedRecord
                         ? `Currently #${currentComparedRecord.ranking.bucketOrder} in ${formatBucketTitle(selectedBucket)}`
@@ -457,7 +497,7 @@ export default function PlayedCourseDialog({
                         Stored locally
                       </p>
                       <h3 className="mt-2 text-2xl text-[hsl(var(--golfer-deep))]">
-                        Added to {formatBucketTitle(selectedBucket)}
+                        {isRerankMode ? "Updated in" : "Added to"} {formatBucketTitle(selectedBucket)}
                       </h3>
                     </div>
                   </div>
@@ -494,8 +534,10 @@ export default function PlayedCourseDialog({
 
                 <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] px-5 py-4 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
                   {comparisonHistory.length > 0
-                    ? "Undo will remove this saved placement and reopen the last comparison so you can answer differently."
-                    : "This bucket was empty, so GolfeR saved the course immediately without needing a comparison."}
+                    ? "Undo will restore the previous ranking state and reopen the last comparison so you can answer differently."
+                    : isRerankMode
+                      ? "This rerank resolved without additional comparisons, so the course was updated directly."
+                      : "This bucket was empty, so GolfeR saved the course immediately without needing a comparison."}
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-3">
