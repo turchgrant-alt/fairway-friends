@@ -4,8 +4,15 @@ import { ArrowRight, Compass, List, Map as MapIcon, MapPin, Search } from 'lucid
 
 import CourseCard from '@/components/CourseCard';
 import CourseDiscoveryMap from '@/components/maps/CourseDiscoveryMap';
-import { hasVerifiedCoordinates, searchCourses, sortCoursesByName, type Course } from '@/lib/course-data';
-import { useCourseCatalog } from '@/hooks/use-course-catalog';
+import {
+  hasVerifiedCoordinates,
+  loadCoursesForStates,
+  searchCourseLocationEntries,
+  searchCourses,
+  sortCoursesByName,
+  type Course,
+} from '@/lib/course-data';
+import { useCourseLocationIndex } from '@/hooks/use-course-catalog';
 import { findUsStateCode, getUsStateName } from '@/lib/us-states';
 import {
   findMapSearchPreset,
@@ -34,6 +41,7 @@ interface ViewportState {
 interface ActiveSearch {
   label: string;
   results: Course[];
+  stateCodes: string[];
 }
 
 function isCourseInsideBounds(course: Course, bounds: MapBoundsTuple) {
@@ -72,13 +80,29 @@ function buildBoundsForCourses(courseList: Course[]) {
   ] as MapBoundsTuple;
 }
 
+function mergeBounds(boundsList: MapBoundsTuple[]) {
+  if (boundsList.length === 0) return null;
+
+  const south = Math.min(...boundsList.map((bounds) => bounds[0][0]));
+  const west = Math.min(...boundsList.map((bounds) => bounds[0][1]));
+  const north = Math.max(...boundsList.map((bounds) => bounds[1][0]));
+  const east = Math.max(...boundsList.map((bounds) => bounds[1][1]));
+
+  return [
+    [south, west],
+    [north, east],
+  ] as MapBoundsTuple;
+}
+
 export default function MapPage() {
   const navigate = useNavigate();
-  const { data: courseCatalog = [], isLoading } = useCourseCatalog();
-  const courseById = useMemo(() => new Map(courseCatalog.map((course) => [course.id, course])), [courseCatalog]);
+  const { data: locationIndex, isLoading: isLocationIndexLoading } = useCourseLocationIndex();
+  const [loadedCourses, setLoadedCourses] = useState<Course[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const courseById = useMemo(() => new Map(loadedCourses.map((course) => [course.id, course])), [loadedCourses]);
   const mappableCourses = useMemo(
-    () => sortCoursesByName(courseCatalog.filter(hasVerifiedCoordinates)),
-    [courseCatalog],
+    () => sortCoursesByName(loadedCourses.filter(hasVerifiedCoordinates)),
+    [loadedCourses],
   );
 
   const [viewMode, setViewMode] = useState<ViewMode>('map');
@@ -96,6 +120,7 @@ export default function MapPage() {
     zoom: 4,
   });
   const [searchMessage, setSearchMessage] = useState<string | null>(null);
+  const isCatalogLoading = isLocationIndexLoading || isSearching;
 
   const visibleMappableCourses = useMemo(
     () => sortCoursesByName(mappableCourses.filter((course) => isCourseInsideBounds(course, viewport.bounds))),
@@ -128,6 +153,7 @@ export default function MapPage() {
     setQuery('');
     setSelectedCourseId(null);
     setActiveSearch(null);
+    setLoadedCourses([]);
     setFocusTarget({
       id: 'united-states',
       label: 'United States',
@@ -138,7 +164,7 @@ export default function MapPage() {
     setViewMode('map');
   }
 
-  function handleSearch(event: FormEvent<HTMLFormElement>) {
+  async function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const trimmedQuery = query.trim();
@@ -150,54 +176,105 @@ export default function MapPage() {
     }
 
     const preset = findMapSearchPreset(normalizedQuery);
-    if (isLoading) {
-      setSearchMessage('Loading the stored course catalog. Try the search again in a moment.');
+    if (!locationIndex) {
+      setSearchMessage('Loading the location index. Try the search again in a moment.');
       return;
     }
 
-    const datasetMatches = sortCoursesByName(searchCourses(courseCatalog, normalizedQuery));
-    const mappableMatches = datasetMatches.filter(hasVerifiedCoordinates);
+    const locationMatches = searchCourseLocationEntries(locationIndex.entries, normalizedQuery);
     const matchedStateCode = findUsStateCode(trimmedQuery);
-    const label = preset?.label ?? getUsStateName(matchedStateCode) ?? trimmedQuery;
+    const stateCodes = Array.from(
+      new Set(
+        [
+          matchedStateCode,
+          ...locationMatches.map((entry) => entry.stateCode),
+        ].filter(Boolean),
+      ),
+    ) as string[];
 
-    let nextBounds = preset?.bounds ?? UNITED_STATES_BOUNDS;
-    let nextMaxZoom = preset?.maxZoom ?? 7;
+    const primaryLocationMatch = locationMatches[0] ?? null;
+    const label = primaryLocationMatch?.label ?? preset?.label ?? getUsStateName(matchedStateCode) ?? trimmedQuery;
+    const locationBounds = mergeBounds(
+      locationMatches
+        .map((entry) => entry.bounds)
+        .filter(Boolean) as MapBoundsTuple[],
+    );
 
-    if (mappableMatches.length > 0) {
-      nextBounds = buildBoundsForCourses(mappableMatches);
-      nextMaxZoom = datasetMatches.length === 1 ? 11 : preset?.maxZoom ?? 9;
-    }
-
-    setActiveSearch({
-      label,
-      results: datasetMatches,
-    });
-    setSelectedCourseId(mappableMatches[0]?.id ?? null);
-    setFocusTarget({
-      id: preset?.id ?? `search-${normalizedQuery}`,
-      label,
-      bounds: nextBounds,
-      maxZoom: nextMaxZoom,
-    });
-    setViewMode('map');
-
-    if (datasetMatches.length === 0) {
+    if (stateCodes.length === 0) {
+      setLoadedCourses([]);
+      setActiveSearch({
+        label,
+        results: [],
+        stateCodes: [],
+      });
+      setSelectedCourseId(null);
+      setFocusTarget({
+        id: preset?.id ?? `search-${normalizedQuery}`,
+        label,
+        bounds: preset?.bounds ?? locationBounds ?? UNITED_STATES_BOUNDS,
+        maxZoom: preset?.maxZoom ?? (primaryLocationMatch?.type === 'city' ? 10 : 7),
+      });
+      setViewMode('map');
       setSearchMessage(
         preset
-          ? `The map moved to ${label}, but the stored catalog does not have matching course records there yet.`
-          : `No courses in the stored catalog matched "${trimmedQuery}".`,
+          ? `The map moved to ${label}, but the stored catalog does not have a matching state segment to load there yet.`
+          : `No stored catalog region matched "${trimmedQuery}".`,
       );
       return;
     }
 
-    if (mappableMatches.length === 0) {
-      setSearchMessage(
-        `${datasetMatches.length} catalog result${datasetMatches.length === 1 ? '' : 's'} found for ${label}, but this snapshot does not include verified coordinates for those rows yet. Switch to List View to browse them.`,
-      );
-      return;
-    }
+    setIsSearching(true);
 
-    setSearchMessage(null);
+    try {
+      const stateCatalog = await loadCoursesForStates(stateCodes);
+      const datasetMatches = sortCoursesByName(searchCourses(stateCatalog, normalizedQuery));
+      const mappableMatches = datasetMatches.filter(hasVerifiedCoordinates);
+
+      let nextBounds = preset?.bounds ?? locationBounds ?? UNITED_STATES_BOUNDS;
+      let nextMaxZoom = preset?.maxZoom ?? (primaryLocationMatch?.type === 'city' ? 10 : 7);
+
+      if (mappableMatches.length > 0) {
+        nextBounds = buildBoundsForCourses(mappableMatches);
+        nextMaxZoom = datasetMatches.length === 1 ? 11 : preset?.maxZoom ?? (primaryLocationMatch?.type === 'city' ? 10 : 8);
+      }
+
+      setLoadedCourses(stateCatalog);
+      setActiveSearch({
+        label,
+        results: datasetMatches,
+        stateCodes,
+      });
+      setSelectedCourseId(mappableMatches[0]?.id ?? null);
+      setFocusTarget({
+        id: preset?.id ?? primaryLocationMatch?.id ?? `search-${normalizedQuery}`,
+        label,
+        bounds: nextBounds,
+        maxZoom: nextMaxZoom,
+      });
+      setViewMode('map');
+
+      if (datasetMatches.length === 0) {
+        setSearchMessage(
+          preset || primaryLocationMatch
+            ? `The map moved to ${label}, but the stored catalog does not have matching course records there yet.`
+            : `No courses in the stored catalog matched "${trimmedQuery}".`,
+        );
+        return;
+      }
+
+      if (mappableMatches.length === 0) {
+        setSearchMessage(
+          `${datasetMatches.length} catalog result${datasetMatches.length === 1 ? '' : 's'} found for ${label}, but this snapshot does not include verified coordinates for those rows yet. Switch to List View to browse them.`,
+        );
+        return;
+      }
+
+      setSearchMessage(null);
+    } catch {
+      setSearchMessage('The matching state catalog could not be loaded. Try the search again.');
+    } finally {
+      setIsSearching(false);
+    }
   }
 
   return (
@@ -265,7 +342,7 @@ export default function MapPage() {
 
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-            Search loads the stored catalog on demand. Map pins only appear when a course row has verified coordinates.
+            Search uses a lightweight location index first, then loads only the matching state data. Map pins only appear when a course row has verified coordinates.
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
@@ -277,8 +354,8 @@ export default function MapPage() {
               </span>
             ) : (
               <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
-                {isLoading
-                  ? 'Loading catalog...'
+                {isCatalogLoading
+                  ? 'Loading search data...'
                   : `${visibleMappableCourses.length} verified pin${visibleMappableCourses.length === 1 ? '' : 's'} in view`}
               </span>
             )}
@@ -378,9 +455,9 @@ export default function MapPage() {
             </div>
           </div>
 
-          {isLoading ? (
+          {isCatalogLoading ? (
             <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-10 text-center text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-              Loading the stored course catalog...
+              Loading the matching stored course data...
             </div>
           ) : !activeSearch && viewport.zoom < 7 ? (
             <div className="rounded-[28px] border border-dashed border-[hsl(var(--golfer-line))] bg-white p-10 text-center">

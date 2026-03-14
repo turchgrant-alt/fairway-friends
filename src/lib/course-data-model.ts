@@ -89,6 +89,49 @@ export interface AppGolfCourseRecord extends Omit<NormalizedGolfCourseRecord, "r
   ratings: CourseRatings;
 }
 
+export interface CourseIndexRecord {
+  id: string;
+  stateCode: string;
+  name: string;
+  facilityName: string | null;
+  courseName: string | null;
+  city: string | null;
+  state: string | null;
+  county: string | null;
+  addressLabel: string | null;
+  location: string;
+  latitude: number | null;
+  longitude: number | null;
+  hasVerifiedCoordinates: boolean;
+  accessType: CourseAccessType;
+  type: string;
+  par: number | null;
+  holes: number | null;
+  website: string | null;
+  phone: string | null;
+  tags: string[];
+  imageUrl: string;
+  overallRating: number | null;
+  priceRange: string | null;
+}
+
+export interface CourseLocationIndexEntry {
+  id: string;
+  label: string;
+  type: "state" | "city";
+  stateCode: string;
+  state: string;
+  city: string | null;
+  aliases: string[];
+  bounds: [[number, number], [number, number]] | null;
+  courseCount: number;
+  mappableCourseCount: number;
+}
+
+export interface CourseLocationIndex {
+  entries: CourseLocationIndexEntry[];
+}
+
 export interface CourseStateManifestEntry {
   completed: boolean;
   completedAt: string;
@@ -129,11 +172,11 @@ export interface CourseCatalogStarterList {
   id: string;
   title: string;
   description: string;
-  courses: AppGolfCourseRecord[];
+  courses: CourseIndexRecord[];
 }
 
 export interface CourseCatalogSummary {
   stats: CourseCatalogStats;
-  featuredCourses: AppGolfCourseRecord[];
+  featuredCourses: CourseIndexRecord[];
   starterLists: CourseCatalogStarterList[];
 }

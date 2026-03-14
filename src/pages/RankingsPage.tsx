@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
 import PageHeader from '@/components/dashboard/PageHeader';
-import { sortCoursesByName, type Course } from '@/lib/course-data';
-import { useCourseCatalog } from '@/hooks/use-course-catalog';
+import { sortCoursesByName, type CoursePreview } from '@/lib/course-data';
+import { useCourseCatalogIndex } from '@/hooks/use-course-catalog';
 
 type Tab = 'alphabetical' | 'metadata';
 
-function metadataScore(course: Course) {
+function metadataScore(course: CoursePreview) {
   return [
     course.city,
     course.addressLabel,
@@ -21,7 +21,7 @@ function metadataScore(course: Course) {
 
 export default function RankingsPage() {
   const navigate = useNavigate();
-  const { data: courseCatalog = [], isLoading } = useCourseCatalog();
+  const { data: courseCatalog = [], isLoading } = useCourseCatalogIndex();
   const [tab, setTab] = useState<Tab>('alphabetical');
   const alphabeticalCourses = useMemo(() => sortCoursesByName(courseCatalog).slice(0, 24), [courseCatalog]);
   const metadataRichCourses = useMemo(

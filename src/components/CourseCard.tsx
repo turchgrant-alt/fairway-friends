@@ -1,9 +1,9 @@
 import { ArrowUpRight, Globe, MapPin, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import type { Course } from '@/lib/course-data';
+import type { CourseListRecord } from '@/lib/course-data';
 
 interface CourseCardProps {
-  course: Course;
+  course: CourseListRecord;
   variant?: 'default' | 'compact' | 'wide';
 }
 

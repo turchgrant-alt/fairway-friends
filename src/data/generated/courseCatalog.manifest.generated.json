@@ -1,7 +1,7 @@
 {
   "source": "csv_catalog",
   "sourceFile": "data/course-catalog/source/us_golf_courses_dataset.csv",
-  "importedAt": "2026-03-13T17:14:55.185Z",
+  "importedAt": "2026-03-14T21:41:25.602Z",
   "recordCount": 17143,
   "stateCodes": [
     "AK",
@@ -59,6 +59,7 @@
   "coordinateCoverageRatio": 0.0264,
   "enrichmentNotes": [
     "CSV file is the stored source of truth for v1 course records.",
+    "Runtime catalog loading is segmented by state so the client does not parse the full national detail dataset for map flows.",
     "Exact coordinates are only shown when the CSV row includes them or a trusted local NY OSM match is available.",
     "Website, status, and ratings remain nullable when the source snapshot does not supply them."
   ]

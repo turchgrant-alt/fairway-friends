@@ -5,11 +5,13 @@ import CourseCard from '@/components/CourseCard';
 import SectionHeader from '@/components/SectionHeader';
 import PageHeader from '@/components/dashboard/PageHeader';
 import { sortCoursesByName } from '@/lib/course-data';
-import { useCourseCatalog } from '@/hooks/use-course-catalog';
+import { useCourseCatalogIndex } from '@/hooks/use-course-catalog';
 import { demoStats } from '@/lib/demo-v1';
 
+const DISCOVER_RESULT_LIMIT = 120;
+
 export default function DiscoverPage() {
-  const { data: courseCatalog = [], isLoading } = useCourseCatalog();
+  const { data: courseCatalog = [], isLoading } = useCourseCatalogIndex();
   const [query, setQuery] = useState('');
   const [selectedType, setSelectedType] = useState('All');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -17,37 +19,38 @@ export default function DiscoverPage() {
   const deferredQuery = useDeferredValue(query);
   const normalizedQuery = deferredQuery.trim().toLowerCase();
   const activeQuery = normalizedQuery.length >= 2 ? normalizedQuery : '';
+  const sortedCatalog = useMemo(() => sortCoursesByName(courseCatalog), [courseCatalog]);
 
   const courseTypes = useMemo(
-    () => ['All', ...Array.from(new Set(courseCatalog.map((course) => course.type))).sort((a, b) => a.localeCompare(b))],
-    [courseCatalog],
+    () => ['All', ...Array.from(new Set(sortedCatalog.map((course) => course.type))).sort((a, b) => a.localeCompare(b))],
+    [sortedCatalog],
   );
   const tags = useMemo(
-    () => Array.from(new Set(courseCatalog.flatMap((course) => course.tags))).slice(0, 10),
-    [courseCatalog],
+    () => Array.from(new Set(sortedCatalog.flatMap((course) => course.tags))).slice(0, 10),
+    [sortedCatalog],
   );
 
   const filtered = useMemo(
     () =>
-      sortCoursesByName(
-        courseCatalog.filter((course) => {
-          if (
-            activeQuery &&
-            !course.name.toLowerCase().includes(activeQuery) &&
-            !course.location.toLowerCase().includes(activeQuery) &&
-            !(course.addressLabel ?? '').toLowerCase().includes(activeQuery)
-          ) {
-            return false;
-          }
+      sortedCatalog.filter((course) => {
+        if (
+          activeQuery &&
+          !course.name.toLowerCase().includes(activeQuery) &&
+          !course.location.toLowerCase().includes(activeQuery) &&
+          !(course.addressLabel ?? '').toLowerCase().includes(activeQuery)
+        ) {
+          return false;
+        }
 
-          if (selectedType !== 'All' && course.type.toLowerCase() !== selectedType.toLowerCase()) return false;
-          if (selectedTags.length > 0 && !selectedTags.some((tag) => course.tags.includes(tag))) return false;
+        if (selectedType !== 'All' && course.type.toLowerCase() !== selectedType.toLowerCase()) return false;
+        if (selectedTags.length > 0 && !selectedTags.some((tag) => course.tags.includes(tag))) return false;
 
-          return true;
-        }),
-      ),
-    [activeQuery, courseCatalog, selectedTags, selectedType],
+        return true;
+      }),
+    [activeQuery, selectedTags, selectedType, sortedCatalog],
   );
+  const displayedResults = filtered.slice(0, DISCOVER_RESULT_LIMIT);
+  const resultOverflow = Math.max(filtered.length - displayedResults.length, 0);
 
   return (
     <div className="space-y-10">
@@ -155,10 +158,17 @@ export default function DiscoverPage() {
             Loading the stored course catalog...
           </div>
         ) : filtered.length > 0 ? (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {filtered.map((course) => (
-              <CourseCard key={course.id} course={course} />
-            ))}
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {displayedResults.map((course) => (
+                <CourseCard key={course.id} course={course} />
+              ))}
+            </div>
+            {resultOverflow > 0 ? (
+              <p className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
+                Showing the first {displayedResults.length} matches to keep discovery responsive. Narrow the search to explore more.
+              </p>
+            ) : null}
           </div>
         ) : (
           <div className="rounded-[28px] border border-dashed border-[hsl(var(--golfer-line))] bg-white p-10 text-center text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">

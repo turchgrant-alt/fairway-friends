@@ -4,8 +4,7 @@ import { ArrowLeft, Database, Globe, MapPin, Star } from 'lucide-react';
 
 import CourseCard from '@/components/CourseCard';
 import PageHeader from '@/components/dashboard/PageHeader';
-import { findCourseById } from '@/lib/course-data';
-import { useCourseCatalog } from '@/hooks/use-course-catalog';
+import { useCourseRecord, useStateCourseCatalog } from '@/hooks/use-course-catalog';
 import { formatDemoDate } from '@/lib/demo-v1';
 
 type Tab = 'overview' | 'source' | 'nearby';
@@ -14,8 +13,19 @@ export default function CourseDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>('overview');
-  const { data: courseCatalog = [], isLoading } = useCourseCatalog();
-  const course = useMemo(() => findCourseById(courseCatalog, id || ''), [courseCatalog, id]);
+  const { data: course, isLoading } = useCourseRecord(id);
+  const { data: stateCourseCatalog = [] } = useStateCourseCatalog(course?.stateCode);
+  const nearbyCourses = useMemo(() => {
+    if (!course) return [];
+
+    return stateCourseCatalog
+      .filter((candidate) => {
+        if (candidate.id === course.id) return false;
+        if (course.city && candidate.city === course.city) return true;
+        return candidate.tags.some((tag) => course.tags.includes(tag));
+      })
+      .slice(0, 6);
+  }, [course, stateCourseCatalog]);
 
   if (isLoading) {
     return (
@@ -32,18 +42,6 @@ export default function CourseDetailPage() {
       </div>
     );
   }
-
-  const nearbyCourses = useMemo(
-    () =>
-      courseCatalog
-        .filter((candidate) => {
-          if (candidate.id === course.id) return false;
-          if (course.city && candidate.city === course.city) return true;
-          return candidate.tags.some((tag) => course.tags.includes(tag));
-        })
-        .slice(0, 6),
-    [course, courseCatalog],
-  );
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'overview', label: 'Overview' },

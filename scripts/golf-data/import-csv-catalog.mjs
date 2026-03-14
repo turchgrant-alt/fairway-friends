@@ -11,6 +11,9 @@ const normalizedCatalogPath = path.join(normalizedDir, "us-golf-courses.normaliz
 const generatedDir = path.join(repoRoot, "src", "data", "generated");
 const publicDataDir = path.join(repoRoot, "public", "data");
 const publicCatalogJsonPath = path.join(publicDataDir, "courseCatalog.generated.json");
+const publicCourseIndexJsonPath = path.join(publicDataDir, "courseCatalog.index.generated.json");
+const publicCourseLocationIndexJsonPath = path.join(publicDataDir, "courseLocationIndex.generated.json");
+const publicStatesDir = path.join(publicDataDir, "states");
 const generatedManifestJsonPath = path.join(generatedDir, "courseCatalog.manifest.generated.json");
 const generatedSummaryJsonPath = path.join(generatedDir, "courseCatalog.summary.generated.json");
 const nyOsmCatalogPath = path.join(repoRoot, "data", "golf-course-pipeline", "normalized", "NY.normalized.json");
@@ -601,6 +604,39 @@ function buildFrontendCourseRecord(record) {
   };
 }
 
+function buildCourseIndexRecord(record) {
+  return {
+    id: record.id,
+    stateCode: record.stateCode,
+    name: record.name,
+    facilityName: record.facilityName,
+    courseName: record.courseName,
+    city: record.city,
+    state: record.state,
+    county: record.county,
+    addressLabel: record.addressLabel,
+    location: buildLocationLabel({
+      city: record.city,
+      stateCode: record.stateCode,
+      stateName: record.state,
+      county: record.county,
+    }),
+    latitude: record.latitude,
+    longitude: record.longitude,
+    hasVerifiedCoordinates: record.hasVerifiedCoordinates,
+    accessType: record.accessType,
+    type: record.accessType && record.accessType !== UNKNOWN_ACCESS ? record.accessType : "course",
+    par: record.par,
+    holes: record.holes,
+    website: record.website,
+    phone: record.phone,
+    tags: record.tags,
+    imageUrl: "/placeholder.svg",
+    overallRating: null,
+    priceRange: null,
+  };
+}
+
 function findCourseByName(records, name) {
   const normalized = normalizeName(name);
   return records.find((record) => normalizeName(record.name) === normalized);
@@ -647,6 +683,120 @@ function buildSummary(frontendRecords, manifest) {
         courses: resolvedFeaturedCourses,
       },
     ],
+  };
+}
+
+function buildBoundsForRecords(records) {
+  const mappableRecords = records.filter((record) => record.latitude != null && record.longitude != null);
+
+  if (mappableRecords.length === 0) {
+    return null;
+  }
+
+  const latitudes = mappableRecords.map((record) => record.latitude);
+  const longitudes = mappableRecords.map((record) => record.longitude);
+  const minLat = Math.min(...latitudes);
+  const maxLat = Math.max(...latitudes);
+  const minLon = Math.min(...longitudes);
+  const maxLon = Math.max(...longitudes);
+  const latPadding = Math.max((maxLat - minLat) * 0.15, 0.05);
+  const lonPadding = Math.max((maxLon - minLon) * 0.15, 0.05);
+
+  return [
+    [minLat - latPadding, minLon - lonPadding],
+    [maxLat + latPadding, maxLon + lonPadding],
+  ];
+}
+
+function buildStateAliases(stateCode, stateName) {
+  const aliases = new Set();
+
+  if (stateCode) aliases.add(stateCode);
+  if (stateName) {
+    aliases.add(stateName);
+    aliases.add(`${stateName} state`);
+  }
+
+  return Array.from(aliases);
+}
+
+function buildCityAliases(city, stateCode, stateName) {
+  const aliases = new Set();
+
+  if (!city) return [];
+
+  aliases.add(city);
+
+  if (stateCode) {
+    aliases.add(`${city}, ${stateCode}`);
+    aliases.add(`${city} ${stateCode}`);
+  }
+
+  if (stateName) {
+    aliases.add(`${city}, ${stateName}`);
+    aliases.add(`${city} ${stateName}`);
+  }
+
+  return Array.from(aliases);
+}
+
+function buildLocationIndex(indexRecords) {
+  const stateBuckets = new Map();
+  const cityBuckets = new Map();
+
+  for (const record of indexRecords) {
+    const stateBucket = stateBuckets.get(record.stateCode) ?? [];
+    stateBucket.push(record);
+    stateBuckets.set(record.stateCode, stateBucket);
+
+    if (record.city) {
+      const cityKey = `${record.stateCode}|${record.city.toLowerCase()}`;
+      const cityBucket = cityBuckets.get(cityKey) ?? [];
+      cityBucket.push(record);
+      cityBuckets.set(cityKey, cityBucket);
+    }
+  }
+
+  const entries = [];
+
+  for (const [stateCode, records] of stateBuckets.entries()) {
+    const stateName = records[0]?.state ?? getStateName(stateCode) ?? stateCode;
+
+    entries.push({
+      id: `state-${stateCode.toLowerCase()}`,
+      label: stateName,
+      type: "state",
+      stateCode,
+      state: stateName,
+      city: null,
+      aliases: buildStateAliases(stateCode, stateName),
+      bounds: buildBoundsForRecords(records),
+      courseCount: records.length,
+      mappableCourseCount: records.filter((record) => record.hasVerifiedCoordinates).length,
+    });
+  }
+
+  for (const [cityKey, records] of cityBuckets.entries()) {
+    const [stateCode] = cityKey.split("|");
+    const city = records[0]?.city ?? null;
+    const stateName = records[0]?.state ?? getStateName(stateCode) ?? stateCode;
+
+    entries.push({
+      id: `city-${slugify(`${city}-${stateCode}`)}`,
+      label: city ? `${city}, ${stateName}` : stateName,
+      type: "city",
+      stateCode,
+      state: stateName,
+      city,
+      aliases: buildCityAliases(city, stateCode, stateName),
+      bounds: buildBoundsForRecords(records),
+      courseCount: records.length,
+      mappableCourseCount: records.filter((record) => record.hasVerifiedCoordinates).length,
+    });
+  }
+
+  return {
+    entries: entries.sort((a, b) => a.label.localeCompare(b.label)),
   };
 }
 
@@ -699,6 +849,7 @@ async function main() {
   ensureUniqueIds(normalizedRecords);
 
   const frontendRecords = normalizedRecords.map(buildFrontendCourseRecord);
+  const indexRecords = normalizedRecords.map(buildCourseIndexRecord);
   const stateCodes = Array.from(new Set(normalizedRecords.map((record) => record.stateCode))).sort();
   const mappableRecordCount = normalizedRecords.filter((record) => record.hasVerifiedCoordinates).length;
   const manifest = {
@@ -711,26 +862,46 @@ async function main() {
     coordinateCoverageRatio: normalizedRecords.length > 0 ? Number((mappableRecordCount / normalizedRecords.length).toFixed(4)) : 0,
     enrichmentNotes: [
       "CSV file is the stored source of truth for v1 course records.",
+      "Runtime catalog loading is segmented by state so the client does not parse the full national detail dataset for map flows.",
       "Exact coordinates are only shown when the CSV row includes them or a trusted local NY OSM match is available.",
       "Website, status, and ratings remain nullable when the source snapshot does not supply them.",
     ],
   };
-  const summary = buildSummary(frontendRecords, manifest);
+  const summary = buildSummary(indexRecords, manifest);
+  const locationIndex = buildLocationIndex(indexRecords);
+  const recordsByState = new Map();
+
+  for (const record of frontendRecords) {
+    const bucket = recordsByState.get(record.stateCode) ?? [];
+    bucket.push(record);
+    recordsByState.set(record.stateCode, bucket);
+  }
 
   await ensureDir(normalizedDir);
   await ensureDir(generatedDir);
   await ensureDir(publicDataDir);
+  await fs.rm(publicStatesDir, { recursive: true, force: true });
+  await ensureDir(publicStatesDir);
   await writeJson(normalizedCatalogPath, normalizedRecords);
-  await writeJson(publicCatalogJsonPath, frontendRecords, null);
+  await writeJson(publicCourseIndexJsonPath, indexRecords, null);
+  await writeJson(publicCourseLocationIndexJsonPath, locationIndex, null);
   await writeJson(generatedManifestJsonPath, manifest);
   await writeJson(generatedSummaryJsonPath, summary);
+
+  for (const [stateCode, stateRecords] of recordsByState.entries()) {
+    await writeJson(path.join(publicStatesDir, `${stateCode}.generated.json`), stateRecords, null);
+  }
+
+  await fs.rm(publicCatalogJsonPath, { force: true });
 
   process.stdout.write(
     `${JSON.stringify(
       {
         sourceCsvPath: path.relative(repoRoot, sourceCsvPath),
         normalizedCatalogPath: path.relative(repoRoot, normalizedCatalogPath),
-        publicCatalogJsonPath: path.relative(repoRoot, publicCatalogJsonPath),
+        publicCourseIndexJsonPath: path.relative(repoRoot, publicCourseIndexJsonPath),
+        publicCourseLocationIndexJsonPath: path.relative(repoRoot, publicCourseLocationIndexJsonPath),
+        publicStatesDir: path.relative(repoRoot, publicStatesDir),
         generatedManifestJsonPath: path.relative(repoRoot, generatedManifestJsonPath),
         generatedSummaryJsonPath: path.relative(repoRoot, generatedSummaryJsonPath),
         sourceRows: csvRows.length,
