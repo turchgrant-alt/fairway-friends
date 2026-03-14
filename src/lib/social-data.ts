@@ -1,4 +1,4 @@
-import type { Course } from "@/lib/course-data";
+import type { CoursePreview } from "@/lib/course-data";
 import { courses, getCourseById } from "@/lib/course-data";
 
 export interface UserProfile {
@@ -336,6 +336,6 @@ export function getCourseIdsForCollection(collectionId: string): string[] {
   return collections.find((collection) => collection.id === collectionId)?.courseIds ?? [];
 }
 
-export function getCourseByIdSafe(id: string): Course | undefined {
+export function getCourseByIdSafe(id: string): CoursePreview | undefined {
   return getCourseById(id);
 }
