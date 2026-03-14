@@ -15,6 +15,7 @@ import {
   hasMinimumRankedCourses,
   markCoursePlayed,
   normalizeCourseRankingState,
+  reorderFullCourseRanking,
   removeCourseRanking,
   reorderBucketCourses,
   updateCourseRanking,
@@ -32,6 +33,7 @@ interface CourseRankingContextValue {
   markPlayedCourse: (input: MarkCoursePlayedInput) => void;
   saveCourseRanking: (input: UpdateCourseRankingInput) => void;
   removePlayedCourse: (courseId: string) => void;
+  reorderFullRanking: (orderedCourseIds: string[]) => void;
   reorderBucket: (bucket: CourseRankingBucket, orderedCourseIds: string[]) => void;
   getCourseRankingRecord: (courseId: string) => ReturnType<typeof getCourseRanking>;
   hasCourseBeenPlayed: (courseId: string) => boolean;
@@ -91,6 +93,9 @@ export function CourseRankingProvider({ children }: { children: ReactNode }) {
         },
         removePlayedCourse: (courseId) => {
           setRankingState((currentState) => removeCourseRanking(currentState, courseId));
+        },
+        reorderFullRanking: (orderedCourseIds) => {
+          setRankingState((currentState) => reorderFullCourseRanking(currentState, orderedCourseIds));
         },
         reorderBucket: (bucket, orderedCourseIds) => {
           setRankingState((currentState) => reorderBucketCourses(currentState, bucket, orderedCourseIds));

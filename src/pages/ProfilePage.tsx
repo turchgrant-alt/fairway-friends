@@ -1,19 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Database, ListOrdered, MapPinned, RefreshCcw, Settings } from 'lucide-react';
+import { ArrowRight, Database, MapPinned, RefreshCcw, Settings } from 'lucide-react';
 
 import PageHeader from '@/components/dashboard/PageHeader';
-import { useCourseRankings } from '@/hooks/use-course-rankings';
-import { useRankedCourseRecords } from '@/hooks/use-ranked-course-records';
+import ProfileRankingSection from '@/components/rankings/ProfileRankingSection';
 import { demoStats, demoWorkspaceCards, formatDemoDate, starterLists } from '@/lib/demo-v1';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { rankedCourses, rankedCourseCount, hasTrueRankingThreshold } = useCourseRankings();
-  const {
-    records: rankedCourseRecords,
-    isLoading: isRankedCoursesLoading,
-    hasError: hasRankedCoursesError,
-  } = useRankedCourseRecords(rankedCourses);
 
   return (
     <div className="space-y-10">
@@ -92,106 +85,7 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      <section className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-7 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-8">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">
-              My rankings
-            </p>
-            <h2 className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">Local ranking state</h2>
-            <p className="mt-3 max-w-3xl text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-              This view reads directly from GolfeR&apos;s local ranking store on this device. It is a simple inspection
-              surface for testing saved course order before the full comparison flow exists.
-            </p>
-          </div>
-
-          <div className="rounded-full bg-[hsl(var(--golfer-mist))] px-4 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
-            {rankedCourseCount} ranked course{rankedCourseCount === 1 ? '' : 's'}
-          </div>
-        </div>
-
-        <div className="mt-6 rounded-[24px] bg-[hsl(var(--golfer-cream))] px-5 py-4 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.76]">
-          {hasTrueRankingThreshold
-            ? 'The five-course threshold has been reached, so this list reflects the stricter local ranking order.'
-            : 'Fewer than five courses are ranked, so treat this as an early-stage local list. The stored order is still real and will carry forward.'}
-        </div>
-
-        <div className="mt-8">
-          {rankedCourseCount === 0 ? (
-            <div className="rounded-[28px] border border-dashed border-[hsl(var(--golfer-line))] bg-white p-10 text-center">
-              <div className="mx-auto max-w-2xl">
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
-                  <ListOrdered size={18} />
-                </span>
-                <h3 className="mt-5 text-2xl text-[hsl(var(--golfer-deep))]">No local rankings saved yet</h3>
-                <p className="mt-3 text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-                  Open any course page and use the Played this course popup to start saving local rankings.
-                </p>
-              </div>
-            </div>
-          ) : isRankedCoursesLoading ? (
-            <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-6 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-              Loading ranked course details...
-            </div>
-          ) : hasRankedCoursesError ? (
-            <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-6 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-              The local ranking store loaded, but one or more course detail files could not be resolved for display.
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {rankedCourseRecords.map(({ ranking, course, fallbackName, fallbackLocation }) => (
-                <button
-                  key={ranking.courseId}
-                  onClick={() => navigate(`/course/${ranking.courseId}`)}
-                  className="grid w-full gap-4 rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-5 text-left shadow-[0_18px_44px_-42px_rgba(12,25,19,0.35)] transition hover:-translate-y-0.5 sm:grid-cols-[5rem_minmax(0,1fr)_auto]"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--golfer-deep))] text-base font-semibold text-white">
-                      {ranking.globalOrder}
-                    </span>
-                    <div className="sm:hidden">
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
-                        Global order
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-lg font-semibold text-[hsl(var(--golfer-deep))]">
-                        {course?.name ?? fallbackName}
-                      </h3>
-                      <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1 text-xs font-medium capitalize text-[hsl(var(--golfer-deep))]">
-                        {ranking.bucket}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
-                      {course?.location ?? fallbackLocation}
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-2 text-xs text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-                      <span className="rounded-full bg-[hsl(var(--golfer-cream))] px-3 py-1.5">
-                        Bucket order #{ranking.bucketOrder}
-                      </span>
-                      <span className="rounded-full bg-[hsl(var(--golfer-cream))] px-3 py-1.5">
-                        Play count {ranking.playCount}
-                      </span>
-                      <span className="rounded-full bg-[hsl(var(--golfer-cream))] px-3 py-1.5">
-                        Last played {ranking.lastPlayedAt ? formatDemoDate(ranking.lastPlayedAt) : 'Not recorded'}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start justify-start sm:justify-end">
-                    <span className="inline-flex items-center gap-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
-                      Open course <ArrowRight size={14} />
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+      <ProfileRankingSection />
     </div>
   );
 }
