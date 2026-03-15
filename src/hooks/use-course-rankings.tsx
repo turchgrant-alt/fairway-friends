@@ -7,6 +7,7 @@ import {
   getCourseBucket,
   getCourseBucketOrder,
   getCourseGlobalOrder,
+  getCourseNumericRating,
   getCoursePlayCount,
   getCourseRanking,
   getRankedCourseCount,
@@ -22,6 +23,7 @@ import {
   type CourseRankingBucket,
   type CourseRankingState,
   type MarkCoursePlayedInput,
+  type ReorderFullCourseRankingInput,
   type UpdateCourseRankingInput,
 } from "@/lib/course-rankings";
 
@@ -34,13 +36,14 @@ interface CourseRankingContextValue {
   markPlayedCourse: (input: MarkCoursePlayedInput) => void;
   saveCourseRanking: (input: UpdateCourseRankingInput) => void;
   removePlayedCourse: (courseId: string) => void;
-  reorderFullRanking: (orderedCourseIds: string[]) => void;
+  reorderFullRanking: (input: ReorderFullCourseRankingInput) => void;
   reorderBucket: (bucket: CourseRankingBucket, orderedCourseIds: string[]) => void;
   getCourseRankingRecord: (courseId: string) => ReturnType<typeof getCourseRanking>;
   hasCourseBeenPlayed: (courseId: string) => boolean;
   getCourseBucket: (courseId: string) => CourseRankingBucket | null;
   getCourseGlobalOrder: (courseId: string) => number | null;
   getCourseBucketOrder: (courseId: string) => number | null;
+  getCourseNumericRating: (courseId: string) => number | null;
   getCoursePlayCount: (courseId: string) => number;
   getBucketCourses: (bucket: CourseRankingBucket) => ReturnType<typeof getBucketCourses>;
 }
@@ -98,8 +101,8 @@ export function CourseRankingProvider({ children }: { children: ReactNode }) {
         removePlayedCourse: (courseId) => {
           setRankingState((currentState) => removeCourseRanking(currentState, courseId));
         },
-        reorderFullRanking: (orderedCourseIds) => {
-          setRankingState((currentState) => reorderFullCourseRanking(currentState, orderedCourseIds));
+        reorderFullRanking: (input) => {
+          setRankingState((currentState) => reorderFullCourseRanking(currentState, input));
         },
         reorderBucket: (bucket, orderedCourseIds) => {
           setRankingState((currentState) => reorderBucketCourses(currentState, bucket, orderedCourseIds));
@@ -109,6 +112,7 @@ export function CourseRankingProvider({ children }: { children: ReactNode }) {
         getCourseBucket: (courseId) => getCourseBucket(rankingState, courseId),
         getCourseGlobalOrder: (courseId) => getCourseGlobalOrder(rankingState, courseId),
         getCourseBucketOrder: (courseId) => getCourseBucketOrder(rankingState, courseId),
+        getCourseNumericRating: (courseId) => getCourseNumericRating(rankingState, courseId),
         getCoursePlayCount: (courseId) => getCoursePlayCount(rankingState, courseId),
         getBucketCourses: (bucket) => getBucketCourses(rankingState, bucket),
       }}

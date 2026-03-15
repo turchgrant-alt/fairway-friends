@@ -41,7 +41,13 @@ type DropIndicator = {
 
 export default function ProfileRankingSection() {
   const navigate = useNavigate();
-  const { rankedCourses, rankedCourseCount, hasTrueRankingThreshold, reorderFullRanking } = useCourseRankings();
+  const {
+    rankedCourses,
+    rankedCourseCount,
+    hasTrueRankingThreshold,
+    reorderFullRanking,
+    getCourseNumericRating,
+  } = useCourseRankings();
   const {
     records: rankedCourseRecords,
     isLoading: isRankedCoursesLoading,
@@ -98,7 +104,12 @@ export default function ProfileRankingSection() {
     const insertionIndex = placement === "before" ? targetIndex : targetIndex + 1;
 
     nextOrderedCourseIds.splice(insertionIndex, 0, draggedCourseId);
-    reorderFullRanking(nextOrderedCourseIds);
+    reorderFullRanking({
+      orderedCourseIds: nextOrderedCourseIds,
+      movedCourseId: draggedCourseId,
+      targetCourseId,
+      placement,
+    });
     clearDragState();
   }
 
@@ -107,7 +118,12 @@ export default function ProfileRankingSection() {
 
     const nextOrderedCourseIds = visibleCourseIds.filter((courseId) => courseId !== draggedCourseId);
     nextOrderedCourseIds.push(draggedCourseId);
-    reorderFullRanking(nextOrderedCourseIds);
+    reorderFullRanking({
+      orderedCourseIds: nextOrderedCourseIds,
+      movedCourseId: draggedCourseId,
+      targetCourseId: null,
+      placement: "after",
+    });
     clearDragState();
   }
 
@@ -123,7 +139,7 @@ export default function ProfileRankingSection() {
           </h2>
           <p className="mt-3 max-w-3xl text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
             One full local list with visible bucket labels. After manual reorder, the saved display order becomes the
-            source of truth for both the list order and the numeric ranking values once they unlock.
+            source of truth for bucket assignment and the numeric rating values once they unlock.
           </p>
         </div>
 
@@ -169,20 +185,21 @@ export default function ProfileRankingSection() {
         {hasTrueRankingThreshold ? (
           <span className="inline-flex items-center gap-2">
             <Medal size={15} />
-            The five-course threshold has been reached. Numeric rankings now reflect the current visible order.
+            The five-course threshold has been reached. Ratings now use exact Great, Fine, and Bad score bands.
           </span>
         ) : (
           <span className="inline-flex items-center gap-2">
             <Sparkles size={15} />
             Fewer than five courses are ranked, so this stays a softer early-stage list. Order is saved, but final
-            numeric ranks stay hidden until five courses are ranked.
+            numeric ratings stay hidden until five courses are ranked.
           </span>
         )}
       </div>
 
       {isReorderMode && rankedCourseCount > 0 ? (
         <div className="mt-4 rounded-[22px] bg-[hsl(var(--golfer-cream))] px-5 py-4 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.76]">
-          Drag rows into any order. Bucket labels and colors stay visible, but they no longer constrain manual placement.
+          Drag rows into any order. Dropping a course into a different bucket region reassigns its bucket and recalculates
+          its numeric rating.
         </div>
       ) : null}
 
@@ -211,6 +228,7 @@ export default function ProfileRankingSection() {
           <div className="space-y-4">
             {rankedCourseRecords.map(({ ranking, course, fallbackName, fallbackLocation }) => {
               const bucketStyle = BUCKET_STYLES[ranking.bucket];
+              const numericRating = hasTrueRankingThreshold ? getCourseNumericRating(ranking.courseId) : null;
               const isDragged = draggedCourseId === ranking.courseId;
               const showTopDropIndicator =
                 dropIndicator?.courseId === ranking.courseId && dropIndicator.placement === "before";
@@ -241,7 +259,7 @@ export default function ProfileRankingSection() {
                       <span
                         className={`inline-flex h-12 min-w-12 items-center justify-center rounded-full px-3 text-base font-semibold ${bucketStyle.numberClassName}`}
                       >
-                        #{ranking.globalOrder}
+                        {numericRating != null ? numericRating.toFixed(1) : "--"}
                       </span>
                     ) : (
                       <span className="inline-flex h-12 min-w-12 items-center justify-center rounded-full border border-[hsl(var(--golfer-line))] bg-white px-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.62]">
@@ -271,7 +289,7 @@ export default function ProfileRankingSection() {
                       </span>
                       {hasTrueRankingThreshold ? (
                         <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-[hsl(var(--golfer-deep))]">
-                          Rank #{ranking.globalOrder}
+                          Rating {numericRating != null ? numericRating.toFixed(1) : "--"}
                         </span>
                       ) : null}
                     </div>

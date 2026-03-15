@@ -1,8 +1,13 @@
 export const COURSE_RANKING_STORAGE_KEY = "golfer:v1-course-rankings";
 export const MINIMUM_TRUE_RANKING_COUNT = 5;
-export const COURSE_RANKING_STATE_VERSION = 2;
+export const COURSE_RANKING_STATE_VERSION = 3;
 
 export const COURSE_BUCKET_PRIORITY = ["great", "fine", "bad"] as const;
+export const COURSE_BUCKET_SCORE_BANDS = {
+  great: { max: 10.0, min: 7.5 },
+  fine: { max: 7.4, min: 4.5 },
+  bad: { max: 4.4, min: 0.0 },
+} as const;
 
 export type CourseRankingBucket = (typeof COURSE_BUCKET_PRIORITY)[number];
 
@@ -38,6 +43,13 @@ export interface MarkCoursePlayedInput extends UpdateCourseRankingInput {
   playCountIncrement?: number;
 }
 
+export interface ReorderFullCourseRankingInput {
+  orderedCourseIds: string[];
+  movedCourseId?: string;
+  targetCourseId?: string | null;
+  placement?: "before" | "after";
+}
+
 function isBucket(value: unknown): value is CourseRankingBucket {
   return typeof value === "string" && COURSE_BUCKET_PRIORITY.includes(value as CourseRankingBucket);
 }
@@ -52,6 +64,11 @@ function toIsoDateString(value: string | Date | null | undefined) {
 function clampPositiveInteger(value: number | null | undefined, fallback: number) {
   if (typeof value !== "number" || !Number.isFinite(value)) return fallback;
   return Math.max(1, Math.trunc(value));
+}
+
+function roundToDecimals(value: number, decimals: number) {
+  const precision = 10 ** decimals;
+  return Math.round(value * precision) / precision;
 }
 
 function bucketPriority(bucket: CourseRankingBucket) {
@@ -162,6 +179,90 @@ function buildCanonicalCourses(courses: PlayedCourseRankingRecord[]) {
   });
 }
 
+function normalizeBucketsToVisibleOrder(orderedCourses: PlayedCourseRankingRecord[]) {
+  if (orderedCourses.length === 0) return [];
+
+  const bucketIndices = orderedCourses.map((course) => bucketPriority(course.bucket));
+  const bucketCount = COURSE_BUCKET_PRIORITY.length;
+  const costMatrix = Array.from({ length: orderedCourses.length }, () =>
+    Array.from({ length: bucketCount }, () => Number.POSITIVE_INFINITY),
+  );
+  const nextBucketMatrix = Array.from({ length: orderedCourses.length }, () =>
+    Array.from({ length: bucketCount }, () => 0),
+  );
+
+  for (let position = orderedCourses.length - 1; position >= 0; position -= 1) {
+    for (let bucketIndex = bucketCount - 1; bucketIndex >= 0; bucketIndex -= 1) {
+      const changeCost = bucketIndices[position] === bucketIndex ? 0 : 1;
+
+      if (position === orderedCourses.length - 1) {
+        costMatrix[position][bucketIndex] = changeCost;
+        nextBucketMatrix[position][bucketIndex] = bucketIndex;
+        continue;
+      }
+
+      let bestNextBucketIndex = bucketIndex;
+      let bestRemainingCost = Number.POSITIVE_INFINITY;
+
+      for (let nextBucketIndex = bucketIndex; nextBucketIndex < bucketCount; nextBucketIndex += 1) {
+        const candidateCost = costMatrix[position + 1][nextBucketIndex];
+        if (
+          candidateCost < bestRemainingCost ||
+          (candidateCost === bestRemainingCost && nextBucketIndex < bestNextBucketIndex)
+        ) {
+          bestRemainingCost = candidateCost;
+          bestNextBucketIndex = nextBucketIndex;
+        }
+      }
+
+      costMatrix[position][bucketIndex] = changeCost + bestRemainingCost;
+      nextBucketMatrix[position][bucketIndex] = bestNextBucketIndex;
+    }
+  }
+
+  let currentBucketIndex = 0;
+  for (let bucketIndex = 1; bucketIndex < bucketCount; bucketIndex += 1) {
+    if (costMatrix[0][bucketIndex] < costMatrix[0][currentBucketIndex]) {
+      currentBucketIndex = bucketIndex;
+    }
+  }
+
+  return orderedCourses.map((course, position) => {
+    const nextCourse = {
+      ...course,
+      bucket: COURSE_BUCKET_PRIORITY[currentBucketIndex],
+    };
+
+    if (position < orderedCourses.length - 1) {
+      currentBucketIndex = nextBucketMatrix[position][currentBucketIndex];
+    }
+
+    return nextCourse;
+  });
+}
+
+function assignOrdersFromVisibleOrder(orderedCourses: PlayedCourseRankingRecord[]) {
+  const bucketOrderCounts: Record<CourseRankingBucket, number> = {
+    great: 0,
+    fine: 0,
+    bad: 0,
+  };
+
+  const orderedCoursesWithRankState = orderedCourses.map((course, index) => {
+    bucketOrderCounts[course.bucket] += 1;
+
+    return {
+      ...course,
+      played: true as const,
+      playCount: clampPositiveInteger(course.playCount, 1),
+      bucketOrder: bucketOrderCounts[course.bucket],
+      globalOrder: index + 1,
+    };
+  });
+
+  return [...orderedCoursesWithRankState].sort(compareCanonicalCourses);
+}
+
 function finalizeCourseRankings(
   courses: PlayedCourseRankingRecord[],
   updatedAt: string,
@@ -173,18 +274,18 @@ function finalizeCourseRankings(
     canonicalCourseIds,
     normalizeManualOrderCourseIds(manualOrderCourseIds, canonicalCourseIds),
   );
-  const globalOrderByCourseId = new Map(
-    resolvedManualOrderCourseIds.map((courseId, index) => [courseId, index + 1]),
+  const courseById = new Map(canonicalCourses.map((course) => [course.courseId, course]));
+  const visibleOrderCourses = normalizeBucketsToVisibleOrder(
+    resolvedManualOrderCourseIds
+      .map((courseId) => courseById.get(courseId))
+      .filter(Boolean) as PlayedCourseRankingRecord[],
   );
 
   return {
     version: COURSE_RANKING_STATE_VERSION,
     updatedAt,
     manualOrderCourseIds: resolvedManualOrderCourseIds,
-    courses: canonicalCourses.map((course) => ({
-      ...course,
-      globalOrder: globalOrderByCourseId.get(course.courseId) ?? canonicalCourseIds.indexOf(course.courseId) + 1,
-    })),
+    courses: assignOrdersFromVisibleOrder(visibleOrderCourses),
   };
 }
 
@@ -331,6 +432,29 @@ export function getBucketCourses(state: CourseRankingState, bucket: CourseRankin
     .sort((a, b) => a.bucketOrder - b.bucketOrder || a.courseId.localeCompare(b.courseId));
 }
 
+export function getBucketScore(bucket: CourseRankingBucket, bucketRankPosition: number, bucketCount: number) {
+  if (bucketCount <= 0) return null;
+
+  const { max: bucketMax, min: bucketMin } = COURSE_BUCKET_SCORE_BANDS[bucket];
+  if (bucketCount === 1) {
+    return roundToDecimals(bucketMax, 2);
+  }
+
+  const nextScore =
+    bucketMax - ((bucketRankPosition - 1) / (bucketCount - 1)) * (bucketMax - bucketMin);
+
+  return roundToDecimals(nextScore, 2);
+}
+
+export function getCourseNumericRating(state: CourseRankingState, courseId: string) {
+  const normalizedState = normalizeCourseRankingState(state);
+  const course = normalizedState.courses.find((candidate) => candidate.courseId === courseId);
+  if (!course) return null;
+
+  const bucketCount = normalizedState.courses.filter((candidate) => candidate.bucket === course.bucket).length;
+  return getBucketScore(course.bucket, course.bucketOrder, bucketCount);
+}
+
 export function updateCourseRanking(state: CourseRankingState, input: UpdateCourseRankingInput) {
   const normalizedState = normalizeCourseRankingState(state);
   const nowIso = new Date().toISOString();
@@ -416,20 +540,38 @@ export function reorderBucketCourses(state: CourseRankingState, bucket: CourseRa
   return finalizeCourseRankings(normalizedState.courses, nowIso, nextManualOrderCourseIds);
 }
 
-export function reorderFullCourseRanking(state: CourseRankingState, orderedCourseIds: string[]) {
+export function reorderFullCourseRanking(state: CourseRankingState, input: ReorderFullCourseRankingInput) {
   const normalizedState = normalizeCourseRankingState(state);
   const nowIso = new Date().toISOString();
   const validCourseIds = new Set(normalizedState.courses.map((course) => course.courseId));
   const dedupedOrderedIds = Array.from(
-    new Set(orderedCourseIds.filter((courseId) => validCourseIds.has(courseId))),
+    new Set(input.orderedCourseIds.filter((courseId) => validCourseIds.has(courseId))),
   );
   const remainingCourseIds = normalizedState.manualOrderCourseIds.filter(
     (courseId) => validCourseIds.has(courseId) && !dedupedOrderedIds.includes(courseId),
   );
+  const nextManualOrderCourseIds = [...dedupedOrderedIds, ...remainingCourseIds];
+  const courseById = new Map(normalizedState.courses.map((course) => [course.courseId, course]));
+  const movedCourse = input.movedCourseId ? courseById.get(input.movedCourseId) ?? null : null;
+  const targetCourse =
+    input.targetCourseId && input.targetCourseId !== input.movedCourseId
+      ? courseById.get(input.targetCourseId) ?? null
+      : null;
+  const fallbackTargetCourseId = [...nextManualOrderCourseIds]
+    .reverse()
+    .find((courseId) => courseId !== input.movedCourseId);
+  const fallbackTargetCourse = fallbackTargetCourseId ? courseById.get(fallbackTargetCourseId) ?? null : null;
+  const nextBucket = targetCourse?.bucket ?? fallbackTargetCourse?.bucket ?? movedCourse?.bucket ?? "fine";
+  const nextCourses =
+    movedCourse && movedCourse.bucket !== nextBucket
+      ? normalizedState.courses.map((course) =>
+          course.courseId === movedCourse.courseId ? { ...course, bucket: nextBucket } : course,
+        )
+      : normalizedState.courses;
 
   return finalizeCourseRankings(
-    normalizedState.courses,
+    nextCourses,
     nowIso,
-    [...dedupedOrderedIds, ...remainingCourseIds],
+    nextManualOrderCourseIds,
   );
 }

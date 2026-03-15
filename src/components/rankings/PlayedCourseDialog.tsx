@@ -129,6 +129,7 @@ export default function PlayedCourseDialog({
     rankedCourseCount,
     hasTrueRankingThreshold,
     getBucketCourses,
+    getCourseNumericRating,
     getCourseRankingRecord,
     markPlayedCourse,
     replaceRankingState,
@@ -148,6 +149,7 @@ export default function PlayedCourseDialog({
   }, [courseId, getBucketCourses, selectedBucket]);
   const { records: rankedBucketRecords, isLoading: isRankedBucketRecordsLoading } = useRankedCourseRecords(selectedBucketCourses);
   const currentCourseRanking = getCourseRankingRecord(courseId);
+  const currentCourseNumericRating = getCourseNumericRating(courseId);
   const rankedCourseThresholdRemaining = Math.max(
     MINIMUM_TRUE_RANKING_COUNT - (currentCourseRanking ? rankedCourseCount : rankedCourseCount + 1),
     0,
@@ -505,10 +507,14 @@ export default function PlayedCourseDialog({
                   <div className="mt-5 grid gap-4 sm:grid-cols-3">
                     <div className="rounded-[22px] bg-[hsl(var(--golfer-cream))] p-4">
                       <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
-                        Global position
+                        {hasTrueRankingThreshold ? "Numeric rating" : "Visible order"}
                       </p>
                       <p className="mt-2 text-xl text-[hsl(var(--golfer-deep))]">
-                        {currentCourseRanking?.globalOrder ?? "Pending"}
+                        {hasTrueRankingThreshold
+                          ? currentCourseNumericRating != null
+                            ? currentCourseNumericRating.toFixed(1)
+                            : "Pending"
+                          : currentCourseRanking?.globalOrder ?? "Pending"}
                       </p>
                     </div>
                     <div className="rounded-[22px] bg-[hsl(var(--golfer-cream))] p-4">

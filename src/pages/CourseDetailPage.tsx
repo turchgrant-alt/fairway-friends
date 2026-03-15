@@ -21,6 +21,7 @@ export default function CourseDetailPage() {
   const { data: stateCourseCatalog = [] } = useStateCourseCatalog(course?.stateCode);
   const {
     getCourseRankingRecord,
+    getCourseNumericRating,
     hasTrueRankingThreshold,
     markPlayedCourse,
   } = useCourseRankings();
@@ -53,6 +54,7 @@ export default function CourseDetailPage() {
   }
 
   const courseRanking = getCourseRankingRecord(course.id);
+  const courseNumericRating = getCourseNumericRating(course.id);
   const isPlayed = Boolean(courseRanking);
 
   const tabs: { key: Tab; label: string }[] = [
@@ -149,12 +151,12 @@ export default function CourseDetailPage() {
                 </div>
                 <div className="rounded-[20px] bg-white/80 p-4">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
-                    {hasTrueRankingThreshold ? 'Numeric rank' : 'Ranking stage'}
+                    {hasTrueRankingThreshold ? 'Numeric rating' : 'Ranking stage'}
                   </p>
                   <p className="mt-2 text-base text-[hsl(var(--golfer-deep))]">
                     {hasTrueRankingThreshold
-                      ? courseRanking?.globalOrder
-                        ? `#${courseRanking.globalOrder}`
+                      ? courseNumericRating != null
+                        ? courseNumericRating.toFixed(1)
                         : 'Unranked'
                       : 'Early list'}
                   </p>
@@ -174,8 +176,8 @@ export default function CourseDetailPage() {
               </div>
               <p className="mt-4 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
                 {hasTrueRankingThreshold
-                  ? `Numeric ranking follows the current Profile list order. `
-                  : 'Numeric ranking unlocks after 5 ranked courses. '}
+                  ? `Numeric rating follows the current Profile order and bucket score band. `
+                  : 'Numeric rating unlocks after 5 ranked courses. '}
                 Last played {courseRanking?.lastPlayedAt ? formatDemoDate(courseRanking.lastPlayedAt) : 'not recorded yet'}.
               </p>
               <div className="mt-5 flex flex-col gap-3">
