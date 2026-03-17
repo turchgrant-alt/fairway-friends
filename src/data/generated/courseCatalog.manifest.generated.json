@@ -1,8 +1,8 @@
 {
   "source": "csv_catalog",
   "sourceFile": "data/course-catalog/source/us_golf_courses_dataset.csv",
-  "importedAt": "2026-03-17T17:10:47.454Z",
-  "recordCount": 17154,
+  "importedAt": "2026-03-17T18:45:40.209Z",
+  "recordCount": 17137,
   "stateCodes": [
     "AK",
     "AL",
@@ -55,8 +55,8 @@
     "WV",
     "WY"
   ],
-  "mappableRecordCount": 370,
-  "coordinateCoverageRatio": 0.0216,
+  "mappableRecordCount": 452,
+  "coordinateCoverageRatio": 0.0264,
   "enrichmentNotes": [
     "CSV file is the stored source of truth for v1 course records.",
     "Runtime catalog loading is segmented by state so the client does not parse the full national detail dataset for map flows.",

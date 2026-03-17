@@ -89,6 +89,10 @@ function normalizeString(value) {
   return normalized.length > 0 ? normalized : null;
 }
 
+function getCsvValue(row, key) {
+  return row[key] ?? row[`﻿${key}`] ?? "";
+}
+
 function normalizeWebsite(value) {
   const normalized = normalizeString(value);
   if (!normalized) return null;
@@ -206,31 +210,60 @@ function normalizeName(value) {
     .trim() ?? "";
 }
 
+function formatCourseSubLabel(courseName) {
+  const normalizedCourseName = normalizeString(courseName);
+  if (!normalizedCourseName) return null;
+
+  const numberedCourseMatch = normalizedCourseName.match(/^(\d+(?:\s*&\s*\d+)*)\s+Course$/i);
+  if (numberedCourseMatch) {
+    const numberLabel = numberedCourseMatch[1].replace(/\s*&\s*/g, " & ");
+    return `No. ${numberLabel}`;
+  }
+
+  return normalizedCourseName;
+}
+
+function pickPreferredRedundantName(facilityName, courseLabel) {
+  const normalizedFacility = normalizeString(facilityName);
+  const normalizedCourseLabel = normalizeString(courseLabel);
+
+  if (!normalizedFacility) return normalizedCourseLabel;
+  if (!normalizedCourseLabel) return normalizedFacility;
+
+  return normalizedCourseLabel.length > normalizedFacility.length
+    ? normalizedCourseLabel
+    : normalizedFacility;
+}
+
 function tokenSet(value) {
   return new Set(normalizeName(value).split(" ").filter(Boolean));
 }
 
 function buildDisplayName(facilityName, courseName) {
-  if (facilityName && courseName) {
-    const facilityNormalized = normalizeName(facilityName);
-    const courseNormalized = normalizeName(courseName);
+  const normalizedFacilityName = normalizeString(facilityName);
+  const normalizedCourseName = normalizeString(courseName);
+  const courseLabel = formatCourseSubLabel(normalizedCourseName);
+
+  if (normalizedFacilityName && courseLabel) {
+    const facilityNormalized = normalizeName(normalizedFacilityName);
+    const courseNormalized = normalizeName(courseLabel);
 
     if (!courseNormalized || facilityNormalized === courseNormalized) {
-      return facilityName;
+      return normalizedFacilityName;
     }
 
     if (facilityNormalized.includes(courseNormalized)) {
-      return facilityName;
+      return normalizedFacilityName;
     }
 
     if (courseNormalized.includes(facilityNormalized)) {
-      return courseName;
+      return pickPreferredRedundantName(normalizedFacilityName, courseLabel);
     }
 
-    return `${facilityName} (${courseName})`;
+    return `${normalizedFacilityName} (${courseLabel})`;
   }
 
-  return facilityName ?? courseName ?? "Unnamed golf course";
+  return normalizedFacilityName ?? courseLabel ?? normalizedCourseName ?? "Unnamed golf course";
 }
 
 function extractStreetAddress(fullAddress, city, stateCode, postcode) {
@@ -362,10 +395,11 @@ function parseCsv(text) {
   }
 
   const [headers = [], ...records] = rows;
+  const normalizedHeaders = headers.map((header) => String(header).replace(/^\uFEFF/, "").trim());
 
   return records
     .filter((record) => record.some((value) => value !== ""))
-    .map((record) => Object.fromEntries(headers.map((header, index) => [header, record[index] ?? ""])));
+    .map((record) => Object.fromEntries(normalizedHeaders.map((header, index) => [header, record[index] ?? ""])));
 }
 
 function buildNameVariants(facilityName, courseName, displayName) {
@@ -440,15 +474,20 @@ function createNyEnrichmentIndex(records) {
 function findNyEnrichment(row, nyIndex) {
   if (!nyIndex) return null;
 
-  const stateCode = normalizeStateCode(row.state);
+  const stateCode = normalizeStateCode(getCsvValue(row, "state"));
   if (stateCode !== "NY") return null;
 
-  const facilityName = normalizeString(row.facility_name);
-  const courseName = normalizeString(row.course_name);
+  const facilityName = normalizeString(getCsvValue(row, "facility_name"));
+  const courseName = normalizeString(getCsvValue(row, "course_name"));
   const displayName = buildDisplayName(facilityName, courseName);
   const nameVariants = buildNameVariants(facilityName, courseName, displayName);
-  const cityKey = normalizeString(row.city)?.toLowerCase() ?? "";
-  const streetAddress = extractStreetAddress(row.full_address, row.city, row.state, row.zip_code);
+  const cityKey = normalizeString(getCsvValue(row, "city"))?.toLowerCase() ?? "";
+  const streetAddress = extractStreetAddress(
+    getCsvValue(row, "full_address"),
+    getCsvValue(row, "city"),
+    getCsvValue(row, "state"),
+    getCsvValue(row, "zip_code"),
+  );
   const candidates = nyIndex.byCity.get(cityKey) ?? nyIndex.all;
 
   let bestCandidate = null;
@@ -527,7 +566,9 @@ function ensureUniqueIds(records) {
   const counts = new Map();
 
   for (const record of records) {
-    const baseSlug = slugify([record.stateCode, record.city, record.name].filter(Boolean).join("-")) || record.sourceId;
+    const baseSlug =
+      slugify([record.stateCode, record.city, record.courseName ?? record.facilityName ?? record.name].filter(Boolean).join("-")) ||
+      record.sourceId;
     const nextCount = (counts.get(baseSlug) ?? 0) + 1;
     counts.set(baseSlug, nextCount);
     record.id = nextCount === 1 ? baseSlug : `${baseSlug}-${nextCount}`;
@@ -535,37 +576,37 @@ function ensureUniqueIds(records) {
 }
 
 function buildNormalizedRecord(row, rowIndex, importedAt, nyIndex) {
-  const stateCode = normalizeStateCode(row.state) ?? "US";
+  const stateCode = normalizeStateCode(getCsvValue(row, "state")) ?? "US";
   const stateName = getStateName(stateCode);
-  const facilityName = normalizeString(row.facility_name);
-  const courseName = normalizeString(row.course_name);
+  const facilityName = normalizeString(getCsvValue(row, "facility_name"));
+  const courseName = normalizeString(getCsvValue(row, "course_name"));
   const name = buildDisplayName(facilityName, courseName);
-  const fullAddress = normalizeString(row.full_address);
-  const city = normalizeString(row.city);
-  const postcode = normalizeString(row.zip_code);
+  const fullAddress = normalizeString(getCsvValue(row, "full_address"));
+  const city = normalizeString(getCsvValue(row, "city"));
+  const postcode = normalizeString(getCsvValue(row, "zip_code"));
   const streetAddress = extractStreetAddress(fullAddress, city, stateCode, postcode);
-  const county = normalizeString(row.county);
-  const accessTypeRaw = normalizeString(row.access_type);
-  const statusRaw = normalizeString(row.status);
+  const county = normalizeString(getCsvValue(row, "county"));
+  const accessTypeRaw = normalizeString(getCsvValue(row, "access_type"));
+  const statusRaw = normalizeString(getCsvValue(row, "status"));
   const accessType = normalizeAccessType(accessTypeRaw);
   const status = normalizeStatus(statusRaw);
-  const csvLatitude = parseFloatValue(row.latitude);
-  const csvLongitude = parseFloatValue(row.longitude);
+  const csvLatitude = parseFloatValue(getCsvValue(row, "latitude"));
+  const csvLongitude = parseFloatValue(getCsvValue(row, "longitude"));
   const csvHasCoordinates = csvLatitude != null && csvLongitude != null;
   const nyEnrichment = csvHasCoordinates ? null : findNyEnrichment(row, nyIndex);
   const latitude = csvHasCoordinates ? csvLatitude : nyEnrichment?.latitude ?? null;
   const longitude = csvHasCoordinates ? csvLongitude : nyEnrichment?.longitude ?? null;
   const hasVerifiedCoordinates = latitude != null && longitude != null;
   const coordinateSource = csvHasCoordinates ? SOURCE : nyEnrichment?.source ?? null;
-  const website = normalizeWebsite(row.website) ?? normalizeWebsite(nyEnrichment?.website) ?? null;
-  const phone = normalizePhone(row.phone_number) ?? normalizePhone(nyEnrichment?.phone) ?? null;
-  const holes = parseInteger(row.number_of_holes);
-  const par = parseInteger(row.par);
+  const website = normalizeWebsite(getCsvValue(row, "website")) ?? normalizeWebsite(nyEnrichment?.website) ?? null;
+  const phone = normalizePhone(getCsvValue(row, "phone_number")) ?? normalizePhone(nyEnrichment?.phone) ?? null;
+  const holes = parseInteger(getCsvValue(row, "number_of_holes"));
+  const par = parseInteger(getCsvValue(row, "par"));
   const sourceRowNumber = rowIndex + 2;
-  const hasPgaOrLpgaTourHistory = normalizeBooleanFlag(row.has_pga_or_lpga_tour_history);
-  const pgaLpgaTourHistoryType = normalizeTourHistoryType(row.pga_lpga_tour_history_type);
-  const pgaLpgaTourHistoryNote = normalizeString(row.pga_lpga_tour_history_note);
-  const pgaLpgaTourHistorySourceUrl = normalizeWebsite(row.pga_lpga_tour_history_source_url);
+  const hasPgaOrLpgaTourHistory = normalizeBooleanFlag(getCsvValue(row, "has_pga_or_lpga_tour_history"));
+  const pgaLpgaTourHistoryType = normalizeTourHistoryType(getCsvValue(row, "pga_lpga_tour_history_type"));
+  const pgaLpgaTourHistoryNote = normalizeString(getCsvValue(row, "pga_lpga_tour_history_note"));
+  const pgaLpgaTourHistorySourceUrl = normalizeWebsite(getCsvValue(row, "pga_lpga_tour_history_source_url"));
 
   return {
     id: "",
@@ -597,22 +638,22 @@ function buildNormalizedRecord(row, rowIndex, importedAt, nyIndex) {
     phone,
     operator: null,
     openingHours: null,
-    sourceName: normalizeString(row.source_name),
-    sourceUrl: normalizeString(row.source_url),
-    secondarySourceName: normalizeString(row.secondary_source_name),
-    secondarySourceUrl: normalizeString(row.secondary_source_url),
-    confidenceLevel: normalizeString(row.confidence_level),
-    lastVerifiedDate: normalizeString(row.last_verified_date),
-    teeName: normalizeString(row.tee_name),
-    gender: normalizeString(row.gender),
-    courseRating: parseFloatValue(row.course_rating),
-    slopeRating: parseFloatValue(row.slope_rating),
+    sourceName: normalizeString(getCsvValue(row, "source_name")),
+    sourceUrl: normalizeString(getCsvValue(row, "source_url")),
+    secondarySourceName: normalizeString(getCsvValue(row, "secondary_source_name")),
+    secondarySourceUrl: normalizeString(getCsvValue(row, "secondary_source_url")),
+    confidenceLevel: normalizeString(getCsvValue(row, "confidence_level")),
+    lastVerifiedDate: normalizeString(getCsvValue(row, "last_verified_date")),
+    teeName: normalizeString(getCsvValue(row, "tee_name")),
+    gender: normalizeString(getCsvValue(row, "gender")),
+    courseRating: parseFloatValue(getCsvValue(row, "course_rating")),
+    slopeRating: parseFloatValue(getCsvValue(row, "slope_rating")),
     hasPgaOrLpgaTourHistory,
     pgaLpgaTourHistoryType,
     pgaLpgaTourHistoryNote,
     pgaLpgaTourHistorySourceUrl,
     tags: buildTags({ accessType, holes, status }),
-    description: normalizeString(row.notes),
+    description: normalizeString(getCsvValue(row, "notes")),
     lastSyncedAt: importedAt,
     rawSourceData: {
       sourceRowNumber,
