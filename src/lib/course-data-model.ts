@@ -190,3 +190,46 @@ export interface CourseCatalogSummary {
   featuredCourses: CourseIndexRecord[];
   starterLists: CourseCatalogStarterList[];
 }
+
+export type GeneratedCourseListType =
+  | "tour_history"
+  | "holes_count"
+  | "access_type"
+  | "state"
+  | "city"
+  | "editorial";
+
+export interface GeneratedCourseListRecord {
+  id: string;
+  slug: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  listType: GeneratedCourseListType;
+  generatedAt: string;
+  refreshCadence: "weekly";
+  criteriaSummary: string[];
+  itemCount: number;
+  courseIds: string[];
+  rationale: string | null;
+}
+
+export interface GeneratedCourseListRuntimeRecord extends GeneratedCourseListRecord {
+  courses: CourseIndexRecord[];
+}
+
+export interface GeneratedCourseListCatalog {
+  generatedAt: string;
+  refreshCadence: "weekly";
+  sourceCatalogImportedAt: string | null;
+  listCount: number;
+  lists: GeneratedCourseListRuntimeRecord[];
+}
+
+export interface GeneratedCourseListCatalog {
+  generatedAt: string;
+  refreshCadence: "weekly";
+  sourceCatalogImportedAt: string | null;
+  listCount: number;
+  lists: GeneratedCourseListRuntimeRecord[];
+}
