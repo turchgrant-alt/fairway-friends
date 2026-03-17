@@ -1,6 +1,7 @@
 import { ArrowUpRight, Globe, MapPin, Star } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { CourseListRecord } from '@/lib/course-data';
+import CoursePhotoSurface from '@/components/CoursePhotoSurface';
 
 interface CourseCardProps {
   course: CourseListRecord;
@@ -9,6 +10,8 @@ interface CourseCardProps {
 
 export default function CourseCard({ course, variant = 'default' }: CourseCardProps) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const shouldShowPhoto = !location.pathname.startsWith('/map');
   const ratingLabel = course.overallRating != null ? `${course.overallRating}` : 'New';
   const summaryFacts = [
     course.type,
@@ -22,10 +25,13 @@ export default function CourseCard({ course, variant = 'default' }: CourseCardPr
         onClick={() => navigate(`/course/${course.id}`)}
         className="flex items-center gap-4 rounded-[24px] border border-[hsl(var(--golfer-line))] bg-white p-4 text-left shadow-[0_24px_60px_-48px_rgba(12,25,19,0.4)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_70px_-48px_rgba(12,25,19,0.45)]"
       >
-        <img
-          src={course.imageUrl}
-          alt={course.name}
-          className="h-20 w-20 rounded-[18px] object-cover"
+        <CoursePhotoSurface
+          courseId={course.id}
+          courseName={course.name}
+          disablePhoto={!shouldShowPhoto}
+          className="h-20 w-20 shrink-0 overflow-hidden rounded-[18px]"
+          imageClassName="h-full w-full rounded-[18px] object-cover"
+          placeholderClassName="h-full w-full rounded-[18px] bg-[hsl(var(--golfer-cream))]"
         />
         <div className="min-w-0 flex-1">
           <h4 className="truncate text-base font-semibold text-card-foreground">{course.name}</h4>
@@ -59,10 +65,14 @@ export default function CourseCard({ course, variant = 'default' }: CourseCardPr
         onClick={() => navigate(`/course/${course.id}`)}
         className="group relative w-full overflow-hidden rounded-[30px] border border-white/10 text-left shadow-[0_32px_80px_-55px_rgba(0,0,0,0.75)]"
       >
-        <img
-          src={course.imageUrl}
-          alt={course.name}
-          className="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        <CoursePhotoSurface
+          courseId={course.id}
+          courseName={course.name}
+          disablePhoto={!shouldShowPhoto}
+          lazy
+          className="h-64 w-full overflow-hidden"
+          imageClassName="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          placeholderClassName="h-64 w-full bg-[linear-gradient(135deg,hsl(var(--golfer-cream)),hsl(var(--golfer-mist)))]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -88,10 +98,13 @@ export default function CourseCard({ course, variant = 'default' }: CourseCardPr
       className="group w-full overflow-hidden rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white text-left shadow-[0_24px_60px_-48px_rgba(12,25,19,0.4)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_32px_80px_-48px_rgba(12,25,19,0.42)]"
     >
       <div className="relative">
-        <img
-          src={course.imageUrl}
-          alt={course.name}
-          className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        <CoursePhotoSurface
+          courseId={course.id}
+          courseName={course.name}
+          disablePhoto={!shouldShowPhoto}
+          className="h-52 w-full overflow-hidden"
+          imageClassName="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          placeholderClassName="h-52 w-full bg-[linear-gradient(135deg,hsl(var(--golfer-cream)),hsl(var(--golfer-mist)))]"
         />
         <div className="absolute right-3 top-3 flex items-center gap-2">
           {course.website ? (

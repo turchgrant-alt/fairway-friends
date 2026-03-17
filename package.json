@@ -12,6 +12,8 @@
     "sync:courses": "node scripts/golf-data/import-csv-catalog.mjs",
     "sync:courses:csv": "node scripts/golf-data/import-csv-catalog.mjs",
     "sync:courses:ny:osm": "node scripts/golf-data/ingest-state.mjs NY",
+    "generate:lists": "node scripts/golf-data/generate-curated-lists.mjs",
+    "enrich:photos": "node --experimental-strip-types scripts/enrich-course-photos.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },

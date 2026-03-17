@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, Database, Globe, MapPin, RotateCcw, Star, Trophy } from 'lucide-react';
 
 import CourseCard from '@/components/CourseCard';
+import CoursePhotoSurface from '@/components/CoursePhotoSurface';
 import PageHeader from '@/components/dashboard/PageHeader';
 import PlayedCourseDialog from '@/components/rankings/PlayedCourseDialog';
 import { useCourseRecord, useStateCourseCatalog } from '@/hooks/use-course-catalog';
@@ -96,7 +97,16 @@ export default function CourseDetailPage() {
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_22rem]">
         <div className="overflow-hidden rounded-[34px] border border-[hsl(var(--golfer-line))] bg-white shadow-[0_32px_90px_-55px_rgba(12,25,19,0.45)]">
-          <img src={course.imageUrl} alt={course.name} className="h-[24rem] w-full object-cover sm:h-[28rem]" />
+          <CoursePhotoSurface
+            courseId={course.id}
+            courseName={course.name}
+            lazy={false}
+            showAttribution
+            linkToCover
+            className="p-3"
+            imageClassName="h-[24rem] w-full rounded-[28px] object-cover sm:h-[28rem]"
+            placeholderClassName="h-[24rem] w-full rounded-[28px] bg-[linear-gradient(135deg,hsl(var(--golfer-cream)),hsl(var(--golfer-mist)))] sm:h-[28rem]"
+          />
         </div>
 
         <aside className="space-y-4">
