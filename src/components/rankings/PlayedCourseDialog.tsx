@@ -175,6 +175,7 @@ export default function PlayedCourseDialog({
   const [comparisonHistory, setComparisonHistory] = useState<ComparisonState[]>([]);
   const [comparisonHint, setComparisonHint] = useState<string | null>(null);
   const [flowStartRankingState, setFlowStartRankingState] = useState<CourseRankingState | null>(null);
+  const [hasInitializedRoundDetailsStep, setHasInitializedRoundDetailsStep] = useState(false);
   const [roundDetailsForm, setRoundDetailsForm] = useState<RoundDetailsFormState>(() =>
     createInitialRoundDetailsForm(),
   );
@@ -222,12 +223,13 @@ export default function PlayedCourseDialog({
       setComparisonState(null);
       setComparisonHistory([]);
       setComparisonHint(null);
+      setHasInitializedRoundDetailsStep(false);
       setRoundDetailsForm(createInitialRoundDetailsForm());
     }
   }, [open]);
 
   useEffect(() => {
-    if (!open || step !== "details") return;
+    if (!open || step !== "details" || hasInitializedRoundDetailsStep) return;
 
     setRoundDetailsForm(
       createInitialRoundDetailsForm({
@@ -238,7 +240,22 @@ export default function PlayedCourseDialog({
         notes: currentCourseRanking?.notes,
       }),
     );
-  }, [currentCourseRanking, open, step]);
+    setHasInitializedRoundDetailsStep(true);
+  }, [
+    currentCourseRanking?.notes,
+    currentCourseRanking?.pricePaid,
+    currentCourseRanking?.scoreShot,
+    currentCourseRanking?.userEnteredPar,
+    hasInitializedRoundDetailsStep,
+    open,
+    step,
+  ]);
+
+  useEffect(() => {
+    if (step !== "details" && hasInitializedRoundDetailsStep) {
+      setHasInitializedRoundDetailsStep(false);
+    }
+  }, [hasInitializedRoundDetailsStep, step]);
 
   function finalizePlacement(bucket: CourseRankingBucket, bucketOrder?: number | null) {
     if (isRerankMode) {
