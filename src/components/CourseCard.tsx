@@ -1,7 +1,10 @@
 import { ArrowUpRight, Globe, MapPin, Star } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+
 import type { CourseListRecord } from '@/lib/course-data';
 import CoursePhotoSurface from '@/components/CoursePhotoSurface';
+import { useCourseRankings } from '@/hooks/use-course-rankings';
+import { getCoursePar, registerCourseCatalogPar } from '@/lib/course-par';
 
 interface CourseCardProps {
   course: CourseListRecord;
@@ -11,12 +14,15 @@ interface CourseCardProps {
 export default function CourseCard({ course, variant = 'default' }: CourseCardProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { rankingState } = useCourseRankings();
   const shouldShowPhoto = !location.pathname.startsWith('/map');
   const ratingLabel = course.overallRating != null ? `${course.overallRating}` : 'New';
+  registerCourseCatalogPar(course.id, course.par);
+  const resolvedPar = getCoursePar(course.id, rankingState);
   const summaryFacts = [
     course.type,
     course.holes != null ? `${course.holes} holes` : null,
-    course.par != null ? `Par ${course.par}` : null,
+    resolvedPar ? `Par ${resolvedPar.par}` : null,
   ].filter(Boolean);
 
   if (variant === 'compact') {

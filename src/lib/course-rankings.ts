@@ -1,6 +1,8 @@
+import { COURSE_TAGS, type CourseExperienceTag } from "@/constants/course-tags";
+
 export const COURSE_RANKING_STORAGE_KEY = "golfer:v1-course-rankings";
 export const MINIMUM_TRUE_RANKING_COUNT = 5;
-export const COURSE_RANKING_STATE_VERSION = 3;
+export const COURSE_RANKING_STATE_VERSION = 4;
 
 export const COURSE_BUCKET_PRIORITY = ["great", "fine", "bad"] as const;
 export const COURSE_BUCKET_SCORE_BANDS = {
@@ -22,6 +24,12 @@ export interface PlayedCourseRankingRecord {
   bucketOrder: number;
   comparisonIds?: string[];
   lastComparedAt?: string | null;
+  userEnteredPar?: number;
+  pricePaid?: number;
+  scoreShot?: number;
+  tags?: CourseExperienceTag[];
+  notes?: string;
+  roundDate?: string | null;
 }
 
 export interface CourseRankingState {
@@ -31,7 +39,16 @@ export interface CourseRankingState {
   manualOrderCourseIds: string[];
 }
 
-export interface UpdateCourseRankingInput {
+export interface CourseRoundDetailsInput {
+  userEnteredPar?: number | null;
+  pricePaid?: number | null;
+  scoreShot?: number | null;
+  tags?: CourseExperienceTag[] | null;
+  notes?: string | null;
+  roundDate?: string | Date | null;
+}
+
+export interface UpdateCourseRankingInput extends CourseRoundDetailsInput {
   courseId: string;
   bucket?: CourseRankingBucket;
   rankedAt?: string | Date | null;
@@ -41,6 +58,10 @@ export interface UpdateCourseRankingInput {
 
 export interface MarkCoursePlayedInput extends UpdateCourseRankingInput {
   playCountIncrement?: number;
+}
+
+export interface SaveCourseRoundDetailsInput extends CourseRoundDetailsInput {
+  courseId: string;
 }
 
 export interface ReorderFullCourseRankingInput {
@@ -66,9 +87,42 @@ function clampPositiveInteger(value: number | null | undefined, fallback: number
   return Math.max(1, Math.trunc(value));
 }
 
+function normalizeOptionalPositiveInteger(value: number | null | undefined) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+
+  const nextValue = Math.trunc(value);
+  return nextValue > 0 ? nextValue : null;
+}
+
+function normalizeOptionalTags(value: unknown) {
+  if (!Array.isArray(value)) return undefined;
+
+  const validTags = new Set(COURSE_TAGS);
+  const dedupedTags = new Set<CourseExperienceTag>();
+
+  value.forEach((tag) => {
+    if (typeof tag !== "string") return;
+    if (!validTags.has(tag as CourseExperienceTag)) return;
+    dedupedTags.add(tag as CourseExperienceTag);
+  });
+
+  return dedupedTags.size > 0 ? Array.from(dedupedTags) : undefined;
+}
+
+function normalizeOptionalNotes(value: unknown) {
+  if (typeof value !== "string") return undefined;
+
+  const nextValue = value.trim().slice(0, 140);
+  return nextValue.length > 0 ? nextValue : undefined;
+}
+
 function roundToDecimals(value: number, decimals: number) {
   const precision = 10 ** decimals;
   return Math.round(value * precision) / precision;
+}
+
+function hasOwnProperty(object: object, key: PropertyKey) {
+  return Object.prototype.hasOwnProperty.call(object, key);
 }
 
 function bucketPriority(bucket: CourseRankingBucket) {
@@ -336,7 +390,48 @@ function normalizeStoredCourse(course: unknown, fallbackRankedAt: string): Playe
       ? nextCourse.comparisonIds.filter((value): value is string => typeof value === "string" && value.trim().length > 0)
       : undefined,
     lastComparedAt: toIsoDateString(nextCourse.lastComparedAt),
+    userEnteredPar: normalizeOptionalPositiveInteger(nextCourse.userEnteredPar) ?? undefined,
+    pricePaid: normalizeOptionalPositiveInteger(nextCourse.pricePaid) ?? undefined,
+    scoreShot: normalizeOptionalPositiveInteger(nextCourse.scoreShot) ?? undefined,
+    tags: normalizeOptionalTags(nextCourse.tags),
+    notes: normalizeOptionalNotes(nextCourse.notes),
+    roundDate: toIsoDateString(nextCourse.roundDate),
   };
+}
+
+function applyRoundDetails(
+  existingCourse: PlayedCourseRankingRecord | undefined,
+  input: CourseRoundDetailsInput,
+  defaultRoundDate: string | null,
+) {
+  const nextCourse = { ...(existingCourse ?? {}) };
+
+  if (hasOwnProperty(input, "userEnteredPar")) {
+    const nextUserEnteredPar = normalizeOptionalPositiveInteger(input.userEnteredPar);
+    if (nextUserEnteredPar != null) {
+      nextCourse.userEnteredPar = nextUserEnteredPar;
+    }
+  }
+
+  if (hasOwnProperty(input, "pricePaid")) {
+    nextCourse.pricePaid = normalizeOptionalPositiveInteger(input.pricePaid) ?? undefined;
+  }
+
+  if (hasOwnProperty(input, "scoreShot")) {
+    nextCourse.scoreShot = normalizeOptionalPositiveInteger(input.scoreShot) ?? undefined;
+  }
+
+  if (hasOwnProperty(input, "tags")) {
+    nextCourse.tags = normalizeOptionalTags(input.tags) ?? undefined;
+  }
+
+  if (hasOwnProperty(input, "notes")) {
+    nextCourse.notes = normalizeOptionalNotes(input.notes);
+  }
+
+  nextCourse.roundDate = toIsoDateString(input.roundDate) ?? defaultRoundDate ?? existingCourse?.roundDate ?? null;
+
+  return nextCourse;
 }
 
 export function normalizeCourseRankingState(state: unknown): CourseRankingState {
@@ -370,6 +465,12 @@ export function normalizeCourseRankingState(state: unknown): CourseRankingState 
           .sort()
           .at(-1) ?? null,
       rankedAt: [existingCourse.rankedAt, normalizedCourse.rankedAt].sort().at(-1) ?? fallbackUpdatedAt,
+      userEnteredPar: normalizedCourse.userEnteredPar ?? existingCourse.userEnteredPar,
+      pricePaid: normalizedCourse.pricePaid ?? existingCourse.pricePaid,
+      scoreShot: normalizedCourse.scoreShot ?? existingCourse.scoreShot,
+      tags: normalizedCourse.tags ?? existingCourse.tags,
+      notes: normalizedCourse.notes ?? existingCourse.notes,
+      roundDate: normalizedCourse.roundDate ?? existingCourse.roundDate ?? null,
     });
   }
 
@@ -462,8 +563,10 @@ export function updateCourseRanking(state: CourseRankingState, input: UpdateCour
   const bucket = input.bucket ?? existingCourse?.bucket ?? "fine";
   const rankedAt = toIsoDateString(input.rankedAt) ?? nowIso;
   const lastPlayedAt = toIsoDateString(input.lastPlayedAt) ?? existingCourse?.lastPlayedAt ?? null;
+  const roundDetails = applyRoundDetails(existingCourse, input, nowIso);
   const nextCourse = {
     ...(existingCourse ?? createBaseCourseRankingRecord(input.courseId, bucket, rankedAt)),
+    ...roundDetails,
     bucket,
     rankedAt,
     lastPlayedAt,
@@ -485,8 +588,10 @@ export function markCoursePlayed(state: CourseRankingState, input: MarkCoursePla
   const playCountIncrement = clampPositiveInteger(input.playCountIncrement, 1);
   const bucket = input.bucket ?? existingCourse?.bucket ?? "fine";
   const rankedAt = toIsoDateString(input.rankedAt) ?? existingCourse?.rankedAt ?? playedAt;
+  const roundDetails = applyRoundDetails(existingCourse, input, playedAt);
   const nextCourse = {
     ...(existingCourse ?? createBaseCourseRankingRecord(input.courseId, bucket, rankedAt)),
+    ...roundDetails,
     bucket,
     rankedAt,
     lastPlayedAt: playedAt,
@@ -499,6 +604,27 @@ export function markCoursePlayed(state: CourseRankingState, input: MarkCoursePla
       : insertCourseIntoBucket(normalizedState.courses, nextCourse, input.bucketOrder);
 
   return finalizeCourseRankings(nextCourses, nowIso, normalizedState.manualOrderCourseIds);
+}
+
+export function saveCourseRoundDetails(state: CourseRankingState, input: SaveCourseRoundDetailsInput) {
+  const normalizedState = normalizeCourseRankingState(state);
+  const nowIso = new Date().toISOString();
+  const existingCourse = getCourseRanking(normalizedState, input.courseId);
+
+  if (!existingCourse) {
+    return normalizedState;
+  }
+
+  const nextCourse = {
+    ...existingCourse,
+    ...applyRoundDetails(existingCourse, input, nowIso),
+  };
+
+  return finalizeCourseRankings(
+    normalizedState.courses.map((course) => (course.courseId === input.courseId ? nextCourse : course)),
+    nowIso,
+    normalizedState.manualOrderCourseIds,
+  );
 }
 
 export function removeCourseRanking(state: CourseRankingState, courseId: string) {

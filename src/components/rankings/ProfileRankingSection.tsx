@@ -287,6 +287,19 @@ export default function ProfileRankingSection() {
                       <span className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${bucketStyle.badgeClassName}`}>
                         {ranking.bucket}
                       </span>
+                      {ranking.tags?.slice(0, 2).map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full border border-[hsl(var(--golfer-line))] bg-white/80 px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                      {ranking.tags && ranking.tags.length > 2 ? (
+                        <span className="rounded-full border border-[hsl(var(--golfer-line))] bg-white/80 px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep-soft))]/[0.72]">
+                          +{ranking.tags.length - 2} more
+                        </span>
+                      ) : null}
                       {hasTrueRankingThreshold ? (
                         <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-[hsl(var(--golfer-deep))]">
                           Rating {numericRating != null ? numericRating.toFixed(1) : "--"}

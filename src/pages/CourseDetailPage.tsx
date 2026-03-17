@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, Database, Globe, MapPin, RotateCcw, Star, Trophy } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Copy, Database, Globe, MapPin, RotateCcw, Star, Trophy } from 'lucide-react';
 
 import CourseCard from '@/components/CourseCard';
 import CoursePhotoSurface from '@/components/CoursePhotoSurface';
@@ -8,8 +8,10 @@ import PageHeader from '@/components/dashboard/PageHeader';
 import PlayedCourseDialog from '@/components/rankings/PlayedCourseDialog';
 import { useCourseRecord, useStateCourseCatalog } from '@/hooks/use-course-catalog';
 import { useCourseRankings } from '@/hooks/use-course-rankings';
+import { getCoursePar, registerCourseCatalogPar } from '@/lib/course-par';
 import { getTourHistoryLabel, hasTourHistory } from '@/lib/course-data';
 import { formatDemoDate } from '@/lib/demo-v1';
+import { getCoursePhotoResolution } from '@/utils/coursePhoto';
 
 type Tab = 'overview' | 'source' | 'nearby';
 
@@ -19,9 +21,11 @@ export default function CourseDetailPage() {
   const [tab, setTab] = useState<Tab>('overview');
   const [isPlayedDialogOpen, setIsPlayedDialogOpen] = useState(false);
   const [playedDialogMode, setPlayedDialogMode] = useState<'play' | 'rerank'>('play');
+  const [courseIdCopied, setCourseIdCopied] = useState(false);
   const { data: course, isLoading } = useCourseRecord(id);
   const { data: stateCourseCatalog = [] } = useStateCourseCatalog(course?.stateCode);
   const {
+    rankingState,
     getCourseRankingRecord,
     getCourseNumericRating,
     hasTrueRankingThreshold,
@@ -55,17 +59,39 @@ export default function CourseDetailPage() {
     );
   }
 
+  registerCourseCatalogPar(course.id, course.par);
   const courseRanking = getCourseRankingRecord(course.id);
   const courseNumericRating = getCourseNumericRating(course.id);
+  const resolvedPar = getCoursePar(course.id, rankingState);
+  const photoResolution = getCoursePhotoResolution(course.id);
   const isPlayed = Boolean(courseRanking);
   const tourHistoryLabel = getTourHistoryLabel(course);
   const courseHasTourHistory = hasTourHistory(course);
+  const userRoundTags = courseRanking?.tags ?? [];
+  const hasRoundDetails =
+    Boolean(courseRanking?.userEnteredPar) ||
+    courseRanking?.scoreShot != null ||
+    courseRanking?.pricePaid != null ||
+    userRoundTags.length > 0 ||
+    Boolean(courseRanking?.notes);
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'overview', label: 'Overview' },
     { key: 'source', label: 'Source' },
     { key: 'nearby', label: 'Nearby' },
   ];
+
+  const handleCopyCourseId = async () => {
+    if (typeof navigator === 'undefined' || !navigator.clipboard) return;
+
+    try {
+      await navigator.clipboard.writeText(course.id);
+      setCourseIdCopied(true);
+      window.setTimeout(() => setCourseIdCopied(false), 1800);
+    } catch {
+      setCourseIdCopied(false);
+    }
+  };
 
   return (
     <div className="space-y-10">
@@ -126,7 +152,11 @@ export default function CourseDetailPage() {
             <div className="mt-5 flex flex-wrap gap-2">
               <span className="rounded-full bg-secondary px-3 py-1.5 text-xs font-medium capitalize text-secondary-foreground">{course.type}</span>
               {course.holes != null ? <span className="rounded-full bg-secondary px-3 py-1.5 text-xs text-secondary-foreground">{course.holes} holes</span> : null}
-              {course.par != null ? <span className="rounded-full bg-secondary px-3 py-1.5 text-xs text-secondary-foreground">Par {course.par}</span> : null}
+              {resolvedPar ? (
+                <span className="rounded-full bg-secondary px-3 py-1.5 text-xs text-secondary-foreground">
+                  Par {resolvedPar.par}
+                </span>
+              ) : null}
               {courseHasTourHistory && tourHistoryLabel ? (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-gold/15 px-3 py-1.5 text-xs font-medium text-gold">
                   <Trophy size={12} /> {tourHistoryLabel}
@@ -168,6 +198,75 @@ export default function CourseDetailPage() {
               <p className="flex items-center gap-2"><MapPin size={14} /> {course.addressLabel ?? course.location}</p>
               <p className="flex items-center gap-2"><Database size={14} /> {course.source} / {course.sourceId}</p>
               <p className="flex items-center gap-2"><Star size={14} /> Last synced {formatDemoDate(course.lastSyncedAt)}</p>
+            </div>
+          </div>
+
+          <div className="rounded-[26px] border border-dashed border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-mist))]/[0.45] p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">
+                  Photo curation
+                </p>
+                <p className="mt-2 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
+                  Builder-only reference for manual photo overrides.
+                </p>
+              </div>
+              <span className="rounded-full border border-[hsl(var(--golfer-line))] bg-white px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep))]">
+                {photoResolution.state === 'manual'
+                  ? 'Manual photo'
+                  : photoResolution.state === 'auto'
+                    ? 'Auto photo'
+                    : 'Placeholder'}
+              </span>
+            </div>
+
+            <div className="mt-4 space-y-3 text-sm">
+              <div className="rounded-[18px] bg-white/80 p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Course ID</p>
+                    <code className="mt-2 block break-all text-xs text-[hsl(var(--golfer-deep))]">{course.id}</code>
+                  </div>
+                  <button
+                    onClick={handleCopyCourseId}
+                    className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-3 py-2 text-xs font-medium text-[hsl(var(--golfer-deep))]"
+                  >
+                    <Copy size={12} />
+                    {courseIdCopied ? 'Copied' : 'Copy ID'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-[18px] bg-white/80 p-3">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Photo state</p>
+                  <p className="mt-2 text-sm text-[hsl(var(--golfer-deep))]">
+                    {photoResolution.state === 'manual'
+                      ? 'Manual override active'
+                      : photoResolution.state === 'auto'
+                        ? 'Auto-generated match active'
+                        : 'Using placeholder'}
+                  </p>
+                </div>
+                <div className="rounded-[18px] bg-white/80 p-3">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Photo source</p>
+                  <p className="mt-2 break-words text-sm text-[hsl(var(--golfer-deep))]">
+                    {photoResolution.photo?.photoSource ?? 'None'}
+                  </p>
+                </div>
+                <div className="rounded-[18px] bg-white/80 p-3">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Photo credit</p>
+                  <p className="mt-2 break-words text-sm text-[hsl(var(--golfer-deep))]">
+                    {photoResolution.photo?.photoCredit ?? 'None'}
+                  </p>
+                </div>
+                <div className="rounded-[18px] bg-white/80 p-3">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Photo license</p>
+                  <p className="mt-2 break-words text-sm text-[hsl(var(--golfer-deep))]">
+                    {photoResolution.photo?.photoLicense ?? 'None'}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -250,6 +349,76 @@ export default function CourseDetailPage() {
           </button>
         </aside>
       </section>
+
+      {isPlayed && hasRoundDetails ? (
+        <section className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-8">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">
+                Your round
+              </p>
+              <h2 className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">Most recent local round details</h2>
+            </div>
+            {courseRanking?.roundDate ? (
+              <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-4 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
+                {formatDemoDate(courseRanking.roundDate)}
+              </span>
+            ) : null}
+          </div>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+            {resolvedPar ? (
+              <div className="rounded-[22px] bg-[hsl(var(--golfer-cream))] p-4">
+                <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Par</p>
+                <p className="mt-2 text-base text-[hsl(var(--golfer-deep))]">
+                  {resolvedPar.par}
+                  {resolvedPar.source === 'user' ? (
+                    <span className="ml-2 text-xs text-[hsl(var(--golfer-deep-soft))]/[0.64]">(your entry)</span>
+                  ) : null}
+                </p>
+              </div>
+            ) : null}
+
+            {courseRanking?.scoreShot != null ? (
+              <div className="rounded-[22px] bg-[hsl(var(--golfer-cream))] p-4">
+                <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Score shot</p>
+                <p className="mt-2 text-base text-[hsl(var(--golfer-deep))]">{courseRanking.scoreShot}</p>
+              </div>
+            ) : null}
+
+            {courseRanking?.pricePaid != null ? (
+              <div className="rounded-[22px] bg-[hsl(var(--golfer-cream))] p-4">
+                <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Price paid</p>
+                <p className="mt-2 text-base text-[hsl(var(--golfer-deep))]">${courseRanking.pricePaid}</p>
+              </div>
+            ) : null}
+
+            {courseRanking?.roundDate ? (
+              <div className="rounded-[22px] bg-[hsl(var(--golfer-cream))] p-4">
+                <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Round date</p>
+                <p className="mt-2 text-base text-[hsl(var(--golfer-deep))]">{formatDemoDate(courseRanking.roundDate)}</p>
+              </div>
+            ) : null}
+          </div>
+
+          {userRoundTags.length > 0 ? (
+            <div className="mt-6 flex flex-wrap gap-2">
+              {userRoundTags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-mist))] px-3 py-1.5 text-xs font-medium text-[hsl(var(--golfer-deep))]"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          ) : null}
+
+          {courseRanking?.notes ? (
+            <p className="mt-5 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.76]">{courseRanking.notes}</p>
+          ) : null}
+        </section>
+      ) : null}
 
       <section className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-8">
         <div className="flex flex-wrap gap-2">

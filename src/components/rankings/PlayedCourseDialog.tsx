@@ -1,28 +1,35 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, CheckCircle2, Scale, Trophy } from "lucide-react";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { COURSE_TAGS, type CourseExperienceTag } from "@/constants/course-tags";
+import { useCourseRecord } from "@/hooks/use-course-catalog";
 import { useCourseRankings } from "@/hooks/use-course-rankings";
 import { useRankedCourseRecords } from "@/hooks/use-ranked-course-records";
+import { getCoursePar, registerCourseCatalogPar } from "@/lib/course-par";
 import {
   COURSE_BUCKET_PRIORITY,
   MINIMUM_TRUE_RANKING_COUNT,
   normalizeCourseRankingState,
-  type CourseRankingState,
   type CourseRankingBucket,
+  type CourseRankingState,
 } from "@/lib/course-rankings";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
-type FlowStep = "bucket" | "compare" | "saved";
+type FlowStep = "bucket" | "compare" | "details";
 
 interface ComparisonState {
   low: number;
   high: number;
   skippedIndices: number[];
+}
+
+interface RoundDetailsFormState {
+  parValue: string;
+  scoreShot: string;
+  pricePaid: string;
+  tags: CourseExperienceTag[];
+  notes: string;
 }
 
 interface PlayedCourseDialogProps {
@@ -56,10 +63,6 @@ const BUCKET_COPY: Record<
     badgeClassName: "bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]",
   },
 };
-
-function formatBucketLabel(bucket: CourseRankingBucket | null) {
-  return bucket ? BUCKET_COPY[bucket].label : "Unknown";
-}
 
 function createInitialComparisonState(bucketSize: number): ComparisonState | null {
   if (bucketSize <= 0) return null;
@@ -112,9 +115,36 @@ function getResolvedBucketOrder(state: ComparisonState | null) {
   return state.low + 1;
 }
 
-function formatBucketTitle(bucket: CourseRankingBucket | null) {
-  if (!bucket) return "Unknown";
-  return formatBucketLabel(bucket);
+function formatBucketLabel(bucket: CourseRankingBucket | null) {
+  return bucket ? BUCKET_COPY[bucket].label : "Unknown";
+}
+
+function createInitialRoundDetailsForm(
+  existingValues?: {
+    userEnteredPar?: number;
+    scoreShot?: number;
+    pricePaid?: number;
+    tags?: CourseExperienceTag[];
+    notes?: string;
+  } | null,
+): RoundDetailsFormState {
+  return {
+    parValue: existingValues?.userEnteredPar != null ? String(existingValues.userEnteredPar) : "",
+    scoreShot: existingValues?.scoreShot != null ? String(existingValues.scoreShot) : "",
+    pricePaid: existingValues?.pricePaid != null ? String(existingValues.pricePaid) : "",
+    tags: existingValues?.tags ?? [],
+    notes: existingValues?.notes ?? "",
+  };
+}
+
+function parsePositiveInteger(value: string) {
+  const trimmedValue = value.trim();
+  if (!trimmedValue) return null;
+
+  const nextValue = Number.parseInt(trimmedValue, 10);
+  if (!Number.isFinite(nextValue) || nextValue <= 0) return null;
+
+  return nextValue;
 }
 
 export default function PlayedCourseDialog({
@@ -124,6 +154,7 @@ export default function PlayedCourseDialog({
   onOpenChange,
   mode = "play",
 }: PlayedCourseDialogProps) {
+  const { data: dialogCourse } = useCourseRecord(courseId);
   const {
     rankingState,
     rankedCourseCount,
@@ -134,7 +165,9 @@ export default function PlayedCourseDialog({
     markPlayedCourse,
     replaceRankingState,
     saveCourseRanking,
+    saveRoundDetails,
   } = useCourseRankings();
+
   const [step, setStep] = useState<FlowStep>("bucket");
   const [selectedBucket, setSelectedBucket] = useState<CourseRankingBucket | null>(null);
   const [savedDuringCurrentFlow, setSavedDuringCurrentFlow] = useState(false);
@@ -142,14 +175,25 @@ export default function PlayedCourseDialog({
   const [comparisonHistory, setComparisonHistory] = useState<ComparisonState[]>([]);
   const [comparisonHint, setComparisonHint] = useState<string | null>(null);
   const [flowStartRankingState, setFlowStartRankingState] = useState<CourseRankingState | null>(null);
+  const [roundDetailsForm, setRoundDetailsForm] = useState<RoundDetailsFormState>(() =>
+    createInitialRoundDetailsForm(),
+  );
 
+  const isRerankMode = mode === "rerank";
+  const currentCourseRanking = getCourseRankingRecord(courseId);
+  const currentCourseNumericRating = getCourseNumericRating(courseId);
+
+  if (dialogCourse) {
+    registerCourseCatalogPar(dialogCourse.id, dialogCourse.par);
+  }
+
+  const resolvedPar = getCoursePar(courseId, rankingState);
+  const showParField = dialogCourse ? dialogCourse.par == null : false;
   const selectedBucketCourses = useMemo(() => {
     if (!selectedBucket) return [];
     return getBucketCourses(selectedBucket).filter((course) => course.courseId !== courseId);
   }, [courseId, getBucketCourses, selectedBucket]);
   const { records: rankedBucketRecords, isLoading: isRankedBucketRecordsLoading } = useRankedCourseRecords(selectedBucketCourses);
-  const currentCourseRanking = getCourseRankingRecord(courseId);
-  const currentCourseNumericRating = getCourseNumericRating(courseId);
   const rankedCourseThresholdRemaining = Math.max(
     MINIMUM_TRUE_RANKING_COUNT - (currentCourseRanking ? rankedCourseCount : rankedCourseCount + 1),
     0,
@@ -157,8 +201,6 @@ export default function PlayedCourseDialog({
   const currentComparisonIndex = useMemo(() => getComparisonIndex(comparisonState), [comparisonState]);
   const currentComparedRecord =
     currentComparisonIndex != null ? rankedBucketRecords[currentComparisonIndex] ?? null : null;
-  const skipDisabled = !canSkipComparison(comparisonState);
-  const canUndoComparison = comparisonHistory.length > 0;
   const savedBucketOrder = currentCourseRanking?.bucketOrder ?? getResolvedBucketOrder(comparisonState);
 
   useEffect(() => {
@@ -180,10 +222,23 @@ export default function PlayedCourseDialog({
       setComparisonState(null);
       setComparisonHistory([]);
       setComparisonHint(null);
+      setRoundDetailsForm(createInitialRoundDetailsForm());
     }
   }, [open]);
 
-  const isRerankMode = mode === "rerank";
+  useEffect(() => {
+    if (!open || step !== "details") return;
+
+    setRoundDetailsForm(
+      createInitialRoundDetailsForm({
+        userEnteredPar: currentCourseRanking?.userEnteredPar,
+        scoreShot: currentCourseRanking?.scoreShot,
+        pricePaid: currentCourseRanking?.pricePaid,
+        tags: currentCourseRanking?.tags,
+        notes: currentCourseRanking?.notes,
+      }),
+    );
+  }, [currentCourseRanking, open, step]);
 
   function finalizePlacement(bucket: CourseRankingBucket, bucketOrder?: number | null) {
     if (isRerankMode) {
@@ -202,7 +257,7 @@ export default function PlayedCourseDialog({
 
     setSavedDuringCurrentFlow(true);
     setComparisonHint(null);
-    setStep("saved");
+    setStep("details");
   }
 
   function handleSelectBucket(bucket: CourseRankingBucket) {
@@ -270,7 +325,7 @@ export default function PlayedCourseDialog({
   }
 
   function handleBack() {
-    if (step === "saved" && savedDuringCurrentFlow) {
+    if (step === "details" && savedDuringCurrentFlow) {
       if (flowStartRankingState) {
         replaceRankingState(flowStartRankingState);
       }
@@ -307,19 +362,58 @@ export default function PlayedCourseDialog({
       setSelectedBucket(null);
       setComparisonHint(null);
       setStep("bucket");
-      return;
     }
-
-    setSavedDuringCurrentFlow(false);
-    setComparisonState(null);
-    setComparisonHistory([]);
-    setSelectedBucket(null);
-    setComparisonHint(null);
-    setStep("bucket");
   }
 
   function handleClose() {
     onOpenChange(false);
+  }
+
+  function toggleTag(tag: CourseExperienceTag) {
+    setRoundDetailsForm((currentForm) => ({
+      ...currentForm,
+      tags: currentForm.tags.includes(tag)
+        ? currentForm.tags.filter((currentTag) => currentTag !== tag)
+        : [...currentForm.tags, tag],
+    }));
+  }
+
+  function handleSaveRoundDetails() {
+    saveRoundDetails({
+      courseId,
+      userEnteredPar: roundDetailsForm.parValue.trim() ? parsePositiveInteger(roundDetailsForm.parValue) : undefined,
+      scoreShot: roundDetailsForm.scoreShot.trim() ? parsePositiveInteger(roundDetailsForm.scoreShot) : null,
+      pricePaid: roundDetailsForm.pricePaid.trim() ? parsePositiveInteger(roundDetailsForm.pricePaid) : null,
+      tags: roundDetailsForm.tags.length > 0 ? roundDetailsForm.tags : null,
+      notes: roundDetailsForm.notes.trim() ? roundDetailsForm.notes : null,
+    });
+    handleClose();
+  }
+
+  function renderHeaderTitle() {
+    if (step === "bucket") {
+      return isRerankMode ? "Rerank this course" : "Where does this round belong?";
+    }
+
+    if (step === "compare") {
+      return `Place ${courseName} inside ${formatBucketLabel(selectedBucket)}`;
+    }
+
+    return "Add round details (optional)";
+  }
+
+  function renderHeaderDescription() {
+    if (step === "bucket") {
+      return isRerankMode
+        ? `Choose a bucket again for ${courseName}, then place it where it belongs.`
+        : `Mark ${courseName} as played, then start the ranking flow by choosing a bucket.`;
+    }
+
+    if (step === "compare") {
+      return "Pick the course you prefer more. GolfeR will use the fewest bucket-level comparisons it can.";
+    }
+
+    return "The ranking is already saved. Add a few details about this round or skip for now.";
   }
 
   return (
@@ -327,33 +421,13 @@ export default function PlayedCourseDialog({
       <DialogContent className="max-w-3xl rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-0 shadow-[0_32px_90px_-55px_rgba(12,25,19,0.5)]">
         <div className="overflow-hidden rounded-[32px]">
           <div className="border-b border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-7 py-6">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">
-                  Played flow
-                </p>
-                <DialogTitle className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">
-                  {step === "bucket"
-                    ? isRerankMode
-                      ? "Rerank this course"
-                      : "Where does this round belong?"
-                    : step === "compare"
-                      ? `Place ${courseName} inside ${formatBucketTitle(selectedBucket)}`
-                      : courseName}
-                </DialogTitle>
-                <DialogDescription className="mt-3 max-w-2xl text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
-                  {step === "bucket"
-                    ? isRerankMode
-                      ? `Choose a bucket again for ${courseName}, then place it where it belongs.`
-                      : `Mark ${courseName} as played, then start the ranking flow by choosing a bucket.`
-                    : step === "compare"
-                      ? "Pick the course you prefer more. GolfeR will use the fewest bucket-level comparisons it can."
-                      : isRerankMode
-                        ? "The course ranking has been updated locally on this device."
-                        : "The course has been added locally on this device."}
-                </DialogDescription>
-              </div>
-            </div>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">
+              Played flow
+            </p>
+            <DialogTitle className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">{renderHeaderTitle()}</DialogTitle>
+            <DialogDescription className="mt-3 max-w-2xl text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
+              {renderHeaderDescription()}
+            </DialogDescription>
           </div>
 
           <div className="px-7 py-7">
@@ -393,9 +467,9 @@ export default function PlayedCourseDialog({
                   courses. This popup already stores the same underlying order locally.
                 </div>
 
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-                      {rankedCourseCount} course{rankedCourseCount === 1 ? "" : "s"} currently stored in local rankings
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+                    {rankedCourseCount} course{rankedCourseCount === 1 ? "" : "s"} currently stored in local rankings
                   </span>
                   <button
                     onClick={handleClose}
@@ -418,12 +492,12 @@ export default function PlayedCourseDialog({
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
                       Already ranked
                     </p>
-                      <h3 className="mt-4 text-2xl text-[hsl(var(--golfer-deep))]">
-                        {currentComparedRecord?.course?.name ?? currentComparedRecord?.fallbackName ?? "Loading course..."}
-                      </h3>
+                    <h3 className="mt-4 text-2xl text-[hsl(var(--golfer-deep))]">
+                      {currentComparedRecord?.course?.name ?? currentComparedRecord?.fallbackName ?? "Loading course..."}
+                    </h3>
                     <p className="mt-3 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
                       {currentComparedRecord
-                        ? `Currently #${currentComparedRecord.ranking.bucketOrder} in ${formatBucketTitle(selectedBucket)}`
+                        ? `Currently #${currentComparedRecord.ranking.bucketOrder} in ${formatBucketLabel(selectedBucket)}`
                         : isRankedBucketRecordsLoading
                           ? "Loading local comparison target..."
                           : "Comparison target unavailable"}
@@ -443,11 +517,9 @@ export default function PlayedCourseDialog({
                     onClick={() => handleComparisonDecision(true)}
                     className="rounded-[28px] border border-[hsl(var(--golfer-deep))] bg-[hsl(var(--golfer-deep))] p-6 text-left text-white shadow-[0_28px_70px_-52px_rgba(12,25,19,0.65)] transition hover:-translate-y-0.5"
                   >
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/0.7">
-                      New course
-                    </p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">New course</p>
                     <h3 className="mt-4 text-2xl">{courseName}</h3>
-                    <p className="mt-3 text-sm leading-7 text-white/0.78">
+                    <p className="mt-3 text-sm leading-7 text-white/78">
                       Click here if this new round belongs above the ranked course on the left.
                     </p>
                     <span className="mt-8 inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-2 text-sm font-medium text-white">
@@ -458,7 +530,7 @@ export default function PlayedCourseDialog({
 
                 <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] px-5 py-4 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
                   {comparisonHint ??
-                    `GolfeR is narrowing a ${formatBucketTitle(selectedBucket).toLowerCase()} insertion point using the current bucket order.`}
+                    `GolfeR is narrowing a ${formatBucketLabel(selectedBucket).toLowerCase()} insertion point using the current bucket order.`}
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-3">
@@ -467,11 +539,11 @@ export default function PlayedCourseDialog({
                       onClick={handleBack}
                       className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-5 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]"
                     >
-                      <ArrowLeft size={15} /> {canUndoComparison ? "Undo" : "Back"}
+                      <ArrowLeft size={15} /> {comparisonHistory.length > 0 ? "Undo" : "Back"}
                     </button>
                     <button
                       onClick={handleTooHardToDecide}
-                      disabled={skipDisabled}
+                      disabled={!canSkipComparison(comparisonState)}
                       className="rounded-full border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-5 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))] disabled:cursor-not-allowed disabled:opacity-55"
                     >
                       Too hard to decide
@@ -487,7 +559,7 @@ export default function PlayedCourseDialog({
               </div>
             ) : null}
 
-            {step === "saved" && selectedBucket ? (
+            {step === "details" && selectedBucket ? (
               <div className="space-y-6">
                 <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-6">
                   <div className="flex items-center gap-3">
@@ -496,10 +568,10 @@ export default function PlayedCourseDialog({
                     </span>
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
-                        Stored locally
+                        Ranking saved locally
                       </p>
                       <h3 className="mt-2 text-2xl text-[hsl(var(--golfer-deep))]">
-                        {isRerankMode ? "Updated in" : "Added to"} {formatBucketTitle(selectedBucket)}
+                        {isRerankMode ? "Updated in" : "Added to"} {formatBucketLabel(selectedBucket)}
                       </h3>
                     </div>
                   </div>
@@ -521,9 +593,7 @@ export default function PlayedCourseDialog({
                       <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
                         Bucket order
                       </p>
-                      <p className="mt-2 text-xl text-[hsl(var(--golfer-deep))]">
-                        {savedBucketOrder ?? "Pending"}
-                      </p>
+                      <p className="mt-2 text-xl text-[hsl(var(--golfer-deep))]">{savedBucketOrder ?? "Pending"}</p>
                     </div>
                     <div className="rounded-[22px] bg-[hsl(var(--golfer-cream))] p-4">
                       <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
@@ -539,11 +609,150 @@ export default function PlayedCourseDialog({
                 </div>
 
                 <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] px-5 py-4 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
-                  {comparisonHistory.length > 0
-                    ? "Undo will restore the previous ranking state and reopen the last comparison so you can answer differently."
-                    : isRerankMode
-                      ? "This rerank resolved without additional comparisons, so the course was updated directly."
-                      : "This bucket was empty, so GolfeR saved the course immediately without needing a comparison."}
+                  All fields below are optional. Skip this step if you only want to keep the ranking.
+                </div>
+
+                <div className="grid gap-5">
+                  {showParField ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <label className="text-sm font-medium text-[hsl(var(--golfer-deep))]">Par</label>
+                        {resolvedPar?.source === "user" ? (
+                          <span className="text-xs text-[hsl(var(--golfer-deep-soft))]/[0.64]">
+                            Current local entry: {resolvedPar.par}
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {[70, 71, 72, 73, 74].map((par) => {
+                          const isSelected = roundDetailsForm.parValue === String(par);
+
+                          return (
+                            <button
+                              key={par}
+                              onClick={() =>
+                                setRoundDetailsForm((currentForm) => ({
+                                  ...currentForm,
+                                  parValue: String(par),
+                                }))
+                              }
+                              className={`rounded-full px-3 py-2 text-sm font-medium transition ${
+                                isSelected
+                                  ? "bg-[hsl(var(--golfer-deep))] text-white"
+                                  : "border border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep))]"
+                              }`}
+                            >
+                              {par}
+                            </button>
+                          );
+                        })}
+                        <Input
+                          type="number"
+                          inputMode="numeric"
+                          min={1}
+                          placeholder="Custom"
+                          value={roundDetailsForm.parValue}
+                          onChange={(event) =>
+                            setRoundDetailsForm((currentForm) => ({
+                              ...currentForm,
+                              parValue: event.target.value,
+                            }))
+                          }
+                          className="h-10 w-28 rounded-full border-[hsl(var(--golfer-line))]"
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-[hsl(var(--golfer-deep))]">Score shot</label>
+                      <Input
+                        type="number"
+                        inputMode="numeric"
+                        min={1}
+                        placeholder="What did you shoot?"
+                        value={roundDetailsForm.scoreShot}
+                        onChange={(event) =>
+                          setRoundDetailsForm((currentForm) => ({
+                            ...currentForm,
+                            scoreShot: event.target.value,
+                          }))
+                        }
+                        className="h-11 rounded-[18px] border-[hsl(var(--golfer-line))]"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-[hsl(var(--golfer-deep))]">Price paid</label>
+                      <div className="relative">
+                        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.64]">
+                          $
+                        </span>
+                        <Input
+                          type="number"
+                          inputMode="numeric"
+                          min={1}
+                          placeholder="Whole dollars"
+                          value={roundDetailsForm.pricePaid}
+                          onChange={(event) =>
+                            setRoundDetailsForm((currentForm) => ({
+                              ...currentForm,
+                              pricePaid: event.target.value,
+                            }))
+                          }
+                          className="h-11 rounded-[18px] border-[hsl(var(--golfer-line))] pl-8"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-[hsl(var(--golfer-deep))]">Tags</label>
+                    <div className="max-h-28 overflow-y-auto rounded-[20px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] p-3">
+                      <div className="flex flex-wrap gap-2">
+                        {COURSE_TAGS.map((tag) => {
+                          const isSelected = roundDetailsForm.tags.includes(tag);
+
+                          return (
+                            <button
+                              key={tag}
+                              onClick={() => toggleTag(tag)}
+                              className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                                isSelected
+                                  ? "bg-[hsl(var(--golfer-deep))] text-white"
+                                  : "border border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep))]"
+                              }`}
+                            >
+                              {tag}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between gap-3">
+                      <label className="text-sm font-medium text-[hsl(var(--golfer-deep))]">Notes</label>
+                      <span className="text-xs text-[hsl(var(--golfer-deep-soft))]/[0.64]">
+                        {roundDetailsForm.notes.length}/140
+                      </span>
+                    </div>
+                    <Input
+                      type="text"
+                      maxLength={140}
+                      placeholder="Anything worth remembering?"
+                      value={roundDetailsForm.notes}
+                      onChange={(event) =>
+                        setRoundDetailsForm((currentForm) => ({
+                          ...currentForm,
+                          notes: event.target.value.slice(0, 140),
+                        }))
+                      }
+                      className="h-11 rounded-[18px] border-[hsl(var(--golfer-line))]"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-3">
@@ -551,14 +760,23 @@ export default function PlayedCourseDialog({
                     onClick={handleBack}
                     className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-5 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]"
                   >
-                    <ArrowLeft size={15} /> {comparisonHistory.length > 0 ? "Undo" : "Back"}
+                    <ArrowLeft size={15} /> Back
                   </button>
-                  <button
-                    onClick={handleClose}
-                    className="rounded-full bg-[hsl(var(--golfer-deep))] px-5 py-3 text-sm font-medium text-white"
-                  >
-                    Done
-                  </button>
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      onClick={handleClose}
+                      className="rounded-full border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-5 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]"
+                    >
+                      Skip
+                    </button>
+                    <button
+                      onClick={handleSaveRoundDetails}
+                      className="rounded-full bg-[hsl(var(--golfer-deep))] px-5 py-3 text-sm font-medium text-white"
+                    >
+                      Save
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : null}
