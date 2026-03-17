@@ -1,0 +1,35 @@
+[
+  {
+    "courseId": "ak-anchorage-tanglewood-lakes-golf-club",
+    "coverPhotoUrl": "https://placehold.co/1600x900/png?text=Replace+Manual+Course+Photo",
+    "thumbnailUrl": "https://placehold.co/600x338/png?text=Manual+Photo+Sample",
+    "photoSource": "manual",
+    "photoLicense": "Sample only - replace before launch",
+    "photoCredit": "manual-curation sample",
+    "photoConfidence": "high",
+    "addedBy": "manual-curation",
+    "addedDate": "2026-03-17T00:00:00.000Z"
+  },
+  {
+    "courseId": "ak-fairbanks-north-star-golf-club",
+    "coverPhotoUrl": "https://placehold.co/1600x900/png?text=Replace+Manual+Course+Photo",
+    "thumbnailUrl": "https://placehold.co/600x338/png?text=Manual+Photo+Sample",
+    "photoSource": "course-website",
+    "photoLicense": "Sample only - replace before launch",
+    "photoCredit": "manual-curation sample",
+    "photoConfidence": "high",
+    "addedBy": "manual-curation",
+    "addedDate": "2026-03-17T00:00:00.000Z"
+  },
+  {
+    "courseId": "ak-fort-richardson-creek-course",
+    "coverPhotoUrl": "https://placehold.co/1600x900/png?text=Replace+Manual+Course+Photo",
+    "thumbnailUrl": "https://placehold.co/600x338/png?text=Manual+Photo+Sample",
+    "photoSource": "unsplash",
+    "photoLicense": "Sample only - replace before launch",
+    "photoCredit": "manual-curation sample",
+    "photoConfidence": "high",
+    "addedBy": "manual-curation",
+    "addedDate": "2026-03-17T00:00:00.000Z"
+  }
+]
