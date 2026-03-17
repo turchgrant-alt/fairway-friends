@@ -108,6 +108,28 @@ function normalizePhone(value) {
   return normalizeString(value);
 }
 
+function normalizeBooleanFlag(value) {
+  const normalized = normalizeString(value)?.toLowerCase();
+  if (!normalized) return null;
+  if (["true", "yes", "1"].includes(normalized)) return true;
+  if (["false", "no", "0"].includes(normalized)) return false;
+  return null;
+}
+
+function normalizeTourHistoryType(value) {
+  const normalized = normalizeString(value)?.toLowerCase();
+  if (!normalized) return null;
+
+  const hasLpga = /\blpga\b/.test(normalized);
+  const hasPga = /\bpga\b/.test(normalized);
+
+  if (hasPga && hasLpga) return "pga_lpga";
+  if (hasLpga) return "lpga";
+  if (hasPga) return "pga";
+
+  return null;
+}
+
 function normalizeStatus(value) {
   const normalized = normalizeString(value)?.toLowerCase().replace(/_/g, " ");
   if (!normalized || normalized === UNKNOWN_STATUS) return UNKNOWN_STATUS;
@@ -466,6 +488,19 @@ function mergeDuplicateRecords(existingRecord, incomingRecord) {
   }
 
   if (
+    existingRecord.hasPgaOrLpgaTourHistory !== true &&
+    incomingRecord.hasPgaOrLpgaTourHistory === true
+  ) {
+    existingRecord.hasPgaOrLpgaTourHistory = true;
+    existingRecord.pgaLpgaTourHistoryType =
+      existingRecord.pgaLpgaTourHistoryType ?? incomingRecord.pgaLpgaTourHistoryType ?? null;
+    existingRecord.pgaLpgaTourHistoryNote =
+      existingRecord.pgaLpgaTourHistoryNote ?? incomingRecord.pgaLpgaTourHistoryNote ?? null;
+    existingRecord.pgaLpgaTourHistorySourceUrl =
+      existingRecord.pgaLpgaTourHistorySourceUrl ?? incomingRecord.pgaLpgaTourHistorySourceUrl ?? null;
+  }
+
+  if (
     existingRecord.hasVerifiedCoordinates === false &&
     incomingRecord.hasVerifiedCoordinates === true
   ) {
@@ -527,6 +562,10 @@ function buildNormalizedRecord(row, rowIndex, importedAt, nyIndex) {
   const holes = parseInteger(row.number_of_holes);
   const par = parseInteger(row.par);
   const sourceRowNumber = rowIndex + 2;
+  const hasPgaOrLpgaTourHistory = normalizeBooleanFlag(row.has_pga_or_lpga_tour_history);
+  const pgaLpgaTourHistoryType = normalizeTourHistoryType(row.pga_lpga_tour_history_type);
+  const pgaLpgaTourHistoryNote = normalizeString(row.pga_lpga_tour_history_note);
+  const pgaLpgaTourHistorySourceUrl = normalizeWebsite(row.pga_lpga_tour_history_source_url);
 
   return {
     id: "",
@@ -568,6 +607,10 @@ function buildNormalizedRecord(row, rowIndex, importedAt, nyIndex) {
     gender: normalizeString(row.gender),
     courseRating: parseFloatValue(row.course_rating),
     slopeRating: parseFloatValue(row.slope_rating),
+    hasPgaOrLpgaTourHistory,
+    pgaLpgaTourHistoryType,
+    pgaLpgaTourHistoryNote,
+    pgaLpgaTourHistorySourceUrl,
     tags: buildTags({ accessType, holes, status }),
     description: normalizeString(row.notes),
     lastSyncedAt: importedAt,
@@ -630,6 +673,10 @@ function buildCourseIndexRecord(record) {
     holes: record.holes,
     website: record.website,
     phone: record.phone,
+    hasPgaOrLpgaTourHistory: record.hasPgaOrLpgaTourHistory,
+    pgaLpgaTourHistoryType: record.pgaLpgaTourHistoryType,
+    pgaLpgaTourHistoryNote: record.pgaLpgaTourHistoryNote,
+    pgaLpgaTourHistorySourceUrl: record.pgaLpgaTourHistorySourceUrl,
     tags: record.tags,
     imageUrl: "/placeholder.svg",
     overallRating: null,

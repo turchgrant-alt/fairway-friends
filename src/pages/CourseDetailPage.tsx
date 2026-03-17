@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, Database, Globe, MapPin, RotateCcw, Star } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Database, Globe, MapPin, RotateCcw, Star, Trophy } from 'lucide-react';
 
 import CourseCard from '@/components/CourseCard';
 import PageHeader from '@/components/dashboard/PageHeader';
 import PlayedCourseDialog from '@/components/rankings/PlayedCourseDialog';
 import { useCourseRecord, useStateCourseCatalog } from '@/hooks/use-course-catalog';
 import { useCourseRankings } from '@/hooks/use-course-rankings';
+import { getTourHistoryLabel, hasTourHistory } from '@/lib/course-data';
 import { formatDemoDate } from '@/lib/demo-v1';
 
 type Tab = 'overview' | 'source' | 'nearby';
@@ -56,6 +57,8 @@ export default function CourseDetailPage() {
   const courseRanking = getCourseRankingRecord(course.id);
   const courseNumericRating = getCourseNumericRating(course.id);
   const isPlayed = Boolean(courseRanking);
+  const tourHistoryLabel = getTourHistoryLabel(course);
+  const courseHasTourHistory = hasTourHistory(course);
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'overview', label: 'Overview' },
@@ -114,10 +117,39 @@ export default function CourseDetailPage() {
               <span className="rounded-full bg-secondary px-3 py-1.5 text-xs font-medium capitalize text-secondary-foreground">{course.type}</span>
               {course.holes != null ? <span className="rounded-full bg-secondary px-3 py-1.5 text-xs text-secondary-foreground">{course.holes} holes</span> : null}
               {course.par != null ? <span className="rounded-full bg-secondary px-3 py-1.5 text-xs text-secondary-foreground">Par {course.par}</span> : null}
+              {courseHasTourHistory && tourHistoryLabel ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-gold/15 px-3 py-1.5 text-xs font-medium text-gold">
+                  <Trophy size={12} /> {tourHistoryLabel}
+                </span>
+              ) : null}
               {course.tags.map((tag) => (
                 <span key={tag} className="rounded-full bg-forest-muted px-3 py-1.5 text-xs font-medium text-forest">{tag}</span>
               ))}
             </div>
+
+            {courseHasTourHistory ? (
+              <div className="mt-5 rounded-[22px] bg-[hsl(var(--golfer-cream))] px-4 py-3">
+                <p className="inline-flex items-center gap-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
+                  <Trophy size={14} />
+                  {tourHistoryLabel ?? 'PGA / LPGA host'}
+                </p>
+                {course.pgaLpgaTourHistoryNote ? (
+                  <p className="mt-2 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.76]">
+                    {course.pgaLpgaTourHistoryNote}
+                  </p>
+                ) : null}
+                {course.pgaLpgaTourHistorySourceUrl ? (
+                  <a
+                    href={course.pgaLpgaTourHistorySourceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-[hsl(var(--golfer-deep))]"
+                  >
+                    Tour history source <Globe size={13} />
+                  </a>
+                ) : null}
+              </div>
+            ) : null}
           </div>
 
           <div className="rounded-[30px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]">

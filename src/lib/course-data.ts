@@ -9,6 +9,7 @@ import type {
   CourseIndexRecord,
   CourseLocationIndex,
   CourseLocationIndexEntry,
+  CourseTourHistoryType,
 } from "@/lib/course-data-model";
 import { findUsStateCode } from "@/lib/us-states";
 
@@ -140,6 +141,30 @@ export function hasVerifiedCoordinates(course: {
   longitude: number | null;
 }) {
   return Boolean(course.hasVerifiedCoordinates && course.latitude != null && course.longitude != null);
+}
+
+export function hasTourHistory(course: {
+  hasPgaOrLpgaTourHistory?: boolean | null;
+}) {
+  return course.hasPgaOrLpgaTourHistory === true;
+}
+
+export function getTourHistoryLabel(course: {
+  hasPgaOrLpgaTourHistory?: boolean | null;
+  pgaLpgaTourHistoryType?: CourseTourHistoryType;
+}) {
+  if (!hasTourHistory(course)) return null;
+
+  switch (course.pgaLpgaTourHistoryType) {
+    case "pga":
+      return "Hosted PGA event";
+    case "lpga":
+      return "Hosted LPGA event";
+    case "pga_lpga":
+      return "Hosted PGA / LPGA event";
+    default:
+      return "PGA / LPGA host";
+  }
 }
 
 export function getCourseSearchTargets(course: CourseListRecord): string[] {

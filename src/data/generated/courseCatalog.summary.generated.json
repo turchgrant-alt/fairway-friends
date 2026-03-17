@@ -56,7 +56,7 @@
     ],
     "mappableCourses": 370,
     "coordinateCoveragePercent": 2.2,
-    "lastImportedAt": "2026-03-17T17:04:41.119Z"
+    "lastImportedAt": "2026-03-17T17:10:47.454Z"
   },
   "featuredCourses": [
     {
@@ -79,6 +79,10 @@
       "holes": 18,
       "website": null,
       "phone": "(907) 522-3363",
+      "hasPgaOrLpgaTourHistory": false,
+      "pgaLpgaTourHistoryType": null,
+      "pgaLpgaTourHistoryNote": null,
+      "pgaLpgaTourHistorySourceUrl": null,
       "tags": [
         "public",
         "18-hole"
@@ -107,6 +111,10 @@
       "holes": null,
       "website": null,
       "phone": "(907) 344-5717",
+      "hasPgaOrLpgaTourHistory": false,
+      "pgaLpgaTourHistoryType": null,
+      "pgaLpgaTourHistoryNote": null,
+      "pgaLpgaTourHistorySourceUrl": null,
       "tags": [
         "public"
       ],
@@ -134,6 +142,10 @@
       "holes": 9,
       "website": null,
       "phone": "(907) 333-8338",
+      "hasPgaOrLpgaTourHistory": false,
+      "pgaLpgaTourHistoryType": null,
+      "pgaLpgaTourHistoryNote": null,
+      "pgaLpgaTourHistorySourceUrl": null,
       "tags": [
         "public",
         "9-hole"
@@ -169,6 +181,10 @@
           "holes": 18,
           "website": null,
           "phone": "(907) 522-3363",
+          "hasPgaOrLpgaTourHistory": false,
+          "pgaLpgaTourHistoryType": null,
+          "pgaLpgaTourHistoryNote": null,
+          "pgaLpgaTourHistorySourceUrl": null,
           "tags": [
             "public",
             "18-hole"
@@ -197,6 +213,10 @@
           "holes": null,
           "website": null,
           "phone": "(907) 344-5717",
+          "hasPgaOrLpgaTourHistory": false,
+          "pgaLpgaTourHistoryType": null,
+          "pgaLpgaTourHistoryNote": null,
+          "pgaLpgaTourHistorySourceUrl": null,
           "tags": [
             "public"
           ],
@@ -224,6 +244,10 @@
           "holes": 9,
           "website": null,
           "phone": "(907) 333-8338",
+          "hasPgaOrLpgaTourHistory": false,
+          "pgaLpgaTourHistoryType": null,
+          "pgaLpgaTourHistoryNote": null,
+          "pgaLpgaTourHistorySourceUrl": null,
           "tags": [
             "public",
             "9-hole"
@@ -252,6 +276,10 @@
           "holes": 9,
           "website": null,
           "phone": "(907) 345-4600",
+          "hasPgaOrLpgaTourHistory": false,
+          "pgaLpgaTourHistoryType": null,
+          "pgaLpgaTourHistoryNote": null,
+          "pgaLpgaTourHistorySourceUrl": null,
           "tags": [
             "public",
             "9-hole"
@@ -280,6 +308,10 @@
           "holes": 9,
           "website": null,
           "phone": "(907) 479-6555",
+          "hasPgaOrLpgaTourHistory": false,
+          "pgaLpgaTourHistoryType": null,
+          "pgaLpgaTourHistoryNote": null,
+          "pgaLpgaTourHistorySourceUrl": null,
           "tags": [
             "semi-private",
             "9-hole"
@@ -308,6 +340,10 @@
           "holes": 9,
           "website": null,
           "phone": "(907) 457-4653",
+          "hasPgaOrLpgaTourHistory": false,
+          "pgaLpgaTourHistoryType": null,
+          "pgaLpgaTourHistoryNote": null,
+          "pgaLpgaTourHistorySourceUrl": null,
           "tags": [
             "semi-private",
             "9-hole"
@@ -343,6 +379,10 @@
           "holes": 18,
           "website": null,
           "phone": "(256) 878-4403",
+          "hasPgaOrLpgaTourHistory": false,
+          "pgaLpgaTourHistoryType": null,
+          "pgaLpgaTourHistoryNote": null,
+          "pgaLpgaTourHistorySourceUrl": null,
           "tags": [
             "private",
             "18-hole"
@@ -371,6 +411,10 @@
           "holes": 18,
           "website": null,
           "phone": "(256) 212-1407",
+          "hasPgaOrLpgaTourHistory": false,
+          "pgaLpgaTourHistoryType": null,
+          "pgaLpgaTourHistoryNote": null,
+          "pgaLpgaTourHistorySourceUrl": null,
           "tags": [
             "private",
             "18-hole"
@@ -399,6 +443,10 @@
           "holes": 18,
           "website": null,
           "phone": "(334) 222-5282",
+          "hasPgaOrLpgaTourHistory": false,
+          "pgaLpgaTourHistoryType": null,
+          "pgaLpgaTourHistoryNote": null,
+          "pgaLpgaTourHistorySourceUrl": null,
           "tags": [
             "private",
             "18-hole"
@@ -427,6 +475,10 @@
           "holes": 18,
           "website": null,
           "phone": "(256) 237-4615",
+          "hasPgaOrLpgaTourHistory": false,
+          "pgaLpgaTourHistoryType": null,
+          "pgaLpgaTourHistoryNote": null,
+          "pgaLpgaTourHistorySourceUrl": null,
           "tags": [
             "private",
             "18-hole"
@@ -455,6 +507,10 @@
           "holes": 9,
           "website": null,
           "phone": "(334) 368-4486",
+          "hasPgaOrLpgaTourHistory": false,
+          "pgaLpgaTourHistoryType": null,
+          "pgaLpgaTourHistoryNote": null,
+          "pgaLpgaTourHistorySourceUrl": null,
           "tags": [
             "private",
             "9-hole"
@@ -483,6 +539,10 @@
           "holes": 9,
           "website": null,
           "phone": "(334) 937-8230",
+          "hasPgaOrLpgaTourHistory": false,
+          "pgaLpgaTourHistoryType": null,
+          "pgaLpgaTourHistoryNote": null,
+          "pgaLpgaTourHistorySourceUrl": null,
           "tags": [
             "private",
             "9-hole"
@@ -518,6 +578,10 @@
           "holes": 18,
           "website": null,
           "phone": "(907) 522-3363",
+          "hasPgaOrLpgaTourHistory": false,
+          "pgaLpgaTourHistoryType": null,
+          "pgaLpgaTourHistoryNote": null,
+          "pgaLpgaTourHistorySourceUrl": null,
           "tags": [
             "public",
             "18-hole"
@@ -546,6 +610,10 @@
           "holes": null,
           "website": null,
           "phone": "(907) 344-5717",
+          "hasPgaOrLpgaTourHistory": false,
+          "pgaLpgaTourHistoryType": null,
+          "pgaLpgaTourHistoryNote": null,
+          "pgaLpgaTourHistorySourceUrl": null,
           "tags": [
             "public"
           ],
@@ -573,6 +641,10 @@
           "holes": 9,
           "website": null,
           "phone": "(907) 333-8338",
+          "hasPgaOrLpgaTourHistory": false,
+          "pgaLpgaTourHistoryType": null,
+          "pgaLpgaTourHistoryNote": null,
+          "pgaLpgaTourHistorySourceUrl": null,
           "tags": [
             "public",
             "9-hole"

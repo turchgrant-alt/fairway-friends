@@ -23,6 +23,8 @@ export type CourseStatus =
   | "unknown"
   | null;
 
+export type CourseTourHistoryType = "pga" | "lpga" | "pga_lpga" | null;
+
 export interface CourseRatings {
   [key: string]: number;
 }
@@ -67,6 +69,10 @@ export interface NormalizedGolfCourseRecord {
   gender: string | null;
   courseRating: number | null;
   slopeRating: number | null;
+  hasPgaOrLpgaTourHistory: boolean | null;
+  pgaLpgaTourHistoryType: CourseTourHistoryType;
+  pgaLpgaTourHistoryNote: string | null;
+  pgaLpgaTourHistorySourceUrl: string | null;
   tags: string[];
   description: string | null;
   lastSyncedAt: string;
@@ -109,6 +115,10 @@ export interface CourseIndexRecord {
   holes: number | null;
   website: string | null;
   phone: string | null;
+  hasPgaOrLpgaTourHistory: boolean | null;
+  pgaLpgaTourHistoryType: CourseTourHistoryType;
+  pgaLpgaTourHistoryNote: string | null;
+  pgaLpgaTourHistorySourceUrl: string | null;
   tags: string[];
   imageUrl: string;
   overallRating: number | null;
