@@ -1,6 +1,6 @@
 import { Flag } from 'lucide-react';
 
-import { getCoursePhoto } from '@/utils/coursePhoto';
+import { getCoursePhoto, type CoursePhoto } from '@/utils/coursePhoto';
 
 interface CoursePhotoSurfaceProps {
   courseId: string;
@@ -12,6 +12,7 @@ interface CoursePhotoSurfaceProps {
   showAttribution?: boolean;
   disablePhoto?: boolean;
   linkToCover?: boolean;
+  photoOverride?: CoursePhoto | null;
 }
 
 function cn(...values: Array<string | false | null | undefined>) {
@@ -28,8 +29,9 @@ export default function CoursePhotoSurface({
   showAttribution = false,
   disablePhoto = false,
   linkToCover = false,
+  photoOverride,
 }: CoursePhotoSurfaceProps) {
-  const photo = disablePhoto ? null : getCoursePhoto(courseId);
+  const photo = photoOverride ?? (disablePhoto ? null : getCoursePhoto(courseId));
   const imageElement = photo ? (
     <img
       src={photo.thumbnailUrl}
@@ -56,9 +58,9 @@ export default function CoursePhotoSurface({
           ) : (
             imageElement
           )}
-          {showAttribution ? (
+          {showAttribution && (photo.photoCredit || photo.photoLicense) ? (
             <p className="mt-3 text-xs leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.72]">
-              Photo: {photo.photoCredit} · {photo.photoLicense}
+              Photo: {[photo.photoCredit, photo.photoLicense].filter(Boolean).join(' · ')}
             </p>
           ) : null}
         </>

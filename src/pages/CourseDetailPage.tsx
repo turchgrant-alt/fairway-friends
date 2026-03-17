@@ -3,15 +3,17 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, Copy, Database, Globe, MapPin, RotateCcw, Star, Trophy } from 'lucide-react';
 
 import CourseCard from '@/components/CourseCard';
+import CoursePhotoGallerySection from '@/components/course-photos/CoursePhotoGallerySection';
 import CoursePhotoSurface from '@/components/CoursePhotoSurface';
 import PageHeader from '@/components/dashboard/PageHeader';
 import PlayedCourseDialog from '@/components/rankings/PlayedCourseDialog';
 import { useCourseRecord, useStateCourseCatalog } from '@/hooks/use-course-catalog';
+import { useCourseUploadedPhotoGallery } from '@/hooks/use-course-uploaded-photos';
 import { useCourseRankings } from '@/hooks/use-course-rankings';
 import { getCoursePar, registerCourseCatalogPar } from '@/lib/course-par';
 import { getTourHistoryLabel, hasTourHistory } from '@/lib/course-data';
 import { formatDemoDate } from '@/lib/demo-v1';
-import { getCoursePhotoResolution } from '@/utils/coursePhoto';
+import { resolveCoursePhoto } from '@/utils/coursePhoto';
 
 type Tab = 'overview' | 'source' | 'nearby';
 
@@ -24,6 +26,16 @@ export default function CourseDetailPage() {
   const [courseIdCopied, setCourseIdCopied] = useState(false);
   const { data: course, isLoading } = useCourseRecord(id);
   const { data: stateCourseCatalog = [] } = useStateCourseCatalog(course?.stateCode);
+  const {
+    uploadsConfigured,
+    uploadedPhotos,
+    uploadedCoverPhoto,
+    isLoading: isUploadedPhotosLoading,
+    isUploading,
+    isSettingCover,
+    uploadPhotos,
+    setCoverPhoto,
+  } = useCourseUploadedPhotoGallery(course?.id);
   const {
     rankingState,
     getCourseRankingRecord,
@@ -63,7 +75,7 @@ export default function CourseDetailPage() {
   const courseRanking = getCourseRankingRecord(course.id);
   const courseNumericRating = getCourseNumericRating(course.id);
   const resolvedPar = getCoursePar(course.id, rankingState);
-  const photoResolution = getCoursePhotoResolution(course.id);
+  const photoResolution = resolveCoursePhoto(course.id, uploadedCoverPhoto);
   const isPlayed = Boolean(courseRanking);
   const tourHistoryLabel = getTourHistoryLabel(course);
   const courseHasTourHistory = hasTourHistory(course);
@@ -122,16 +134,30 @@ export default function CourseDetailPage() {
       />
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_22rem]">
-        <div className="overflow-hidden rounded-[34px] border border-[hsl(var(--golfer-line))] bg-white shadow-[0_32px_90px_-55px_rgba(12,25,19,0.45)]">
-          <CoursePhotoSurface
+        <div className="space-y-4">
+          <div className="overflow-hidden rounded-[34px] border border-[hsl(var(--golfer-line))] bg-white shadow-[0_32px_90px_-55px_rgba(12,25,19,0.45)]">
+            <CoursePhotoSurface
+              courseId={course.id}
+              courseName={course.name}
+              lazy={false}
+              showAttribution
+              linkToCover
+              photoOverride={photoResolution.photo}
+              className="p-3"
+              imageClassName="h-[24rem] w-full rounded-[28px] object-cover sm:h-[28rem]"
+              placeholderClassName="h-[24rem] w-full rounded-[28px] bg-[linear-gradient(135deg,hsl(var(--golfer-cream)),hsl(var(--golfer-mist)))] sm:h-[28rem]"
+            />
+          </div>
+
+          <CoursePhotoGallerySection
             courseId={course.id}
-            courseName={course.name}
-            lazy={false}
-            showAttribution
-            linkToCover
-            className="p-3"
-            imageClassName="h-[24rem] w-full rounded-[28px] object-cover sm:h-[28rem]"
-            placeholderClassName="h-[24rem] w-full rounded-[28px] bg-[linear-gradient(135deg,hsl(var(--golfer-cream)),hsl(var(--golfer-mist)))] sm:h-[28rem]"
+            uploadedPhotos={uploadedPhotos}
+            uploadsConfigured={uploadsConfigured}
+            isLoading={isUploadedPhotosLoading}
+            isUploading={isUploading}
+            isSettingCover={isSettingCover}
+            onUploadPhotos={uploadPhotos}
+            onSetCover={setCoverPhoto}
           />
         </div>
 
@@ -214,6 +240,8 @@ export default function CourseDetailPage() {
               <span className="rounded-full border border-[hsl(var(--golfer-line))] bg-white px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep))]">
                 {photoResolution.state === 'manual'
                   ? 'Manual photo'
+                  : photoResolution.state === 'uploaded'
+                    ? 'Uploaded cover'
                   : photoResolution.state === 'auto'
                     ? 'Auto photo'
                     : 'Placeholder'}
@@ -243,6 +271,8 @@ export default function CourseDetailPage() {
                   <p className="mt-2 text-sm text-[hsl(var(--golfer-deep))]">
                     {photoResolution.state === 'manual'
                       ? 'Manual override active'
+                      : photoResolution.state === 'uploaded'
+                        ? 'Uploaded course cover active'
                       : photoResolution.state === 'auto'
                         ? 'Auto-generated match active'
                         : 'Using placeholder'}
