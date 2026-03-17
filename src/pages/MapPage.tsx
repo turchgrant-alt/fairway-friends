@@ -24,6 +24,7 @@ import {
 type ViewMode = 'map' | 'list';
 
 const MAP_PIN_LIMIT = 300;
+const MAP_VIEW_RESULT_PREVIEW_LIMIT = 6;
 const LIST_RESULT_LIMIT = 120;
 
 interface FocusTarget {
@@ -135,16 +136,18 @@ export default function MapPage() {
   }, [courseById, selectedCourseId, viewport.bounds]);
 
   const listCourses = useMemo(() => {
-    if (activeSearch || viewport.zoom >= 7) {
+    if (loadedCourses.length > 0 || viewport.zoom >= 7) {
       return visibleAreaCourses;
     }
 
     return [];
-  }, [activeSearch, viewport.zoom, visibleAreaCourses]);
+  }, [loadedCourses.length, viewport.zoom, visibleAreaCourses]);
 
   const displayedListCourses = listCourses.slice(0, LIST_RESULT_LIMIT);
+  const mapViewPreviewCourses = displayedListCourses.slice(0, MAP_VIEW_RESULT_PREVIEW_LIMIT);
   const mapCourseOverflow = Math.max(visibleAreaCourses.length - mapCourses.length, 0);
   const listOverflow = Math.max(listCourses.length - displayedListCourses.length, 0);
+  const mapPreviewOverflow = Math.max(listCourses.length - mapViewPreviewCourses.length, 0);
 
   function resetToUnitedStates() {
     setQuery('');
@@ -345,7 +348,7 @@ export default function MapPage() {
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
-              Current area: {focusTarget.label}
+              {activeSearch ? `Started from: ${activeSearch.label}` : `Start area: ${focusTarget.label}`}
             </span>
             {activeSearch || loadedCourses.length > 0 ? (
               <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
@@ -368,139 +371,159 @@ export default function MapPage() {
         ) : null}
       </section>
 
-      {viewMode === 'map' ? (
-        <section className="relative overflow-hidden rounded-[34px] border border-[hsl(var(--golfer-line))] bg-white shadow-[0_32px_90px_-55px_rgba(12,25,19,0.45)]">
-          <div className="h-[72vh] min-h-[34rem]">
-            <CourseDiscoveryMap
-              courses={mapCourses}
-              selectedCourseId={selectedCourseId}
-              onSelectCourse={setSelectedCourseId}
-              onViewportChange={setViewport}
-              focusTarget={focusTarget}
-            />
-          </div>
+      <section className="relative overflow-hidden rounded-[34px] border border-[hsl(var(--golfer-line))] bg-white shadow-[0_32px_90px_-55px_rgba(12,25,19,0.45)]">
+        <div className="h-[72vh] min-h-[34rem]">
+          <CourseDiscoveryMap
+            courses={mapCourses}
+            selectedCourseId={selectedCourseId}
+            onSelectCourse={setSelectedCourseId}
+            onViewportChange={setViewport}
+            focusTarget={focusTarget}
+          />
+        </div>
 
-          {selectedCourse && hasVerifiedCoordinates(selectedCourse) ? (
-            <div className="pointer-events-none absolute inset-x-4 bottom-4 z-[500] sm:left-6 sm:right-auto sm:max-w-xl">
-              <div className="pointer-events-auto overflow-hidden rounded-[28px] bg-white shadow-[0_24px_70px_-45px_rgba(12,25,19,0.45)]">
-                <button
-                  onClick={() => setSelectedCourseId(null)}
-                  className="absolute right-4 top-4 z-10 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]"
-                >
-                  Close
-                </button>
-                <button onClick={() => navigate(`/course/${selectedCourse.id}`)} className="flex w-full flex-col text-left sm:flex-row">
-                  <img src={selectedCourse.imageUrl} alt={selectedCourse.name} className="h-40 w-full shrink-0 object-cover sm:h-auto sm:w-40" />
-                  <div className="flex-1 p-5">
-                    <h2 className="text-xl font-semibold text-card-foreground">{selectedCourse.name}</h2>
-                    <p className="mt-1 text-sm text-muted-foreground">{selectedCourse.location}</p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] capitalize text-secondary-foreground">
-                        {selectedCourse.type}
+        {selectedCourse && hasVerifiedCoordinates(selectedCourse) ? (
+          <div className="pointer-events-none absolute inset-x-4 bottom-4 z-[500] sm:left-6 sm:right-auto sm:max-w-xl">
+            <div className="pointer-events-auto overflow-hidden rounded-[28px] bg-white shadow-[0_24px_70px_-45px_rgba(12,25,19,0.45)]">
+              <button
+                onClick={() => setSelectedCourseId(null)}
+                className="absolute right-4 top-4 z-10 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]"
+              >
+                Close
+              </button>
+              <button onClick={() => navigate(`/course/${selectedCourse.id}`)} className="flex w-full flex-col text-left sm:flex-row">
+                <img src={selectedCourse.imageUrl} alt={selectedCourse.name} className="h-40 w-full shrink-0 object-cover sm:h-auto sm:w-40" />
+                <div className="flex-1 p-5">
+                  <h2 className="text-xl font-semibold text-card-foreground">{selectedCourse.name}</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">{selectedCourse.location}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] capitalize text-secondary-foreground">
+                      {selectedCourse.type}
+                    </span>
+                    {selectedCourse.holes != null ? (
+                      <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] text-secondary-foreground">
+                        {selectedCourse.holes} holes
                       </span>
-                      {selectedCourse.holes != null ? (
-                        <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] text-secondary-foreground">
-                          {selectedCourse.holes} holes
-                        </span>
-                      ) : null}
-                      {selectedCourse.par != null ? (
-                        <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] text-secondary-foreground">
-                          Par {selectedCourse.par}
-                        </span>
-                      ) : null}
-                    </div>
+                    ) : null}
+                    {selectedCourse.par != null ? (
+                      <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] text-secondary-foreground">
+                        Par {selectedCourse.par}
+                      </span>
+                    ) : null}
                   </div>
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="pointer-events-none absolute bottom-4 left-4 z-[500] sm:left-6">
-              <div className="rounded-[24px] border border-white/70 bg-white/92 px-4 py-3 shadow-[0_18px_50px_-36px_rgba(12,25,19,0.45)] backdrop-blur-sm">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
-                  Map first
-                </p>
-                <p className="mt-2 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
-                  {shouldShowPins
-                    ? 'Pan or zoom to keep exploring. Only courses inside the current map bounds stay active.'
-                    : 'Search a city or state to load map pins from the stored dataset.'}
-                </p>
-                {mapCourseOverflow > 0 ? (
-                  <p className="mt-2 text-xs text-[hsl(var(--golfer-deep-soft))]/[0.68]">
-                    Showing the first {mapCourses.length} pins in view for clarity.
-                  </p>
-                ) : null}
-              </div>
-            </div>
-          )}
-        </section>
-      ) : (
-        <section className="space-y-5">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
-                List View
-              </p>
-              <h2 className="mt-2 text-3xl text-[hsl(var(--golfer-deep))]">
-                {activeSearch ? `Visible results near ${activeSearch.label}` : 'Courses in the current map area'}
-              </h2>
-              <p className="mt-2 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-                {activeSearch
-                  ? 'This list stays synced to the current map bounds. Pan or zoom in Map View, then come back here to browse the visible area.'
-                  : 'Search first or zoom into a region, then use List View as a cleaner browse surface for the visible map area.'}
-              </p>
-            </div>
-            <div className="rounded-full bg-[hsl(var(--golfer-mist))] px-4 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
-              {listCourses.length} result{listCourses.length === 1 ? '' : 's'}
+                </div>
+              </button>
             </div>
           </div>
-
-          {isCatalogLoading ? (
-            <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-10 text-center text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-              Loading the matching stored course data...
-            </div>
-          ) : !activeSearch && viewport.zoom < 7 ? (
-            <div className="rounded-[28px] border border-dashed border-[hsl(var(--golfer-line))] bg-white p-10 text-center">
-              <div className="mx-auto max-w-2xl">
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
-                  <Compass size={18} />
-                </span>
-                <h3 className="mt-5 text-2xl text-[hsl(var(--golfer-deep))]">Search or zoom in to browse results</h3>
-                <p className="mt-3 text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-                  The initial U.S. view stays intentionally broad. Search for a city or state first, or zoom into a
-                  tighter region on the map, then switch back here for a calmer results page.
-                </p>
-              </div>
-            </div>
-          ) : displayedListCourses.length > 0 ? (
-            <div className="space-y-4">
-              <div className="grid gap-4 xl:grid-cols-2">
-                {displayedListCourses.map((course) => (
-                  <CourseCard key={course.id} course={course} variant="compact" />
-                ))}
-              </div>
-              {listOverflow > 0 ? (
-                <p className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
-                  Showing the first {displayedListCourses.length} results to keep List View readable.
+        ) : (
+          <div className="pointer-events-none absolute bottom-4 left-4 z-[500] sm:left-6">
+            <div className="rounded-[24px] border border-white/70 bg-white/92 px-4 py-3 shadow-[0_18px_50px_-36px_rgba(12,25,19,0.45)] backdrop-blur-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
+                Map first
+              </p>
+              <p className="mt-2 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
+                {shouldShowPins
+                  ? 'Results update after each completed pan or zoom. Only courses inside the visible bounds stay active.'
+                  : 'Search a city or state to load map pins from the stored dataset.'}
+              </p>
+              {mapCourseOverflow > 0 ? (
+                <p className="mt-2 text-xs text-[hsl(var(--golfer-deep-soft))]/[0.68]">
+                  Showing the first {mapCourses.length} pins in view for clarity.
                 </p>
               ) : null}
             </div>
-          ) : (
-            <div className="rounded-[28px] border border-dashed border-[hsl(var(--golfer-line))] bg-white p-10 text-center">
-              <div className="mx-auto max-w-2xl">
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
-                  <MapPin size={18} />
-                </span>
-                <h3 className="mt-5 text-2xl text-[hsl(var(--golfer-deep))]">No courses to show here yet</h3>
-                <p className="mt-3 text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-                  {activeSearch
-                    ? 'The current map bounds do not contain courses with verified coordinates yet. Pan wider, zoom out, or try another search.'
-                    : 'This part of the map does not currently contain courses with verified coordinates in the stored dataset. Try another region.'}
-                </p>
-              </div>
+          </div>
+        )}
+      </section>
+
+      <section className="space-y-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
+              {viewMode === 'map' ? 'Results In View' : 'List View'}
+            </p>
+            <h2 className="mt-2 text-3xl text-[hsl(var(--golfer-deep))]">
+              Courses inside the current map area
+            </h2>
+            <p className="mt-2 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+              Search sets the starting area. After that, this list follows the visible map bounds and updates when the
+              current pan or zoom finishes.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="rounded-full bg-[hsl(var(--golfer-mist))] px-4 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
+              {listCourses.length} result{listCourses.length === 1 ? '' : 's'}
             </div>
-          )}
-        </section>
-      )}
+            {viewMode === 'map' && listCourses.length > MAP_VIEW_RESULT_PREVIEW_LIMIT ? (
+              <button
+                onClick={() => setViewMode('list')}
+                className="rounded-full border border-[hsl(var(--golfer-line))] bg-white px-4 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]"
+              >
+                Expand list
+              </button>
+            ) : null}
+          </div>
+        </div>
+
+        {isCatalogLoading ? (
+          <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-10 text-center text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+            Loading the matching stored course data...
+          </div>
+        ) : !activeSearch && viewport.zoom < 7 ? (
+          <div className="rounded-[28px] border border-dashed border-[hsl(var(--golfer-line))] bg-white p-10 text-center">
+            <div className="mx-auto max-w-2xl">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
+                <Compass size={18} />
+              </span>
+              <h3 className="mt-5 text-2xl text-[hsl(var(--golfer-deep))]">Search or zoom in to browse results</h3>
+              <p className="mt-3 text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+                The initial U.S. view stays intentionally broad. Search for a city or state first, or zoom into a
+                tighter region on the map, and the visible-area results will respond automatically.
+              </p>
+            </div>
+          </div>
+        ) : viewMode === 'map' && mapViewPreviewCourses.length > 0 ? (
+          <div className="space-y-4">
+            <div className="grid gap-4 xl:grid-cols-2">
+              {mapViewPreviewCourses.map((course) => (
+                <CourseCard key={course.id} course={course} variant="compact" />
+              ))}
+            </div>
+            {mapPreviewOverflow > 0 ? (
+              <p className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
+                Showing the first {mapViewPreviewCourses.length} courses in view. Switch to List View for the full visible-area list.
+              </p>
+            ) : null}
+          </div>
+        ) : viewMode === 'list' && displayedListCourses.length > 0 ? (
+          <div className="space-y-4">
+            <div className="grid gap-4 xl:grid-cols-2">
+              {displayedListCourses.map((course) => (
+                <CourseCard key={course.id} course={course} variant="compact" />
+              ))}
+            </div>
+            {listOverflow > 0 ? (
+              <p className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
+                Showing the first {displayedListCourses.length} results to keep List View readable.
+              </p>
+            ) : null}
+          </div>
+        ) : (
+          <div className="rounded-[28px] border border-dashed border-[hsl(var(--golfer-line))] bg-white p-10 text-center">
+            <div className="mx-auto max-w-2xl">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
+                <MapPin size={18} />
+              </span>
+              <h3 className="mt-5 text-2xl text-[hsl(var(--golfer-deep))]">No courses to show here yet</h3>
+              <p className="mt-3 text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+                {loadedCourses.length > 0
+                  ? 'The current visible map bounds do not contain courses with verified coordinates yet. Pan wider, zoom out, or try another search.'
+                  : 'This part of the map does not currently contain courses with verified coordinates in the stored dataset. Try another region.'}
+              </p>
+            </div>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
