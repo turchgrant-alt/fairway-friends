@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, CheckCircle2, Scale, Trophy } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Scale } from "lucide-react";
 
 import { COURSE_TAGS, type CourseExperienceTag } from "@/constants/course-tags";
 import { useCourseRecord } from "@/hooks/use-course-catalog";
@@ -435,21 +435,23 @@ export default function PlayedCourseDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-0 shadow-[0_32px_90px_-55px_rgba(12,25,19,0.5)]">
-        <div className="overflow-hidden rounded-[32px]">
-          <div className="border-b border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-7 py-6">
+      <DialogContent className="flex max-h-[calc(100dvh-2rem)] min-h-0 max-w-3xl flex-col overflow-hidden rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-0 shadow-[0_32px_90px_-55px_rgba(12,25,19,0.5)]">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[32px]">
+          <div className="shrink-0 border-b border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-5 py-4 sm:px-6 sm:py-5">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">
               Played flow
             </p>
-            <DialogTitle className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">{renderHeaderTitle()}</DialogTitle>
-            <DialogDescription className="mt-3 max-w-2xl text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
+            <DialogTitle className="mt-2 text-[1.85rem] leading-tight text-[hsl(var(--golfer-deep))] sm:text-[2rem]">
+              {renderHeaderTitle()}
+            </DialogTitle>
+            <DialogDescription className="mt-2 max-w-2xl text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
               {renderHeaderDescription()}
             </DialogDescription>
           </div>
 
-          <div className="px-7 py-7">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4 sm:px-6 sm:py-5">
             {step === "bucket" ? (
-              <div className="space-y-6">
+              <div className="space-y-4 pb-1">
                 <div className="grid gap-4 md:grid-cols-3">
                   {COURSE_BUCKET_PRIORITY.map((bucket) => {
                     const bucketCourses = getBucketCourses(bucket).filter((course) => course.courseId !== courseId);
@@ -479,12 +481,12 @@ export default function PlayedCourseDialog({
                   })}
                 </div>
 
-                <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] px-5 py-4 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
+                <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] px-4 py-3 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
                   The full numbered ranking only needs to feel strict after at least {MINIMUM_TRUE_RANKING_COUNT} ranked
                   courses. This popup already stores the same underlying order locally.
                 </div>
 
-                <div className="flex items-center justify-between gap-3">
+                <div className="sticky bottom-0 z-10 flex items-center justify-between gap-3 border-t border-[hsl(var(--golfer-line))] bg-white/95 pt-3 backdrop-blur supports-[backdrop-filter]:bg-white/85">
                   <span className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
                     {rankedCourseCount} course{rankedCourseCount === 1 ? "" : "s"} currently stored in local rankings
                   </span>
@@ -499,7 +501,7 @@ export default function PlayedCourseDialog({
             ) : null}
 
             {step === "compare" && selectedBucket ? (
-              <div className="space-y-6">
+              <div className="space-y-4 pb-1">
                 <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-stretch">
                   <button
                     onClick={() => handleComparisonDecision(false)}
@@ -545,12 +547,12 @@ export default function PlayedCourseDialog({
                   </button>
                 </div>
 
-                <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] px-5 py-4 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
+                <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] px-4 py-3 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
                   {comparisonHint ??
                     `GolfeR is narrowing a ${formatBucketLabel(selectedBucket).toLowerCase()} insertion point using the current bucket order.`}
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="sticky bottom-0 z-10 flex flex-wrap items-center justify-between gap-3 border-t border-[hsl(var(--golfer-line))] bg-white/95 pt-3 backdrop-blur supports-[backdrop-filter]:bg-white/85">
                   <div className="flex flex-wrap items-center gap-3">
                     <button
                       onClick={handleBack}
@@ -577,202 +579,190 @@ export default function PlayedCourseDialog({
             ) : null}
 
             {step === "details" && selectedBucket ? (
-              <div className="space-y-6">
-                <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-6">
-                  <div className="flex items-center gap-3">
-                    <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
-                      <CheckCircle2 size={18} />
+              <div className="space-y-4 pb-1">
+                <div className="rounded-[22px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-4 py-3">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white text-[hsl(var(--golfer-deep))]">
+                      <CheckCircle2 size={16} />
                     </span>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
-                        Ranking saved locally
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-[hsl(var(--golfer-deep))]">
+                        {isRerankMode ? "Updated" : "Placed"} in {formatBucketLabel(selectedBucket)}
                       </p>
-                      <h3 className="mt-2 text-2xl text-[hsl(var(--golfer-deep))]">
-                        {isRerankMode ? "Updated in" : "Added to"} {formatBucketLabel(selectedBucket)}
-                      </h3>
+                      <p className="text-xs leading-5 text-[hsl(var(--golfer-deep-soft))]/[0.72]">
+                        Round details are optional. Save them now or skip.
+                      </p>
                     </div>
-                  </div>
-
-                  <div className="mt-5 grid gap-4 sm:grid-cols-3">
-                    <div className="rounded-[22px] bg-[hsl(var(--golfer-cream))] p-4">
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
-                        {hasTrueRankingThreshold ? "Numeric rating" : "Visible order"}
-                      </p>
-                      <p className="mt-2 text-xl text-[hsl(var(--golfer-deep))]">
+                    <div className="flex flex-wrap gap-2">
+                      <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
                         {hasTrueRankingThreshold
                           ? currentCourseNumericRating != null
-                            ? currentCourseNumericRating.toFixed(1)
-                            : "Pending"
-                          : currentCourseRanking?.globalOrder ?? "Pending"}
-                      </p>
-                    </div>
-                    <div className="rounded-[22px] bg-[hsl(var(--golfer-cream))] p-4">
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
-                        Bucket order
-                      </p>
-                      <p className="mt-2 text-xl text-[hsl(var(--golfer-deep))]">{savedBucketOrder ?? "Pending"}</p>
-                    </div>
-                    <div className="rounded-[22px] bg-[hsl(var(--golfer-cream))] p-4">
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
-                        Ranking mode
-                      </p>
-                      <p className="mt-2 text-sm leading-7 text-[hsl(var(--golfer-deep))]">
+                            ? `${currentCourseNumericRating.toFixed(1)} rating`
+                            : "Rating pending"
+                          : currentCourseRanking?.globalOrder != null
+                            ? `Order ${currentCourseRanking.globalOrder}`
+                            : "Order pending"}
+                      </span>
+                      <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
+                        Bucket {savedBucketOrder ?? "pending"}
+                      </span>
+                      <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep-soft))]/[0.82]">
                         {hasTrueRankingThreshold
-                          ? "Full ranking threshold reached"
-                          : `${rankedCourseThresholdRemaining} more course${rankedCourseThresholdRemaining === 1 ? "" : "s"} before the stricter ranking view turns on`}
-                      </p>
+                          ? "Full ranking"
+                          : `${rankedCourseThresholdRemaining} to full ranking`}
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] px-5 py-4 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
-                  All fields below are optional. Skip this step if you only want to keep the ranking.
-                </div>
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+                  <div className="space-y-4">
+                    {showParField ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between gap-3">
+                          <label className="text-sm font-medium text-[hsl(var(--golfer-deep))]">Par</label>
+                          {resolvedPar?.source === "user" ? (
+                            <span className="text-xs text-[hsl(var(--golfer-deep-soft))]/[0.64]">
+                              Current local entry: {resolvedPar.par}
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {[70, 71, 72, 73, 74].map((par) => {
+                            const isSelected = roundDetailsForm.parValue === String(par);
 
-                <div className="grid gap-5">
-                  {showParField ? (
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between gap-3">
-                        <label className="text-sm font-medium text-[hsl(var(--golfer-deep))]">Par</label>
-                        {resolvedPar?.source === "user" ? (
-                          <span className="text-xs text-[hsl(var(--golfer-deep-soft))]/[0.64]">
-                            Current local entry: {resolvedPar.par}
-                          </span>
-                        ) : null}
+                            return (
+                              <button
+                                key={par}
+                                onClick={() =>
+                                  setRoundDetailsForm((currentForm) => ({
+                                    ...currentForm,
+                                    parValue: String(par),
+                                  }))
+                                }
+                                className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                                  isSelected
+                                    ? "bg-[hsl(var(--golfer-deep))] text-white"
+                                    : "border border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep))]"
+                                }`}
+                              >
+                                {par}
+                              </button>
+                            );
+                          })}
+                          <Input
+                            type="number"
+                            inputMode="numeric"
+                            min={1}
+                            placeholder="Custom"
+                            value={roundDetailsForm.parValue}
+                            onChange={(event) =>
+                              setRoundDetailsForm((currentForm) => ({
+                                ...currentForm,
+                                parValue: event.target.value,
+                              }))
+                            }
+                            className="h-9 w-24 rounded-full border-[hsl(var(--golfer-line))] text-sm"
+                          />
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        {[70, 71, 72, 73, 74].map((par) => {
-                          const isSelected = roundDetailsForm.parValue === String(par);
+                    ) : null}
 
-                          return (
-                            <button
-                              key={par}
-                              onClick={() =>
-                                setRoundDetailsForm((currentForm) => ({
-                                  ...currentForm,
-                                  parValue: String(par),
-                                }))
-                              }
-                              className={`rounded-full px-3 py-2 text-sm font-medium transition ${
-                                isSelected
-                                  ? "bg-[hsl(var(--golfer-deep))] text-white"
-                                  : "border border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep))]"
-                              }`}
-                            >
-                              {par}
-                            </button>
-                          );
-                        })}
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-[hsl(var(--golfer-deep))]">Score shot</label>
                         <Input
                           type="number"
                           inputMode="numeric"
                           min={1}
-                          placeholder="Custom"
-                          value={roundDetailsForm.parValue}
+                          placeholder="What did you shoot?"
+                          value={roundDetailsForm.scoreShot}
                           onChange={(event) =>
                             setRoundDetailsForm((currentForm) => ({
                               ...currentForm,
-                              parValue: event.target.value,
+                              scoreShot: event.target.value,
                             }))
                           }
-                          className="h-10 w-28 rounded-full border-[hsl(var(--golfer-line))]"
+                          className="h-10 rounded-[16px] border-[hsl(var(--golfer-line))]"
                         />
                       </div>
-                    </div>
-                  ) : null}
 
-                  <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-[hsl(var(--golfer-deep))]">Price paid</label>
+                        <div className="relative">
+                          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.64]">
+                            $
+                          </span>
+                          <Input
+                            type="number"
+                            inputMode="numeric"
+                            min={1}
+                            placeholder="Whole dollars"
+                            value={roundDetailsForm.pricePaid}
+                            onChange={(event) =>
+                              setRoundDetailsForm((currentForm) => ({
+                                ...currentForm,
+                                pricePaid: event.target.value,
+                              }))
+                            }
+                            className="h-10 rounded-[16px] border-[hsl(var(--golfer-line))] pl-8"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-[hsl(var(--golfer-deep))]">Score shot</label>
+                      <label className="text-sm font-medium text-[hsl(var(--golfer-deep))]">Tags</label>
+                      <div className="rounded-[18px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] p-3">
+                        <div className="flex flex-wrap gap-2">
+                          {COURSE_TAGS.map((tag) => {
+                            const isSelected = roundDetailsForm.tags.includes(tag);
+
+                            return (
+                              <button
+                                key={tag}
+                                onClick={() => toggleTag(tag)}
+                                className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                                  isSelected
+                                    ? "bg-[hsl(var(--golfer-deep))] text-white"
+                                    : "border border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep))]"
+                                }`}
+                              >
+                                {tag}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-3">
+                        <label className="text-sm font-medium text-[hsl(var(--golfer-deep))]">Notes</label>
+                        <span className="text-xs text-[hsl(var(--golfer-deep-soft))]/[0.64]">
+                          {roundDetailsForm.notes.length}/140
+                        </span>
+                      </div>
                       <Input
-                        type="number"
-                        inputMode="numeric"
-                        min={1}
-                        placeholder="What did you shoot?"
-                        value={roundDetailsForm.scoreShot}
+                        type="text"
+                        maxLength={140}
+                        placeholder="Anything worth remembering?"
+                        value={roundDetailsForm.notes}
                         onChange={(event) =>
                           setRoundDetailsForm((currentForm) => ({
                             ...currentForm,
-                            scoreShot: event.target.value,
+                            notes: event.target.value.slice(0, 140),
                           }))
                         }
-                        className="h-11 rounded-[18px] border-[hsl(var(--golfer-line))]"
+                        className="h-10 rounded-[16px] border-[hsl(var(--golfer-line))]"
                       />
                     </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-[hsl(var(--golfer-deep))]">Price paid</label>
-                      <div className="relative">
-                        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.64]">
-                          $
-                        </span>
-                        <Input
-                          type="number"
-                          inputMode="numeric"
-                          min={1}
-                          placeholder="Whole dollars"
-                          value={roundDetailsForm.pricePaid}
-                          onChange={(event) =>
-                            setRoundDetailsForm((currentForm) => ({
-                              ...currentForm,
-                              pricePaid: event.target.value,
-                            }))
-                          }
-                          className="h-11 rounded-[18px] border-[hsl(var(--golfer-line))] pl-8"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-[hsl(var(--golfer-deep))]">Tags</label>
-                    <div className="max-h-28 overflow-y-auto rounded-[20px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] p-3">
-                      <div className="flex flex-wrap gap-2">
-                        {COURSE_TAGS.map((tag) => {
-                          const isSelected = roundDetailsForm.tags.includes(tag);
-
-                          return (
-                            <button
-                              key={tag}
-                              onClick={() => toggleTag(tag)}
-                              className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
-                                isSelected
-                                  ? "bg-[hsl(var(--golfer-deep))] text-white"
-                                  : "border border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep))]"
-                              }`}
-                            >
-                              {tag}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between gap-3">
-                      <label className="text-sm font-medium text-[hsl(var(--golfer-deep))]">Notes</label>
-                      <span className="text-xs text-[hsl(var(--golfer-deep-soft))]/[0.64]">
-                        {roundDetailsForm.notes.length}/140
-                      </span>
-                    </div>
-                    <Input
-                      type="text"
-                      maxLength={140}
-                      placeholder="Anything worth remembering?"
-                      value={roundDetailsForm.notes}
-                      onChange={(event) =>
-                        setRoundDetailsForm((currentForm) => ({
-                          ...currentForm,
-                          notes: event.target.value.slice(0, 140),
-                        }))
-                      }
-                      className="h-11 rounded-[18px] border-[hsl(var(--golfer-line))]"
-                    />
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="sticky bottom-0 z-10 flex flex-wrap items-center justify-between gap-3 border-t border-[hsl(var(--golfer-line))] bg-white/95 pt-3 backdrop-blur supports-[backdrop-filter]:bg-white/85">
                   <button
                     onClick={handleBack}
                     className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-5 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]"
