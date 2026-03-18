@@ -2,18 +2,22 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Database, MapPinned, RefreshCcw, Settings } from 'lucide-react';
 
 import PageHeader from '@/components/dashboard/PageHeader';
+import FriendsSection from '@/components/friends/FriendsSection';
 import ProfileRankingSection from '@/components/rankings/ProfileRankingSection';
+import { useAuth } from '@/contexts/AuthContext';
 import { demoStats, demoWorkspaceCards, formatDemoDate, starterLists } from '@/lib/demo-v1';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const { profile, user } = useAuth();
+  const identityLabel = profile?.display_name ?? profile?.username ?? user?.email ?? 'Your account';
 
   return (
     <div className="space-y-10">
       <PageHeader
         eyebrow="Workspace"
-        title="Builder-facing product workspace"
-        description="Use this page as the practical control surface for the v1 demo: what data is loaded, what is in scope, and which core pages are worth testing next."
+        title="Your GolfeR workspace"
+        description="This page now combines the builder-facing product controls with your signed-in ranking state and friend network."
         actions={
           <button
             onClick={() => navigate('/settings')}
@@ -47,11 +51,11 @@ export default function ProfilePage() {
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <div className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-7 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.38)] sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">Current mode</p>
-          <h2 className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">No-auth demo workspace</h2>
+          <h2 className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">{identityLabel}</h2>
           <p className="mt-4 text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-            The visible app is intentionally trimmed down. Fake profiles, followers, activity feeds, and authored
-            reviews are hidden so the current product can focus on real course data, map discovery, and the core
-            browsing flow.
+            Supabase now persists your account, friendships, and saved rankings while the course catalog remains local
+            and fast. The visible product is still intentionally trimmed so browsing and ranking flows stay practical
+            to test.
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -84,6 +88,8 @@ export default function ProfilePage() {
           </div>
         </div>
       </section>
+
+      <FriendsSection />
 
       <ProfileRankingSection />
     </div>

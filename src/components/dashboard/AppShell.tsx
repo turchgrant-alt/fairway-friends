@@ -1,6 +1,7 @@
-import { Compass, LayoutGrid, ListChecks, MapPinned, Settings, UserCircle2 } from "lucide-react";
+import { Compass, LayoutGrid, ListChecks, LogOut, MapPinned, Settings, UserCircle2 } from "lucide-react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -17,7 +18,10 @@ function isActivePath(currentPath: string, itemPath: string) {
 
 export default function AppShell() {
   const location = useLocation();
+  const { profile, user, signOut } = useAuth();
   const activeItem = navItems.find((item) => isActivePath(location.pathname, item.path));
+  const identityLabel =
+    profile?.display_name ?? profile?.username ?? user?.email ?? "Fairway Friends";
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,hsl(var(--golfer-mist))_0%,hsl(var(--golfer-cream))_18rem,hsl(var(--background))_60rem)]">
@@ -72,6 +76,18 @@ export default function AppShell() {
             </nav>
 
             <div className="flex items-center gap-2">
+              <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-white/[0.82] lg:inline-flex">
+                <span className="max-w-48 truncate">{identityLabel}</span>
+              </div>
+              <button
+                onClick={() => {
+                  void signOut();
+                }}
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/[0.8] transition hover:bg-white/[0.12] hover:text-white"
+              >
+                <LogOut size={15} />
+                <span className="hidden sm:inline">Sign out</span>
+              </button>
               <Link
                 to="/settings"
                 className={cn(

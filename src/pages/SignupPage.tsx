@@ -1,5 +1,5 @@
-import { Navigate } from 'react-router-dom';
+import AuthPage from "./AuthPage";
 
 export default function SignupPage() {
-  return <Navigate to="/discover" replace />;
+  return <AuthPage defaultTab="signup" />;
 }

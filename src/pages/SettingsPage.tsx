@@ -28,7 +28,7 @@ export default function SettingsPage() {
       <PageHeader
         eyebrow="Settings"
         title="Developer/demo settings"
-        description="This page is now a practical reference point for the v1 shell instead of a fake authenticated account center."
+        description="This page is a practical reference point for the current GolfeR shell and its Supabase-backed account state."
         actions={
           <button
             onClick={() => navigate(-1)}
@@ -63,10 +63,11 @@ export default function SettingsPage() {
 
         <div className="rounded-[30px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-deep))] p-6 text-white shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] lg:col-span-2">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">Current behavior</p>
-          <p className="mt-4 text-2xl">Auth is bypassed and social activity is muted.</p>
+          <p className="mt-4 text-2xl">Auth, saved rankings, and friendships now persist.</p>
           <p className="mt-3 text-sm leading-8 text-white/72">
-            `/login`, `/signup`, and `/onboarding` now flow straight into the product. Notifications, public profiles,
-            and review author content stay out of the visible experience until they are worth building for real.
+            Supabase handles account sessions and ranking storage. The course catalog still ships locally, and the
+            visible product remains focused on discovery, ranking, and friend comparison rather than broader social
+            activity.
           </p>
         </div>
       </div>

@@ -15,7 +15,7 @@ export default function HomePage() {
       <PageHeader
         eyebrow="Overview"
         title="A cleaner GolfeR v1, ready for product work."
-        description="This internal shell is now focused on the real course dataset, core discovery surfaces, and builder-friendly checkpoints instead of fake users or social activity."
+        description="This internal shell is now focused on the real course dataset, authenticated rankings, and builder-friendly checkpoints instead of fake users or social activity."
         actions={
           <>
             <button
@@ -158,8 +158,8 @@ export default function HomePage() {
           </div>
           <p className="mt-5 text-2xl text-[hsl(var(--golfer-deep))]">Discovery, course pages, and lists</p>
           <p className="mt-3 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-            Auth, public profiles, reviews, and notifications are temporarily stepped back so the core product surface
-            is faster to test and easier to review.
+            Authentication and saved rankings now persist through Supabase, while the course catalog, map, and lists
+            remain local so the core product stays fast to test and easier to review.
           </p>
         </article>
       </section>

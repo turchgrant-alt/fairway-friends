@@ -138,8 +138,8 @@ export default function ProfileRankingSection() {
             {hasTrueRankingThreshold ? "My GolfeR ranking" : "My ranking is taking shape"}
           </h2>
           <p className="mt-3 max-w-3xl text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-            One full local list with visible bucket labels. After manual reorder, the saved display order becomes the
-            source of truth for bucket assignment and the numeric rating values once they unlock.
+            One full saved list with visible bucket labels. After manual reorder, the persisted display order becomes
+            the source of truth for bucket assignment and the numeric rating values once they unlock.
           </p>
         </div>
 
@@ -212,7 +212,7 @@ export default function ProfileRankingSection() {
               </span>
               <h3 className="mt-5 text-2xl text-[hsl(var(--golfer-deep))]">No ranked courses yet</h3>
               <p className="mt-3 text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-                Open a course page and use the Played this course popup to start building a local ranking on this device.
+                Open a course page and use the Played this course popup to start building your saved ranking.
               </p>
             </div>
           </div>
@@ -222,7 +222,7 @@ export default function ProfileRankingSection() {
           </div>
         ) : hasRankedCoursesError ? (
           <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-6 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-            The local ranking store loaded, but one or more course detail files could not be resolved for display.
+            Your saved rankings loaded, but one or more course detail files could not be resolved for display.
           </div>
         ) : (
           <div className="space-y-4">

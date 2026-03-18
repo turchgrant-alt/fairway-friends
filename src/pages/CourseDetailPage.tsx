@@ -313,7 +313,7 @@ export default function CourseDetailPage() {
           ) : (
             <div className="rounded-[24px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] p-5">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
-                Played locally
+                Saved ranking
               </p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-[20px] bg-white/80 p-4">
@@ -387,7 +387,7 @@ export default function CourseDetailPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">
                 Your round
               </p>
-              <h2 className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">Most recent local round details</h2>
+              <h2 className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">Most recent round details on this device</h2>
             </div>
             {courseRanking?.roundDate ? (
               <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-4 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
