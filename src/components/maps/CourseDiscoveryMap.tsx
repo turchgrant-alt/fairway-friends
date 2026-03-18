@@ -29,10 +29,18 @@ function hasCoordinates(course: Course) {
   return course.latitude != null && course.longitude != null;
 }
 
-function createMarkerIcon(active: boolean) {
-  const outerBackground = active ? 'hsl(42 80% 55%)' : 'hsl(154 46% 10%)';
-  const outerBorder = active ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.78)';
-  const innerBackground = active ? 'hsl(154 46% 10%)' : 'rgba(255,255,255,0.96)';
+function createMarkerIcon(active: boolean, highlighted: boolean) {
+  const outerBackground = active
+    ? 'hsl(42 80% 55%)'
+    : highlighted
+      ? 'hsl(41 92% 62%)'
+      : 'hsl(154 46% 10%)';
+  const outerBorder = active || highlighted ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.78)';
+  const innerBackground = active
+    ? 'hsl(154 46% 10%)'
+    : highlighted
+      ? 'rgba(88,59,6,0.92)'
+      : 'rgba(255,255,255,0.96)';
 
   return L.divIcon({
     className: 'golfer-map-marker',
@@ -141,7 +149,7 @@ export default function CourseDiscoveryMap({
 
     courses.filter(hasCoordinates).forEach((course) => {
       const marker = L.marker([course.latitude as number, course.longitude as number], {
-        icon: createMarkerIcon(course.id === selectedCourseId),
+        icon: createMarkerIcon(course.id === selectedCourseId, course.worldTop100Rank != null),
       });
 
       marker.on('click', () => onSelectCourse(course.id));
@@ -159,14 +167,16 @@ export default function CourseDiscoveryMap({
     if (previousSelectedCourseId) {
       const previousMarker = markersByIdRef.current.get(previousSelectedCourseId);
       if (previousMarker) {
-        previousMarker.setIcon(createMarkerIcon(false));
+        const previousCourse = courses.find((course) => course.id === previousSelectedCourseId);
+        previousMarker.setIcon(createMarkerIcon(false, previousCourse?.worldTop100Rank != null));
       }
     }
 
     if (selectedCourseId) {
       const selectedMarker = markersByIdRef.current.get(selectedCourseId);
       if (selectedMarker) {
-        selectedMarker.setIcon(createMarkerIcon(true));
+        const selectedCourse = courses.find((course) => course.id === selectedCourseId);
+        selectedMarker.setIcon(createMarkerIcon(true, selectedCourse?.worldTop100Rank != null));
       }
     }
 

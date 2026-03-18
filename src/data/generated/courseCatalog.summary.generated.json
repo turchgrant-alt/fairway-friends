@@ -60,7 +60,7 @@
     ],
     "mappableCourses": 518,
     "coordinateCoveragePercent": 3,
-    "lastImportedAt": "2026-03-18T18:59:21.875Z"
+    "lastImportedAt": "2026-03-18T20:51:32.534Z"
   },
   "featuredCourses": [
     {
@@ -84,12 +84,15 @@
       "holes": null,
       "website": null,
       "phone": "(516) 249-4040",
+      "description": "Facility/course split inferred from published name using 'X at Y' pattern. Source hole count exceeded 36 and likely reflects facility total rather than a single course; left blank. World Top 100 (#30)",
       "hasPgaOrLpgaTourHistory": true,
       "pgaLpgaTourHistoryType": "pga",
       "pgaLpgaTourHistoryNote": "Hosted PGA Tour / major event(s), including the PGA Championship and U.S. Open",
       "pgaLpgaTourHistorySourceUrl": "https://en.wikipedia.org/wiki/Bethpage_Black_Course",
+      "worldTop100Rank": 30,
       "tags": [
-        "public"
+        "public",
+        "world-top-100"
       ],
       "imageUrl": "/placeholder.svg",
       "overallRating": null,
@@ -116,10 +119,12 @@
       "holes": 36,
       "website": "https://oakhillcc.com/",
       "phone": "(585) 381-1900",
+      "description": "Facility/course split inferred from published name using 'X at Y' pattern.",
       "hasPgaOrLpgaTourHistory": true,
       "pgaLpgaTourHistoryType": "pga",
       "pgaLpgaTourHistoryNote": "Hosted PGA Tour / major event(s), including the PGA Championship",
       "pgaLpgaTourHistorySourceUrl": "https://en.wikipedia.org/wiki/Oak_Hill_Country_Club",
+      "worldTop100Rank": null,
       "tags": [
         "private",
         "36-hole"
@@ -149,13 +154,16 @@
       "holes": 27,
       "website": null,
       "phone": "(831) 625-8518",
+      "description": "Facility/course split inferred from published name using 'X at Y' pattern. World Top 100 (#17)",
       "hasPgaOrLpgaTourHistory": true,
       "pgaLpgaTourHistoryType": "pga",
       "pgaLpgaTourHistoryNote": "Hosted PGA Tour event(s), including the AT&T Pebble Beach Pro-Am and U.S. Open",
       "pgaLpgaTourHistorySourceUrl": "https://en.wikipedia.org/wiki/Pebble_Beach_Golf_Links",
+      "worldTop100Rank": 17,
       "tags": [
         "resort",
-        "27-hole"
+        "27-hole",
+        "world-top-100"
       ],
       "imageUrl": "/placeholder.svg",
       "overallRating": null,
@@ -189,10 +197,12 @@
           "holes": 18,
           "website": null,
           "phone": "(907) 522-3363",
+          "description": null,
           "hasPgaOrLpgaTourHistory": false,
           "pgaLpgaTourHistoryType": null,
           "pgaLpgaTourHistoryNote": null,
           "pgaLpgaTourHistorySourceUrl": null,
+          "worldTop100Rank": null,
           "tags": [
             "public",
             "18-hole"
@@ -222,10 +232,12 @@
           "holes": null,
           "website": null,
           "phone": "(907) 344-5717",
+          "description": "Hole count in source was 0; left blank as unverified.",
           "hasPgaOrLpgaTourHistory": false,
           "pgaLpgaTourHistoryType": null,
           "pgaLpgaTourHistoryNote": null,
           "pgaLpgaTourHistorySourceUrl": null,
+          "worldTop100Rank": null,
           "tags": [
             "public"
           ],
@@ -254,10 +266,12 @@
           "holes": 9,
           "website": null,
           "phone": "(907) 333-8338",
+          "description": null,
           "hasPgaOrLpgaTourHistory": false,
           "pgaLpgaTourHistoryType": null,
           "pgaLpgaTourHistoryNote": null,
           "pgaLpgaTourHistorySourceUrl": null,
+          "worldTop100Rank": null,
           "tags": [
             "public",
             "9-hole"
@@ -287,10 +301,12 @@
           "holes": 9,
           "website": null,
           "phone": "(907) 345-4600",
+          "description": null,
           "hasPgaOrLpgaTourHistory": false,
           "pgaLpgaTourHistoryType": null,
           "pgaLpgaTourHistoryNote": null,
           "pgaLpgaTourHistorySourceUrl": null,
+          "worldTop100Rank": null,
           "tags": [
             "public",
             "9-hole"
@@ -320,10 +336,12 @@
           "holes": 9,
           "website": null,
           "phone": "(907) 479-6555",
+          "description": null,
           "hasPgaOrLpgaTourHistory": false,
           "pgaLpgaTourHistoryType": null,
           "pgaLpgaTourHistoryNote": null,
           "pgaLpgaTourHistorySourceUrl": null,
+          "worldTop100Rank": null,
           "tags": [
             "semi-private",
             "9-hole"
@@ -353,10 +371,12 @@
           "holes": 9,
           "website": null,
           "phone": "(907) 457-4653",
+          "description": null,
           "hasPgaOrLpgaTourHistory": false,
           "pgaLpgaTourHistoryType": null,
           "pgaLpgaTourHistoryNote": null,
           "pgaLpgaTourHistorySourceUrl": null,
+          "worldTop100Rank": null,
           "tags": [
             "semi-private",
             "9-hole"
@@ -393,10 +413,12 @@
           "holes": 18,
           "website": null,
           "phone": "(256) 878-4403",
+          "description": null,
           "hasPgaOrLpgaTourHistory": false,
           "pgaLpgaTourHistoryType": null,
           "pgaLpgaTourHistoryNote": null,
           "pgaLpgaTourHistorySourceUrl": null,
+          "worldTop100Rank": null,
           "tags": [
             "private",
             "18-hole"
@@ -426,10 +448,12 @@
           "holes": 18,
           "website": null,
           "phone": "(256) 212-1407",
+          "description": null,
           "hasPgaOrLpgaTourHistory": false,
           "pgaLpgaTourHistoryType": null,
           "pgaLpgaTourHistoryNote": null,
           "pgaLpgaTourHistorySourceUrl": null,
+          "worldTop100Rank": null,
           "tags": [
             "private",
             "18-hole"
@@ -459,10 +483,12 @@
           "holes": 18,
           "website": null,
           "phone": "(334) 222-5282",
+          "description": null,
           "hasPgaOrLpgaTourHistory": false,
           "pgaLpgaTourHistoryType": null,
           "pgaLpgaTourHistoryNote": null,
           "pgaLpgaTourHistorySourceUrl": null,
+          "worldTop100Rank": null,
           "tags": [
             "private",
             "18-hole"
@@ -492,10 +518,12 @@
           "holes": 18,
           "website": null,
           "phone": "(256) 237-4615",
+          "description": null,
           "hasPgaOrLpgaTourHistory": false,
           "pgaLpgaTourHistoryType": null,
           "pgaLpgaTourHistoryNote": null,
           "pgaLpgaTourHistorySourceUrl": null,
+          "worldTop100Rank": null,
           "tags": [
             "private",
             "18-hole"
@@ -525,10 +553,12 @@
           "holes": 9,
           "website": null,
           "phone": "(334) 368-4486",
+          "description": null,
           "hasPgaOrLpgaTourHistory": false,
           "pgaLpgaTourHistoryType": null,
           "pgaLpgaTourHistoryNote": null,
           "pgaLpgaTourHistorySourceUrl": null,
+          "worldTop100Rank": null,
           "tags": [
             "private",
             "9-hole"
@@ -558,10 +588,12 @@
           "holes": 9,
           "website": null,
           "phone": "(334) 937-8230",
+          "description": null,
           "hasPgaOrLpgaTourHistory": false,
           "pgaLpgaTourHistoryType": null,
           "pgaLpgaTourHistoryNote": null,
           "pgaLpgaTourHistorySourceUrl": null,
+          "worldTop100Rank": null,
           "tags": [
             "private",
             "9-hole"
@@ -598,12 +630,15 @@
           "holes": null,
           "website": null,
           "phone": "(516) 249-4040",
+          "description": "Facility/course split inferred from published name using 'X at Y' pattern. Source hole count exceeded 36 and likely reflects facility total rather than a single course; left blank. World Top 100 (#30)",
           "hasPgaOrLpgaTourHistory": true,
           "pgaLpgaTourHistoryType": "pga",
           "pgaLpgaTourHistoryNote": "Hosted PGA Tour / major event(s), including the PGA Championship and U.S. Open",
           "pgaLpgaTourHistorySourceUrl": "https://en.wikipedia.org/wiki/Bethpage_Black_Course",
+          "worldTop100Rank": 30,
           "tags": [
-            "public"
+            "public",
+            "world-top-100"
           ],
           "imageUrl": "/placeholder.svg",
           "overallRating": null,
@@ -630,10 +665,12 @@
           "holes": 36,
           "website": "https://oakhillcc.com/",
           "phone": "(585) 381-1900",
+          "description": "Facility/course split inferred from published name using 'X at Y' pattern.",
           "hasPgaOrLpgaTourHistory": true,
           "pgaLpgaTourHistoryType": "pga",
           "pgaLpgaTourHistoryNote": "Hosted PGA Tour / major event(s), including the PGA Championship",
           "pgaLpgaTourHistorySourceUrl": "https://en.wikipedia.org/wiki/Oak_Hill_Country_Club",
+          "worldTop100Rank": null,
           "tags": [
             "private",
             "36-hole"
@@ -663,13 +700,16 @@
           "holes": 27,
           "website": null,
           "phone": "(831) 625-8518",
+          "description": "Facility/course split inferred from published name using 'X at Y' pattern. World Top 100 (#17)",
           "hasPgaOrLpgaTourHistory": true,
           "pgaLpgaTourHistoryType": "pga",
           "pgaLpgaTourHistoryNote": "Hosted PGA Tour event(s), including the AT&T Pebble Beach Pro-Am and U.S. Open",
           "pgaLpgaTourHistorySourceUrl": "https://en.wikipedia.org/wiki/Pebble_Beach_Golf_Links",
+          "worldTop100Rank": 17,
           "tags": [
             "resort",
-            "27-hole"
+            "27-hole",
+            "world-top-100"
           ],
           "imageUrl": "/placeholder.svg",
           "overallRating": null,

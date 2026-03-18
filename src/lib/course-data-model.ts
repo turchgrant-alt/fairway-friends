@@ -73,6 +73,7 @@ export interface NormalizedGolfCourseRecord {
   pgaLpgaTourHistoryType: CourseTourHistoryType;
   pgaLpgaTourHistoryNote: string | null;
   pgaLpgaTourHistorySourceUrl: string | null;
+  worldTop100Rank: number | null;
   tags: string[];
   description: string | null;
   lastSyncedAt: string;
@@ -116,10 +117,12 @@ export interface CourseIndexRecord {
   holes: number | null;
   website: string | null;
   phone: string | null;
+  description: string | null;
   hasPgaOrLpgaTourHistory: boolean | null;
   pgaLpgaTourHistoryType: CourseTourHistoryType;
   pgaLpgaTourHistoryNote: string | null;
   pgaLpgaTourHistorySourceUrl: string | null;
+  worldTop100Rank: number | null;
   tags: string[];
   imageUrl: string;
   overallRating: number | null;

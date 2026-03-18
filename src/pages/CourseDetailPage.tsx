@@ -104,6 +104,7 @@ export default function CourseDetailPage() {
   const isPlayed = Boolean(courseRanking);
   const tourHistoryLabel = getTourHistoryLabel(course);
   const courseHasTourHistory = hasTourHistory(course);
+  const displayTags = course.tags.filter((tag) => tag !== 'world-top-100');
   const userRoundTags = courseRanking?.tags ?? [];
   const hasRoundDetails =
     Boolean(courseRanking?.userEnteredPar) ||
@@ -157,6 +158,15 @@ export default function CourseDetailPage() {
           </>
         }
       />
+
+      {course.worldTop100Rank != null ? (
+        <section>
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 shadow-[0_18px_40px_-32px_rgba(180,120,24,0.45)]">
+            <Trophy size={16} />
+            World Top 100 - Ranked #{course.worldTop100Rank}
+          </div>
+        </section>
+      ) : null}
 
       <section className="grid gap-4 md:grid-cols-2">
         <article className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_60px_-48px_rgba(12,25,19,0.35)]">
@@ -281,7 +291,7 @@ export default function CourseDetailPage() {
                   <Trophy size={12} /> {tourHistoryLabel}
                 </span>
               ) : null}
-              {course.tags.map((tag) => (
+              {displayTags.map((tag) => (
                 <span key={tag} className="rounded-full bg-forest-muted px-3 py-1.5 text-xs font-medium text-forest">{tag}</span>
               ))}
             </div>

@@ -297,6 +297,17 @@ function parseFloatValue(value) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function parseWorldTop100Rank(value) {
+  const normalized = normalizeString(value);
+  if (!normalized) return null;
+
+  const match = normalized.match(/world\s+top\s+100\s*\(#\s*(\d+)\s*\)/i);
+  if (!match) return null;
+
+  const parsed = Number.parseInt(match[1], 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
 function slugify(value) {
   return value
     .toLowerCase()
@@ -448,12 +459,13 @@ function buildLocationLabel({ city, stateCode, stateName, county, country }) {
   return "Unknown location";
 }
 
-function buildTags({ accessType, holes, status }) {
+function buildTags({ accessType, holes, status, worldTop100Rank }) {
   const tags = [];
 
   if (accessType && accessType !== UNKNOWN_ACCESS) tags.push(accessType);
   if (holes != null) tags.push(`${holes}-hole`);
   if (status && ![UNKNOWN_STATUS, "open", "operating"].includes(status)) tags.push(status);
+  if (worldTop100Rank != null) tags.push("world-top-100");
 
   return Array.from(new Set(tags));
 }
@@ -724,10 +736,12 @@ function buildNormalizedRecord(row, rowIndex, importedAt, nyIndex) {
   const holes = parseInteger(getCsvValue(row, "number_of_holes"));
   const par = parseInteger(getCsvValue(row, "par"));
   const sourceRowNumber = rowIndex + 2;
+  const description = normalizeString(getCsvValue(row, "notes"));
   const hasPgaOrLpgaTourHistory = normalizeBooleanFlag(getCsvValue(row, "has_pga_or_lpga_tour_history"));
   const pgaLpgaTourHistoryType = normalizeTourHistoryType(getCsvValue(row, "pga_lpga_tour_history_type"));
   const pgaLpgaTourHistoryNote = normalizeString(getCsvValue(row, "pga_lpga_tour_history_note"));
   const pgaLpgaTourHistorySourceUrl = normalizeWebsite(getCsvValue(row, "pga_lpga_tour_history_source_url"));
+  const worldTop100Rank = parseWorldTop100Rank(description);
 
   return {
     id: "",
@@ -773,8 +787,9 @@ function buildNormalizedRecord(row, rowIndex, importedAt, nyIndex) {
     pgaLpgaTourHistoryType,
     pgaLpgaTourHistoryNote,
     pgaLpgaTourHistorySourceUrl,
-    tags: buildTags({ accessType, holes, status }),
-    description: normalizeString(getCsvValue(row, "notes")),
+    worldTop100Rank,
+    tags: buildTags({ accessType, holes, status, worldTop100Rank }),
+    description,
     lastSyncedAt: importedAt,
     rawSourceData: {
       sourceRowNumber,
@@ -838,10 +853,12 @@ function buildCourseIndexRecord(record) {
     holes: record.holes,
     website: record.website,
     phone: record.phone,
+    description: record.description,
     hasPgaOrLpgaTourHistory: record.hasPgaOrLpgaTourHistory,
     pgaLpgaTourHistoryType: record.pgaLpgaTourHistoryType,
     pgaLpgaTourHistoryNote: record.pgaLpgaTourHistoryNote,
     pgaLpgaTourHistorySourceUrl: record.pgaLpgaTourHistorySourceUrl,
+    worldTop100Rank: record.worldTop100Rank,
     tags: record.tags,
     imageUrl: "/placeholder.svg",
     overallRating: null,

@@ -1,14 +1,78 @@
 import { useDeferredValue, useMemo, useState } from 'react';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal, Trophy, X } from 'lucide-react';
 
 import CourseCard from '@/components/CourseCard';
 import SectionHeader from '@/components/SectionHeader';
 import PageHeader from '@/components/dashboard/PageHeader';
-import { sortCoursesByName } from '@/lib/course-data';
+import { sortCoursesByName, type CoursePreview } from '@/lib/course-data';
 import { useCourseCatalogIndex } from '@/hooks/use-course-catalog';
 import { catalogStats } from '@/lib/app-content';
 
 const DISCOVER_RESULT_LIMIT = 120;
+
+interface SearchableCourseRecord {
+  course: CoursePreview;
+  searchText: string;
+  nameText: string;
+  locationText: string;
+}
+
+function buildSearchText(course: CoursePreview) {
+  return [
+    course.name,
+    course.facilityName,
+    course.courseName,
+    course.city,
+    course.state,
+    course.stateCode,
+    course.country,
+    course.county,
+    course.location,
+    course.addressLabel,
+    course.type,
+    course.accessType,
+    course.description,
+    course.pgaLpgaTourHistoryNote,
+    course.worldTop100Rank != null ? `world top 100 top 100 rank ${course.worldTop100Rank}` : null,
+    course.holes ? `${course.holes} holes` : null,
+    course.holes ? `${course.holes} hole` : null,
+    course.par ? `par ${course.par}` : null,
+    course.hasPgaOrLpgaTourHistory ? 'tour history championship' : null,
+    ...course.tags,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+}
+
+function buildLocationText(course: CoursePreview) {
+  return [course.city, course.state, course.stateCode, course.country, course.county, course.location]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+}
+
+function buildQueryWords(query: string) {
+  return query
+    .split(/\s+/)
+    .map((word) => word.trim())
+    .filter((word) => word.length >= 2 || /^\d+$/.test(word));
+}
+
+function getMatchTier(searchableCourse: SearchableCourseRecord, activeQuery: string, queryWords: string[]) {
+  if (!activeQuery || queryWords.length === 0) return 0;
+
+  if (searchableCourse.nameText === activeQuery) return 0;
+  if (searchableCourse.nameText.startsWith(activeQuery)) return 1;
+  if (queryWords.every((word) => searchableCourse.locationText.includes(word))) return 2;
+
+  return 3;
+}
+
+function formatTagLabel(tag: string) {
+  if (tag === 'world-top-100') return 'Top 100';
+  return tag;
+}
 
 export default function DiscoverPage() {
   const { data: courseCatalog = [], isLoading } = useCourseCatalogIndex();
@@ -19,35 +83,77 @@ export default function DiscoverPage() {
   const deferredQuery = useDeferredValue(query);
   const normalizedQuery = deferredQuery.trim().toLowerCase();
   const activeQuery = normalizedQuery.length >= 2 ? normalizedQuery : '';
+  const queryWords = useMemo(() => buildQueryWords(activeQuery), [activeQuery]);
   const sortedCatalog = useMemo(() => sortCoursesByName(courseCatalog), [courseCatalog]);
+  const searchableCatalog = useMemo<SearchableCourseRecord[]>(
+    () =>
+      sortedCatalog.map((course) => ({
+        course,
+        searchText: buildSearchText(course),
+        nameText: course.name.toLowerCase(),
+        locationText: buildLocationText(course),
+      })),
+    [sortedCatalog],
+  );
 
   const courseTypes = useMemo(
     () => ['All', ...Array.from(new Set(sortedCatalog.map((course) => course.type))).sort((a, b) => a.localeCompare(b))],
     [sortedCatalog],
   );
   const tags = useMemo(
-    () => Array.from(new Set(sortedCatalog.flatMap((course) => course.tags))).slice(0, 10),
+    () => {
+      const allTags = Array.from(new Set(sortedCatalog.flatMap((course) => course.tags))).sort((a, b) => {
+        if (a === 'world-top-100') return -1;
+        if (b === 'world-top-100') return 1;
+        return formatTagLabel(a).localeCompare(formatTagLabel(b));
+      });
+
+      const limitedTags = allTags.slice(0, 10);
+      if (!limitedTags.includes('world-top-100') && allTags.includes('world-top-100')) {
+        limitedTags[limitedTags.length - 1] = 'world-top-100';
+      }
+
+      return limitedTags;
+    },
     [sortedCatalog],
   );
+  const isWorldTop100FilterActive = selectedTags.includes('world-top-100');
 
   const filtered = useMemo(
     () =>
-      sortedCatalog.filter((course) => {
-        if (
-          activeQuery &&
-          !course.name.toLowerCase().includes(activeQuery) &&
-          !course.location.toLowerCase().includes(activeQuery) &&
-          !(course.addressLabel ?? '').toLowerCase().includes(activeQuery)
-        ) {
-          return false;
-        }
+      searchableCatalog
+        .filter(({ course, searchText }) => {
+          if (queryWords.length > 0 && !queryWords.every((word) => searchText.includes(word))) {
+            return false;
+          }
 
-        if (selectedType !== 'All' && course.type.toLowerCase() !== selectedType.toLowerCase()) return false;
-        if (selectedTags.length > 0 && !selectedTags.some((tag) => course.tags.includes(tag))) return false;
+          if (selectedType !== 'All' && course.type.toLowerCase() !== selectedType.toLowerCase()) return false;
+          if (selectedTags.length > 0 && !selectedTags.some((tag) => course.tags.includes(tag))) return false;
 
-        return true;
-      }),
-    [activeQuery, selectedTags, selectedType, sortedCatalog],
+          return true;
+        })
+        .sort((a, b) => {
+          if (isWorldTop100FilterActive) {
+            const aRank = a.course.worldTop100Rank ?? Number.POSITIVE_INFINITY;
+            const bRank = b.course.worldTop100Rank ?? Number.POSITIVE_INFINITY;
+            if (aRank !== bRank) {
+              return aRank - bRank;
+            }
+          }
+
+          if (!activeQuery || queryWords.length === 0) {
+            return a.course.name.localeCompare(b.course.name);
+          }
+
+          const matchTierDifference = getMatchTier(a, activeQuery, queryWords) - getMatchTier(b, activeQuery, queryWords);
+          if (matchTierDifference !== 0) {
+            return matchTierDifference;
+          }
+
+          return a.course.name.localeCompare(b.course.name);
+        })
+        .map(({ course }) => course),
+    [activeQuery, isWorldTop100FilterActive, queryWords, searchableCatalog, selectedTags, selectedType],
   );
   const displayedResults = filtered.slice(0, DISCOVER_RESULT_LIMIT);
   const resultOverflow = Math.max(filtered.length - displayedResults.length, 0);
@@ -56,8 +162,8 @@ export default function DiscoverPage() {
     <div className="space-y-10">
       <PageHeader
         eyebrow="Discovery"
-        title="Search, filter, and compare courses with more room to think."
-        description="Explore courses by name, access type, and lightweight tags to narrow down where you want to play next."
+        title="Discover courses"
+        description="Search across thousands of courses by name, location, type, or tags."
         actions={
           <button
             onClick={() => setShowFilters(!showFilters)}
@@ -75,14 +181,14 @@ export default function DiscoverPage() {
 
       <section className="grid gap-4 lg:grid-cols-3">
         <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-5 shadow-[0_20px_50px_-42px_rgba(12,25,19,0.35)]">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Coverage</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Catalog</p>
           <p className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">{catalogStats.totalCourses}</p>
-          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">courses ready to browse across the catalog</p>
+          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">courses in our catalog</p>
         </div>
         <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-5 shadow-[0_20px_50px_-42px_rgba(12,25,19,0.35)]">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Regions</p>
           <p className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">{catalogStats.statesRepresented}</p>
-          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">places you can search across the catalog</p>
+          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">regions covered across the catalog</p>
         </div>
         <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-5 shadow-[0_20px_50px_-42px_rgba(12,25,19,0.35)]">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Map-ready</p>
@@ -98,7 +204,7 @@ export default function DiscoverPage() {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search courses, cities, regions, or addresses..."
+              placeholder="Search by name, city, state, type, tags..."
               className="w-full rounded-full border border-input bg-[hsl(var(--golfer-cream))] py-3 pl-11 pr-4 text-sm text-card-foreground outline-none focus:border-primary"
             />
             {query ? (
@@ -107,6 +213,23 @@ export default function DiscoverPage() {
               </button>
             ) : null}
           </div>
+          <button
+            onClick={() =>
+              setSelectedTags((currentTags) =>
+                currentTags.includes('world-top-100')
+                  ? currentTags.filter((tag) => tag !== 'world-top-100')
+                  : [...currentTags, 'world-top-100'],
+              )
+            }
+            className={`inline-flex items-center justify-center gap-2 rounded-full border px-4 py-3 text-sm font-medium transition ${
+              isWorldTop100FilterActive
+                ? 'border-amber-300 bg-amber-100 text-amber-900'
+                : 'border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep))]'
+            }`}
+          >
+            <Trophy size={15} />
+            Browse World Top 100
+          </button>
         </div>
 
         <div className={`mt-6 grid gap-5 ${showFilters ? 'block' : 'hidden'} lg:grid lg:grid-cols-2`}>
@@ -139,7 +262,7 @@ export default function DiscoverPage() {
                       active ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
                     }`}
                   >
-                    {tag}
+                    {formatTagLabel(tag)}
                   </button>
                 );
               })}
@@ -151,7 +274,7 @@ export default function DiscoverPage() {
       <section className="space-y-5">
         <SectionHeader
           title={query ? `Results for "${query}"` : 'Browse courses'}
-          description={`${filtered.length} courses matching your current filters in the stored catalog.`}
+          description={`${filtered.length} courses matching your current search and filters.`}
         />
         {isLoading ? (
           <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-10 text-center text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
@@ -173,8 +296,8 @@ export default function DiscoverPage() {
         ) : (
           <div className="rounded-[28px] border border-dashed border-[hsl(var(--golfer-line))] bg-white p-10 text-center text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
             {activeQuery || selectedType !== 'All' || selectedTags.length > 0
-              ? 'No courses match the current query and filters. Try a broader search or clear a few filters.'
-              : 'No course rows are available yet.'}
+              ? 'No courses match the current search and filters. Try a broader query or clear a few filters.'
+              : 'No courses are available yet.'}
           </div>
         )}
       </section>

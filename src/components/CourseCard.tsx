@@ -1,4 +1,4 @@
-import { ArrowUpRight, Globe, MapPin, Star } from 'lucide-react';
+import { ArrowUpRight, Globe, MapPin, Star, Trophy } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import type { CourseListRecord } from '@/lib/course-data';
@@ -24,6 +24,11 @@ export default function CourseCard({ course, variant = 'default' }: CourseCardPr
     course.holes != null ? `${course.holes} holes` : null,
     resolvedPar ? `Par ${resolvedPar.par}` : null,
   ].filter(Boolean);
+  const top100Badge = course.worldTop100Rank != null ? (
+    <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-800">
+      <Trophy size={11} /> Top 100 #{course.worldTop100Rank}
+    </span>
+  ) : null;
 
   if (variant === 'compact') {
     return (
@@ -45,6 +50,7 @@ export default function CourseCard({ course, variant = 'default' }: CourseCardPr
             <MapPin size={10} /> {course.location}
           </p>
           <div className="mt-3 flex items-center gap-2">
+            {top100Badge}
             {course.overallRating != null ? (
               <span className="flex items-center gap-0.5 text-sm font-semibold text-gold">
                 <Star size={11} fill="currentColor" /> {ratingLabel}
@@ -82,6 +88,7 @@ export default function CourseCard({ course, variant = 'default' }: CourseCardPr
         />
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6">
+          {top100Badge ? <div className="mb-3">{top100Badge}</div> : null}
           <h3 className="text-2xl font-semibold text-primary-foreground">{course.name}</h3>
           <p className="mt-2 flex items-center gap-1 text-sm text-primary-foreground/80">
             <MapPin size={12} /> {course.location}
@@ -135,6 +142,7 @@ export default function CourseCard({ course, variant = 'default' }: CourseCardPr
         </div>
       </div>
       <div className="p-5">
+        {top100Badge ? <div className="mb-3">{top100Badge}</div> : null}
         <h3 className="text-lg font-semibold leading-tight text-card-foreground">{course.name}</h3>
         <p className="mt-2 flex items-center gap-1 text-sm text-muted-foreground">
           <MapPin size={11} /> {course.location}
