@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, Copy, Database, Globe, MapPin, RotateCcw, Star, Trophy } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Copy, Database, Globe, MapPin, RotateCcw, Star, Trophy, Users } from 'lucide-react';
 
 import CourseCard from '@/components/CourseCard';
 import CoursePhotoGallerySection from '@/components/course-photos/CoursePhotoGallerySection';
@@ -14,6 +15,8 @@ import { useCourseRankings } from '@/hooks/use-course-rankings';
 import { getCoursePar, registerCourseCatalogPar } from '@/lib/course-par';
 import { getTourHistoryLabel, hasTourHistory } from '@/lib/course-data';
 import { formatDisplayDate } from '@/lib/app-content';
+import { getMyFriends } from '@/lib/friends';
+import { getCourseAverageRating, getCourseFriendsAverageRating } from '@/lib/rankings';
 import { resolveCoursePhoto } from '@/utils/coursePhoto';
 
 type Tab = 'overview' | 'source' | 'nearby';
@@ -55,6 +58,27 @@ export default function CourseDetailPage() {
       })
       .slice(0, 6);
   }, [course, stateCourseCatalog]);
+  const { data: communityAverage, isLoading: isCommunityAverageLoading, isError: hasCommunityAverageError } = useQuery({
+    queryKey: ['rankings', 'course-average', course?.id],
+    queryFn: () => getCourseAverageRating(course!.id),
+    enabled: Boolean(course?.id),
+    staleTime: 60_000,
+  });
+  const { data: friends = [], isLoading: isFriendsLoading } = useQuery({
+    queryKey: ['friends', 'accepted'],
+    queryFn: getMyFriends,
+    staleTime: 30_000,
+  });
+  const {
+    data: friendsAverage,
+    isLoading: isFriendsAverageLoading,
+    isError: hasFriendsAverageError,
+  } = useQuery({
+    queryKey: ['rankings', 'course-average', 'friends', course?.id],
+    queryFn: () => getCourseFriendsAverageRating(course!.id),
+    enabled: Boolean(course?.id),
+    staleTime: 60_000,
+  });
 
   if (isLoading) {
     return (
@@ -133,6 +157,74 @@ export default function CourseDetailPage() {
           </>
         }
       />
+
+      <section className="grid gap-4 md:grid-cols-2">
+        <article className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_60px_-48px_rgba(12,25,19,0.35)]">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
+                Community avg
+              </p>
+              {isCommunityAverageLoading ? (
+                <p className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">Loading...</p>
+              ) : hasCommunityAverageError ? (
+                <p className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">Unavailable</p>
+              ) : communityAverage?.average != null ? (
+                <p className="mt-4 text-4xl text-[hsl(var(--golfer-deep))]">{communityAverage.average.toFixed(1)}</p>
+              ) : (
+                <p className="mt-4 text-2xl text-[hsl(var(--golfer-deep))]">No ratings yet</p>
+              )}
+              <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+                {isCommunityAverageLoading
+                  ? 'Checking all GolfeR ratings for this course.'
+                  : hasCommunityAverageError
+                    ? 'The community score could not be loaded.'
+                    : communityAverage && communityAverage.count > 0
+                      ? `From ${communityAverage.count} rating${communityAverage.count === 1 ? '' : 's'}`
+                      : 'Be the first to set the tone.'}
+              </p>
+            </div>
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
+              <Globe size={18} />
+            </span>
+          </div>
+        </article>
+
+        <article className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_60px_-48px_rgba(12,25,19,0.35)]">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
+                Friends avg
+              </p>
+              {isFriendsLoading || isFriendsAverageLoading ? (
+                <p className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">Loading...</p>
+              ) : friends.length === 0 ? (
+                <p className="mt-4 text-2xl text-[hsl(var(--golfer-deep))]">Add friends</p>
+              ) : hasFriendsAverageError ? (
+                <p className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">Unavailable</p>
+              ) : friendsAverage?.average != null ? (
+                <p className="mt-4 text-4xl text-[hsl(var(--golfer-deep))]">{friendsAverage.average.toFixed(1)}</p>
+              ) : (
+                <p className="mt-4 text-2xl text-[hsl(var(--golfer-deep))]">No friend ratings yet</p>
+              )}
+              <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+                {isFriendsLoading || isFriendsAverageLoading
+                  ? 'Checking your crew for this course.'
+                  : friends.length === 0
+                    ? 'Add friends to see their ratings.'
+                    : hasFriendsAverageError
+                      ? 'Your friends score could not be loaded.'
+                      : friendsAverage && friendsAverage.count > 0
+                        ? `From ${friendsAverage.count} friend rating${friendsAverage.count === 1 ? '' : 's'}`
+                        : 'No one in your crew has rated it yet.'}
+              </p>
+            </div>
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
+              <Users size={18} />
+            </span>
+          </div>
+        </article>
+      </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_22rem]">
         <div className="space-y-4">

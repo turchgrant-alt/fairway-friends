@@ -1,4 +1,19 @@
+/*
+Run this in Supabase before using getCourseAverageRating():
+
+create or replace function public.get_course_average(p_course_id text)
+returns json as $$
+  select json_build_object(
+    'average', round(avg(overall_rating)::numeric, 1),
+    'count', count(*)::int
+  )
+  from public.rankings
+  where course_id = p_course_id;
+$$ language sql security definer;
+*/
+
 import { supabase, type AppProfile } from "@/lib/supabase";
+import { getMyFriends } from "@/lib/friends";
 
 export interface RankingRecord {
   id: string;
@@ -32,6 +47,11 @@ export interface UpsertRankingInput {
   difficulty_rating?: number | null;
   notes?: string | null;
   date_played?: string | null;
+}
+
+export interface CourseAverageRatingSummary {
+  average: number | null;
+  count: number;
 }
 
 async function requireAuthenticatedUserId() {
@@ -79,6 +99,53 @@ function sortRankingsByRating(a: RankingRecord, b: RankingRecord) {
   return (b.updated_at ?? "").localeCompare(a.updated_at ?? "");
 }
 
+function normalizeAverageRatingSummary(value: unknown): CourseAverageRatingSummary {
+  if (!value || typeof value !== "object") {
+    return {
+      average: null,
+      count: 0,
+    };
+  }
+
+  const averageValue = "average" in value ? value.average : null;
+  const countValue = "count" in value ? value.count : 0;
+
+  return {
+    average:
+      typeof averageValue === "number"
+        ? averageValue
+        : typeof averageValue === "string" && averageValue.trim().length > 0
+          ? Number(averageValue)
+          : null,
+    count:
+      typeof countValue === "number"
+        ? countValue
+        : typeof countValue === "string" && countValue.trim().length > 0
+          ? Number.parseInt(countValue, 10)
+          : 0,
+  };
+}
+
+function summarizeAverageFromRankings(rankings: RankingRecord[]): CourseAverageRatingSummary {
+  const ratingValues = rankings
+    .map((ranking) => ranking.overall_rating)
+    .filter((rating): rating is number => typeof rating === "number" && Number.isFinite(rating));
+
+  if (ratingValues.length === 0) {
+    return {
+      average: null,
+      count: 0,
+    };
+  }
+
+  const average = ratingValues.reduce((sum, value) => sum + value, 0) / ratingValues.length;
+
+  return {
+    average: Math.round(average * 10) / 10,
+    count: ratingValues.length,
+  };
+}
+
 export async function getMyRankings() {
   const userId = await requireAuthenticatedUserId();
   const { data, error } = await supabase
@@ -93,6 +160,18 @@ export async function getMyRankings() {
   }
 
   return (data ?? []) as RankingRecord[];
+}
+
+export async function getCourseAverageRating(courseId: string) {
+  const { data, error } = await supabase.rpc("get_course_average", {
+    p_course_id: courseId,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return normalizeAverageRatingSummary(data);
 }
 
 export async function upsertRanking(ranking: UpsertRankingInput) {
@@ -234,4 +313,28 @@ export async function getCourseRankingsFromFriends(courseId: string) {
       profile: profileMap.get(ranking.user_id) ?? null,
     }))
     .sort(sortRankingsByRating);
+}
+
+export async function getCourseFriendsAverageRating(courseId: string) {
+  const friends = await getMyFriends();
+  const friendIds = friends.map((friend) => friend.friend_id);
+
+  if (friendIds.length === 0) {
+    return {
+      average: null,
+      count: 0,
+    };
+  }
+
+  const { data, error } = await supabase
+    .from("rankings")
+    .select("*")
+    .eq("course_id", courseId)
+    .in("user_id", friendIds);
+
+  if (error) {
+    throw error;
+  }
+
+  return summarizeAverageFromRankings((data ?? []) as RankingRecord[]);
 }
