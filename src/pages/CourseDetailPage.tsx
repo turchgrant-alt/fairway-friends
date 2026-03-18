@@ -7,6 +7,7 @@ import CoursePhotoGallerySection from '@/components/course-photos/CoursePhotoGal
 import CoursePhotoSurface from '@/components/CoursePhotoSurface';
 import PageHeader from '@/components/dashboard/PageHeader';
 import PlayedCourseDialog from '@/components/rankings/PlayedCourseDialog';
+import UnrankCourseButton from '@/components/rankings/UnrankCourseButton';
 import { useCourseRecord, useStateCourseCatalog } from '@/hooks/use-course-catalog';
 import { useCourseUploadedPhotoGallery } from '@/hooks/use-course-uploaded-photos';
 import { useCourseRankings } from '@/hooks/use-course-rankings';
@@ -367,6 +368,11 @@ export default function CourseDetailPage() {
                 >
                   <CheckCircle2 size={14} /> Played again
                 </button>
+                <UnrankCourseButton
+                  courseId={course.id}
+                  courseName={course.name}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-[20px] border border-rose-200 bg-white px-4 py-3 text-sm font-medium text-rose-700 transition hover:bg-rose-50"
+                />
               </div>
             </div>
           )}

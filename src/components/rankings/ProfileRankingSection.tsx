@@ -2,6 +2,7 @@ import { useMemo, useState, type DragEvent } from "react";
 import { ArrowRight, GripVertical, ListOrdered, Medal, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+import UnrankCourseButton from "@/components/rankings/UnrankCourseButton";
 import { useCourseRankings } from "@/hooks/use-course-rankings";
 import { useRankedCourseRecords } from "@/hooks/use-ranked-course-records";
 import type { CourseRankingBucket } from "@/lib/course-rankings";
@@ -332,12 +333,20 @@ export default function ProfileRankingSection() {
                         Drag to place anywhere
                       </div>
                     ) : (
-                      <button
-                        onClick={() => navigate(`/course/${ranking.courseId}`)}
-                        className="inline-flex items-center justify-center gap-2 rounded-full bg-[hsl(var(--golfer-deep))] px-4 py-2.5 text-sm font-medium text-white"
-                      >
-                        Open course <ArrowRight size={14} />
-                      </button>
+                      <>
+                        <button
+                          onClick={() => navigate(`/course/${ranking.courseId}`)}
+                          className="inline-flex items-center justify-center gap-2 rounded-full bg-[hsl(var(--golfer-deep))] px-4 py-2.5 text-sm font-medium text-white"
+                        >
+                          Open course <ArrowRight size={14} />
+                        </button>
+                        <UnrankCourseButton
+                          courseId={ranking.courseId}
+                          courseName={course?.name ?? fallbackName}
+                          className="inline-flex items-center justify-center gap-2 rounded-full border border-rose-200 bg-white px-4 py-2.5 text-sm font-medium text-rose-700"
+                          triggerLabel="Unrank course"
+                        />
+                      </>
                     )}
                   </div>
                 </article>

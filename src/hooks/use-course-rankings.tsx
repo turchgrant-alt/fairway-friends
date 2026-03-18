@@ -47,7 +47,7 @@ interface CourseRankingContextValue {
   markPlayedCourse: (input: MarkCoursePlayedInput) => void;
   saveCourseRanking: (input: UpdateCourseRankingInput) => void;
   saveRoundDetails: (input: SaveCourseRoundDetailsInput) => void;
-  removePlayedCourse: (courseId: string) => void;
+  removePlayedCourse: (courseId: string) => Promise<CourseRankingMutationResult>;
   reorderFullRanking: (input: ReorderFullCourseRankingInput) => void;
   reorderBucket: (bucket: CourseRankingBucket, orderedCourseIds: string[]) => void;
   getCourseRankingRecord: (courseId: string) => ReturnType<typeof getCourseRanking>;
@@ -61,6 +61,10 @@ interface CourseRankingContextValue {
 }
 
 const CourseRankingContext = createContext<CourseRankingContextValue | null>(null);
+
+export interface CourseRankingMutationResult {
+  remoteSyncFailed: boolean;
+}
 
 function getRankingStorageKey(userId: string | null | undefined) {
   return userId ? `${COURSE_RANKING_STORAGE_KEY}:${userId}` : COURSE_RANKING_STORAGE_KEY;
@@ -273,28 +277,42 @@ export function CourseRankingProvider({ children }: { children: ReactNode }) {
 
   async function applyRankingStateUpdate(
     updater: (currentState: CourseRankingState) => CourseRankingState,
-  ) {
+  ): Promise<CourseRankingMutationResult> {
     const nextState = updater(rankingStateRef.current);
     rankingStateRef.current = nextState;
     setRankingState(nextState);
 
     if (!user) {
-      return;
+      return {
+        remoteSyncFailed: false,
+      };
     }
 
     const queuedUserId = user.id;
-    syncQueueRef.current = syncQueueRef.current
-      .then(async () => {
+    const syncAttempt = syncQueueRef.current.then(async () => {
         if (userIdRef.current !== queuedUserId) {
           return;
         }
 
         const currentRemoteRankings = await getMyRankings();
         await syncRankingStateToSupabase(nextState, currentRemoteRankings);
-      })
-      .catch((error) => {
-        console.error("Failed to sync rankings to Supabase.", error);
       });
+
+    syncQueueRef.current = syncAttempt.catch((error) => {
+      console.error("Failed to sync rankings to Supabase.", error);
+    });
+
+    try {
+      await syncAttempt;
+      return {
+        remoteSyncFailed: false,
+      };
+    } catch (error) {
+      console.error("Failed to sync rankings to Supabase.", error);
+      return {
+        remoteSyncFailed: true,
+      };
+    }
   }
 
   return (
@@ -318,7 +336,7 @@ export function CourseRankingProvider({ children }: { children: ReactNode }) {
           void applyRankingStateUpdate((currentState) => saveCourseRoundDetails(currentState, input));
         },
         removePlayedCourse: (courseId) => {
-          void applyRankingStateUpdate((currentState) => removeCourseRanking(currentState, courseId));
+          return applyRankingStateUpdate((currentState) => removeCourseRanking(currentState, courseId));
         },
         reorderFullRanking: (input) => {
           void applyRankingStateUpdate((currentState) => reorderFullCourseRanking(currentState, input));
