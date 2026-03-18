@@ -60,7 +60,7 @@ function AppContent() {
       <div className="flex min-h-screen items-center justify-center bg-[linear-gradient(180deg,hsl(var(--golfer-mist))_0%,hsl(var(--golfer-cream))_18rem,hsl(var(--background))_60rem)]">
         <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white px-8 py-6 text-center shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">
-            Fairway Friends
+            GolfeR
           </p>
           <p className="mt-3 text-lg text-[hsl(var(--golfer-deep))]">Resolving your session...</p>
         </div>

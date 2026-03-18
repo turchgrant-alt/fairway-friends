@@ -3,7 +3,7 @@ import { Camera, ImagePlus, LoaderCircle, Sparkles } from "lucide-react";
 
 import { toast } from "@/components/ui/sonner";
 import type { UploadedCoursePhotoRecord } from "@/lib/course-photo-uploads";
-import { formatDemoDate } from "@/lib/demo-v1";
+import { formatDisplayDate } from "@/lib/app-content";
 
 interface CoursePhotoGallerySectionProps {
   courseId: string;
@@ -143,7 +143,7 @@ export default function CoursePhotoGallerySection({
                       {photo.isCover ? "Current cover photo" : "Uploaded course photo"}
                     </p>
                     <p className="mt-1 text-xs text-[hsl(var(--golfer-deep-soft))]/[0.68]">
-                      Uploaded {formatDemoDate(photo.uploadedAt)}
+                      Uploaded {formatDisplayDate(photo.uploadedAt)}
                     </p>
                   </div>
                   {photo.isCover ? (

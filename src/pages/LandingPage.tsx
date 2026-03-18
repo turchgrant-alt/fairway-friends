@@ -14,9 +14,7 @@ import { Link } from "react-router-dom";
 import FeaturedCourseCard from "@/components/marketing/FeaturedCourseCard";
 import SectionHeading from "@/components/marketing/SectionHeading";
 import { Button } from "@/components/ui/button";
-import { demoStats, featuredV1Courses, formatDemoDate } from "@/lib/demo-v1";
-
-const featuredCourses = featuredV1Courses;
+import { catalogStats, curatedPreviewLists, featuredCourses, formatDisplayDate } from "@/lib/app-content";
 
 const steps = [
   {
@@ -61,9 +59,9 @@ const productHighlights = [
 ];
 
 const heroStats = [
-  { label: "Courses in catalog", value: demoStats.totalCourses.toString() },
-  { label: "States represented", value: demoStats.statesRepresented.toString() },
-  { label: "Latest import", value: formatDemoDate(demoStats.lastImportedAt) },
+  { label: "Courses to explore", value: catalogStats.totalCourses.toString() },
+  { label: "States covered", value: catalogStats.statesRepresented.toString() },
+  { label: "Curated lists", value: curatedPreviewLists.length.toString() },
 ];
 
 const fadeInUp = {
@@ -108,13 +106,13 @@ export default function LandingPage() {
               variant="ghost"
               className="hidden rounded-full px-5 text-white hover:bg-white/10 hover:text-white sm:inline-flex"
             >
-              <Link to="/home">Open workspace</Link>
+              <Link to="/auth">Sign in</Link>
             </Button>
             <Button
               asChild
               className="rounded-full bg-white px-5 text-[hsl(var(--golfer-deep))] shadow-[0_18px_50px_-30px_rgba(255,255,255,0.75)] hover:bg-white/90"
             >
-              <Link to="/discover">Open demo</Link>
+              <Link to="/auth">Get started</Link>
             </Button>
           </div>
         </div>
@@ -132,7 +130,7 @@ export default function LandingPage() {
             >
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.08] px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-white/[0.78] backdrop-blur-md">
                 <Sparkles size={14} className="text-white" />
-                V1 developer demo
+                Beta
               </div>
 
               <h1 className="mt-8 max-w-3xl text-5xl leading-[0.95] text-white sm:text-6xl lg:text-7xl">
@@ -140,8 +138,8 @@ export default function LandingPage() {
               </h1>
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-white/[0.72] sm:text-xl">
-                GolfeR is now a cleaner course-discovery workspace: a stored U.S. course catalog, a calmer product
-                shell, and just enough structure to build explore, lists, and course pages without fake social noise.
+                GolfeR is where golfers rate the rounds that mattered, build wishlists with their crew, and discover
+                the next course worth the drive.
               </p>
 
               <div className="mt-10 flex flex-col gap-3 sm:flex-row">
@@ -150,8 +148,8 @@ export default function LandingPage() {
                   size="lg"
                   className="h-12 rounded-full bg-white px-7 text-[hsl(var(--golfer-deep))] hover:bg-white/90"
                 >
-                  <Link to="/discover">
-                    Open the demo
+                  <Link to="/auth">
+                    Start exploring
                     <ArrowRight />
                   </Link>
                 </Button>
@@ -204,12 +202,12 @@ export default function LandingPage() {
                   <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
                     <div className="flex items-center gap-2 text-sm text-white/70">
                       <Compass size={16} />
-                      Real course record
+                      Worth the trip
                     </div>
                     <h2 className="mt-3 max-w-md text-3xl leading-tight text-white sm:text-4xl">{heroCourse.name}</h2>
                     <p className="mt-3 max-w-lg text-sm leading-7 text-white/70 sm:text-base">
-                      A real course record inside the v1 catalog, ready to test structure, metadata handling, and
-                      detail-page behavior as the stored dataset grows.
+                      The kind of course that ends up on every buddy-trip shortlist: memorable, replayable, and easy
+                      to save for later when the trip starts getting real.
                     </p>
 
                     <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -218,12 +216,12 @@ export default function LandingPage() {
                         <p className="mt-2 text-2xl capitalize">{heroCourse.accessType ?? heroCourse.type}</p>
                       </div>
                       <div className="rounded-[20px] border border-white/10 bg-black/20 p-4 text-white">
-                        <p className="text-xs uppercase tracking-[0.22em] text-white/45">Best for</p>
-                        <p className="mt-2 text-sm leading-6">{heroCourse.tags.slice(0, 2).join(" • ") || "Course structure"}</p>
+                        <p className="text-xs uppercase tracking-[0.22em] text-white/45">Why golfers save it</p>
+                        <p className="mt-2 text-sm leading-6">{heroCourse.tags.slice(0, 2).join(" • ") || "Scenery • replayability"}</p>
                       </div>
                       <div className="rounded-[20px] border border-white/10 bg-black/20 p-4 text-white">
-                        <p className="text-xs uppercase tracking-[0.22em] text-white/45">Last synced</p>
-                        <p className="mt-2 text-base">{formatDemoDate(heroCourse.lastSyncedAt)}</p>
+                        <p className="text-xs uppercase tracking-[0.22em] text-white/45">Where</p>
+                        <p className="mt-2 text-base">{heroCourse.location}</p>
                       </div>
                     </div>
                   </div>
@@ -232,34 +230,39 @@ export default function LandingPage() {
 
               <div className="absolute -left-4 top-8 hidden rounded-[24px] border border-[hsl(var(--golfer-line))] bg-white/90 p-5 shadow-[0_35px_70px_-45px_rgba(12,25,19,0.5)] backdrop-blur-sm sm:block">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.64]">
-                  Your next move
+                  Start with place
                 </p>
                 <div className="mt-3 flex items-center gap-3">
                   <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
                     <Search size={18} />
                   </span>
                   <div>
-                    <p className="text-sm font-semibold text-[hsl(var(--golfer-deep))]">Current coverage</p>
-                    <p className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.70]">Stored U.S. course catalog</p>
+                    <p className="text-sm font-semibold text-[hsl(var(--golfer-deep))]">Search by city or state</p>
+                    <p className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.70]">Then let the map narrow the list.</p>
                   </div>
                 </div>
               </div>
 
               <div className="absolute -bottom-6 -right-3 max-w-[18rem] rounded-[26px] border border-white/10 bg-[hsl(var(--golfer-surface))] p-5 text-white shadow-[0_38px_80px_-52px_rgba(0,0,0,0.95)] sm:right-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium">Dataset status</p>
-                  <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/[0.74]">Stored source</span>
+                  <p className="text-sm font-medium">What you can do</p>
+                  <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/[0.74]">GolfeR</span>
                 </div>
                 <div className="mt-4 space-y-3">
                   <div className="rounded-[18px] bg-white/[0.05] p-3">
-                    <p className="text-xs uppercase tracking-[0.22em] text-white/[0.5]">Verified pins</p>
-                    <p className="mt-2 text-2xl">{demoStats.mappableCourses}</p>
-                    <p className="mt-1 text-xs text-white/[0.58]">courses with coordinates on the map</p>
+                    <p className="text-xs uppercase tracking-[0.22em] text-white/[0.5]">Rank the round</p>
+                    <p className="mt-2 text-2xl">Great</p>
+                    <p className="mt-1 text-xs text-white/[0.58]">Drop a course into Great, Fine, or Bad.</p>
                   </div>
                   <div className="rounded-[18px] bg-white/[0.05] p-3">
-                    <p className="text-xs uppercase tracking-[0.22em] text-white/[0.5]">Coordinate coverage</p>
-                    <p className="mt-2 text-2xl">{demoStats.coordinateCoveragePercent}%</p>
-                    <p className="mt-1 text-xs text-white/[0.58]">of the current stored catalog</p>
+                    <p className="text-xs uppercase tracking-[0.22em] text-white/[0.5]">Build wishlists</p>
+                    <p className="mt-2 text-2xl">Trips</p>
+                    <p className="mt-1 text-xs text-white/[0.58]">Keep dream rounds and weekend plans in one place.</p>
+                  </div>
+                  <div className="rounded-[18px] bg-white/[0.05] p-3">
+                    <p className="text-xs uppercase tracking-[0.22em] text-white/[0.5]">Find the next one</p>
+                    <p className="mt-2 text-2xl">Map</p>
+                    <p className="mt-1 text-xs text-white/[0.58]">Search a city, pan around, and compare what is nearby.</p>
                   </div>
                 </div>
               </div>
@@ -301,7 +304,7 @@ export default function LandingPage() {
             <SectionHeading
               eyebrow="Featured courses"
               title="A preview of the kind of places GolfeR helps you discover, compare, and save."
-              description="These cards pull from the stored course catalog so the homepage stays polished while remaining grounded in the actual v1 data foundation."
+              description="Some of the most talked-about courses in the country, from bucket-list legends to the spots your crew keeps bringing up."
               inverted
             />
 
@@ -441,7 +444,7 @@ export default function LandingPage() {
           <div>
             <p className="font-display text-3xl text-[hsl(var(--golfer-deep))]">GolfeR</p>
             <p className="mt-2 max-w-md text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-              A cleaner v1 home for real course discovery, structured data, and steady product iteration.
+              Rate courses. Build wishlists. Find your next round.
             </p>
           </div>
 
@@ -455,8 +458,8 @@ export default function LandingPage() {
             <a href="#features" className="transition hover:text-[hsl(var(--golfer-deep))]">
               Features
             </a>
-            <Link to="/discover" className="transition hover:text-[hsl(var(--golfer-deep))]">
-              Open demo
+            <Link to="/auth" className="transition hover:text-[hsl(var(--golfer-deep))]">
+              Get started
             </Link>
           </div>
         </div>

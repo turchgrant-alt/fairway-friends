@@ -42,7 +42,7 @@ export default function AuthPage({ defaultTab = "signin" }: AuthPageProps) {
       await signIn(signInEmail.trim(), signInPassword);
       toast({
         title: "Signed in",
-        description: "Your Fairway Friends account is ready.",
+        description: "Your GolfeR account is ready.",
       });
     } catch (error) {
       toast({
@@ -63,7 +63,7 @@ export default function AuthPage({ defaultTab = "signin" }: AuthPageProps) {
       await signUp(signUpEmail.trim(), signUpPassword, signUpUsername.trim());
       toast({
         title: "Account created",
-        description: "Your Fairway Friends profile is ready. Sign in if email confirmation is required.",
+        description: "Your GolfeR profile is ready. Sign in if email confirmation is required.",
       });
       setActiveTab("signin");
       setSignInEmail(signUpEmail.trim());
@@ -86,7 +86,7 @@ export default function AuthPage({ defaultTab = "signin" }: AuthPageProps) {
       <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid w-full gap-8 lg:grid-cols-[minmax(0,1.1fr)_28rem] lg:items-center">
           <div className="text-white">
-            <p className="text-sm font-medium uppercase tracking-[0.32em] text-white/62">⛳ Fairway Friends</p>
+            <p className="text-sm font-medium uppercase tracking-[0.32em] text-white/62">⛳ GolfeR</p>
             <h1 className="mt-5 max-w-3xl text-4xl leading-tight sm:text-5xl">
               Save your rankings, keep your course history, and compare with friends.
             </h1>

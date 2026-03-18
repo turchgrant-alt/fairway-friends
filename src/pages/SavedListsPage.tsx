@@ -64,11 +64,11 @@ export default function SavedListsPage() {
     <div className="space-y-10">
       <PageHeader
         eyebrow="Lists"
-        title="Weekly curated lists generated from the stored course catalog."
-        description="GolfeR now rebuilds these editorial lists from the local catalog on a weekly cadence, using deterministic recipes instead of fake engagement signals."
+        title="Curated golf lists, refreshed every week."
+        description="From bucket-list tracks and tour hosts to state standouts and trip-ready public courses, these lists are built to help you decide faster."
         actions={
           <div className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-4 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]">
-            <CalendarSync size={16} /> Refreshes weekly
+            <CalendarSync size={16} /> Updated weekly
           </div>
         }
       />
@@ -76,27 +76,28 @@ export default function SavedListsPage() {
       <section className="grid gap-4 rounded-[30px] border border-[hsl(var(--golfer-line))] bg-white/85 p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,0.9fr)]">
         <div className="space-y-4">
           <p className="inline-flex items-center gap-2 rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]">
-            <Sparkles size={14} /> Generated editorial system
+            <Sparkles size={14} /> Fresh picks
           </p>
           <h2 className="max-w-3xl text-3xl text-[hsl(var(--golfer-deep))]">
-            A practical weekly list engine built from the stored GolfeR catalog.
+            New ways to browse the best golf trips, day-round ideas, and bucket-list courses.
           </h2>
           <p className="max-w-3xl text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
-            Each list is generated from explicit course metadata like state, access type, hole count, and PGA / LPGA host history. There is no fake community activity or opaque scoring model behind these lists.
+            Every list starts from real course details like location, access type, holes, and tour history so the
+            results feel specific instead of generic.
           </p>
         </div>
         <div className="grid gap-3 rounded-[24px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] p-5 text-sm text-[hsl(var(--golfer-deep-soft))]">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-xs font-semibold uppercase tracking-[0.24em]">Catalog status</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.24em]">This week</span>
             <ListChecks size={16} className="text-[hsl(var(--golfer-deep))]" />
           </div>
           <div className="space-y-2">
             <p className="font-medium text-[hsl(var(--golfer-deep))]">
-              {data ? `${data.listCount} generated lists` : 'Loading generated lists'}
+              {data ? `${data.listCount} curated lists` : 'Loading curated lists'}
             </p>
-            <p>List refresh cadence: weekly</p>
-            <p>Last list generation: {formatGeneratedDate(data?.generatedAt)}</p>
-            <p>Source catalog imported: {formatGeneratedDate(data?.sourceCatalogImportedAt)}</p>
+            <p>Fresh lists arrive every week</p>
+            <p>Last updated: {formatGeneratedDate(data?.generatedAt)}</p>
+            <p>Course refresh: {formatGeneratedDate(data?.sourceCatalogImportedAt)}</p>
           </div>
         </div>
       </section>
@@ -114,7 +115,7 @@ export default function SavedListsPage() {
 
       {isError ? (
         <section className="rounded-[30px] border border-[hsl(var(--golfer-line))] bg-white p-8 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.8] shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]">
-          The generated lists file could not be loaded. Run <code>npm run generate:lists</code> to rebuild the stored weekly list output.
+          Curated lists are not available right now. Try again in a moment.
         </section>
       ) : null}
 

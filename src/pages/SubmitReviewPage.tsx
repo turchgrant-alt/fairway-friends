@@ -16,8 +16,8 @@ export default function SubmitReviewPage() {
     <div className="space-y-10">
       <PageHeader
         eyebrow="Reviews"
-        title="Review capture is paused in demo mode."
-        description={`The route for ${course.name} still exists, but fake authors and mock submissions are turned off while the product focuses on real course ingestion and structure.`}
+        title="Reviews are coming soon."
+        description={`You can still rate and rank ${course.name} today. Written reviews will come back once the core GolfeR flow is in place.`}
         actions={
           <>
             <button
@@ -39,11 +39,10 @@ export default function SubmitReviewPage() {
       <section className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-8 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-10">
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
           <div>
-            <h2 className="font-display text-3xl text-[hsl(var(--golfer-deep))]">Why this is disabled for now</h2>
+            <h2 className="font-display text-3xl text-[hsl(var(--golfer-deep))]">What you can do right now</h2>
             <p className="mt-4 max-w-3xl text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-              The previous version used pretend authors and mock review content to make the app feel busy. In this v1
-              cleanup pass, review capture is deliberately out of the visible workflow so course data, discovery, and
-              list structure stay easier to build and evaluate.
+              GolfeR is focused on helping you rate, rank, and save the courses that matter. Written reviews are
+              planned, but the course page and ranking flow are the priority today.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <button

@@ -12,7 +12,7 @@ import { useCourseUploadedPhotoGallery } from '@/hooks/use-course-uploaded-photo
 import { useCourseRankings } from '@/hooks/use-course-rankings';
 import { getCoursePar, registerCourseCatalogPar } from '@/lib/course-par';
 import { getTourHistoryLabel, hasTourHistory } from '@/lib/course-data';
-import { formatDemoDate } from '@/lib/demo-v1';
+import { formatDisplayDate } from '@/lib/app-content';
 import { resolveCoursePhoto } from '@/utils/coursePhoto';
 
 type Tab = 'overview' | 'source' | 'nearby';
@@ -171,7 +171,7 @@ export default function CourseDetailPage() {
               </div>
             ) : (
               <div className="rounded-[22px] bg-[hsl(var(--golfer-cream))] px-4 py-3 text-sm text-[hsl(var(--golfer-deep-soft))]">
-                Real source record with no user-rating layer in demo mode
+                Community ratings are still getting started here.
               </div>
             )}
 
@@ -223,7 +223,7 @@ export default function CourseDetailPage() {
             <div className="mt-4 space-y-3 text-sm text-muted-foreground">
               <p className="flex items-center gap-2"><MapPin size={14} /> {course.addressLabel ?? course.location}</p>
               <p className="flex items-center gap-2"><Database size={14} /> {course.source} / {course.sourceId}</p>
-              <p className="flex items-center gap-2"><Star size={14} /> Last synced {formatDemoDate(course.lastSyncedAt)}</p>
+              <p className="flex items-center gap-2"><Star size={14} /> Updated {formatDisplayDate(course.lastSyncedAt)}</p>
             </div>
           </div>
 
@@ -349,7 +349,7 @@ export default function CourseDetailPage() {
                 {hasTrueRankingThreshold
                   ? `Numeric rating follows the current Profile order and bucket score band. `
                   : 'Numeric rating unlocks after 5 ranked courses. '}
-                Last played {courseRanking?.lastPlayedAt ? formatDemoDate(courseRanking.lastPlayedAt) : 'not recorded yet'}.
+                Last played {courseRanking?.lastPlayedAt ? formatDisplayDate(courseRanking.lastPlayedAt) : 'not recorded yet'}.
               </p>
               <div className="mt-5 flex flex-col gap-3">
                 <button
@@ -391,7 +391,7 @@ export default function CourseDetailPage() {
             </div>
             {courseRanking?.roundDate ? (
               <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-4 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
-                {formatDemoDate(courseRanking.roundDate)}
+                {formatDisplayDate(courseRanking.roundDate)}
               </span>
             ) : null}
           </div>
@@ -426,7 +426,7 @@ export default function CourseDetailPage() {
             {courseRanking?.roundDate ? (
               <div className="rounded-[22px] bg-[hsl(var(--golfer-cream))] p-4">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Round date</p>
-                <p className="mt-2 text-base text-[hsl(var(--golfer-deep))]">{formatDemoDate(courseRanking.roundDate)}</p>
+                <p className="mt-2 text-base text-[hsl(var(--golfer-deep))]">{formatDisplayDate(courseRanking.roundDate)}</p>
               </div>
             ) : null}
           </div>
@@ -520,13 +520,13 @@ export default function CourseDetailPage() {
               </div>
               <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-5">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Last synced</p>
-                <p className="mt-2 text-sm font-medium text-card-foreground">{formatDemoDate(course.lastSyncedAt)}</p>
+                <p className="mt-2 text-sm font-medium text-card-foreground">{formatDisplayDate(course.lastSyncedAt)}</p>
               </div>
               <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-5 lg:col-span-2">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Pipeline note</p>
                 <p className="mt-2 text-sm leading-7 text-card-foreground">
-                  Raw source data is kept locally for debugging and later enrichment. The v1 UI only shows the clean,
-                  canonical fields needed to test discovery and course structure.
+                  These source details show where the course information came from and how it is mapped inside
+                  GolfeR. The page keeps the clean, readable fields up front so browsing stays simple.
                 </p>
               </div>
             </div>

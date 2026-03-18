@@ -6,7 +6,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import PageHeader from "@/components/dashboard/PageHeader";
 import { getMyFriends } from "@/lib/friends";
 import { getFriendRankings } from "@/lib/rankings";
-import { formatDemoDate } from "@/lib/demo-v1";
+import { formatDisplayDate } from "@/lib/app-content";
 
 function formatFriendName(friend?: {
   display_name: string | null;
@@ -54,7 +54,7 @@ export default function UserProfilePage() {
       <PageHeader
         eyebrow="Friend rankings"
         title={title}
-        description="Saved Supabase-backed rankings for a connected account."
+        description="See how a friend has ranked the courses they have played."
         actions={
           <button
             onClick={() => navigate(-1)}
@@ -92,7 +92,7 @@ export default function UserProfilePage() {
           </p>
           <p className="mt-4 text-2xl text-[hsl(var(--golfer-deep))]">Friend-only view</p>
           <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-            This route is intended to be reached from your accepted-friends list on Profile.
+            Open this from your friends list to compare how someone else sees the courses they have played.
           </p>
         </article>
       </section>
@@ -155,12 +155,12 @@ export default function UserProfilePage() {
                   <div className="mt-4 flex flex-wrap gap-2 text-xs text-[hsl(var(--golfer-deep-soft))]/[0.74]">
                     {ranking.date_played ? (
                       <span className="rounded-full bg-white px-3 py-1.5">
-                        Played {formatDemoDate(ranking.date_played)}
+                        Played {formatDisplayDate(ranking.date_played)}
                       </span>
                     ) : null}
                     {ranking.updated_at ? (
                       <span className="rounded-full bg-white px-3 py-1.5">
-                        Updated {formatDemoDate(ranking.updated_at)}
+                        Updated {formatDisplayDate(ranking.updated_at)}
                       </span>
                     ) : null}
                     {ranking.notes ? (

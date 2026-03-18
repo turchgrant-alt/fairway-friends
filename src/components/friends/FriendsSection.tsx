@@ -24,7 +24,7 @@ function getProfileLabel(profile: {
   username: string | null;
   display_name: string | null;
 }) {
-  return profile.display_name ?? profile.username ?? "Fairway Friends user";
+  return profile.display_name ?? profile.username ?? "GolfeR player";
 }
 
 function getProfileInitials(profile: {
@@ -202,7 +202,7 @@ export default function FriendsSection() {
   });
 
   return (
-    <section className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-7 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-8">
+    <section id="friends" className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-7 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-8">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">
@@ -210,8 +210,7 @@ export default function FriendsSection() {
           </p>
           <h2 className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">Compare with other players</h2>
           <p className="mt-3 max-w-3xl text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-            Search profiles, manage incoming requests, and open a friend&apos;s saved rankings without leaving the
-            current product shell.
+            Search profiles, manage incoming requests, and open a friend&apos;s saved rankings without leaving GolfeR.
           </p>
         </div>
 
@@ -243,7 +242,7 @@ export default function FriendsSection() {
           <div className="mt-4 space-y-3">
             {!canSearch ? (
               <div className="rounded-[20px] bg-white p-4 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
-                Enter at least 2 characters to search the profiles table.
+                Enter at least 2 characters to search by username.
               </div>
             ) : isSearching ? (
               <div className="rounded-[20px] bg-white p-4 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">

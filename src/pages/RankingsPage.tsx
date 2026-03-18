@@ -36,8 +36,8 @@ export default function RankingsPage() {
     <div className="space-y-10">
       <PageHeader
         eyebrow="Catalog"
-        title="Alternative ways to browse the v1 course catalog."
-        description="This legacy route now acts as a utility catalog view instead of a fake personal rankings page."
+        title="More ways to browse courses."
+        description="Sort by name or surface the courses with the richest details when you want a different way into the catalog."
         actions={
           <button
             onClick={() => navigate('/discover')}
@@ -66,7 +66,7 @@ export default function RankingsPage() {
         <div className="mt-6">
           {isLoading ? (
             <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-6 text-sm text-muted-foreground">
-              Loading the stored course catalog...
+              Loading courses...
             </div>
           ) : tab === 'alphabetical' ? (
             <div className="grid gap-4 lg:grid-cols-2">

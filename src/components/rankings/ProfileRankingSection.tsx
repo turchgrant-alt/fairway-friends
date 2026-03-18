@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useCourseRankings } from "@/hooks/use-course-rankings";
 import { useRankedCourseRecords } from "@/hooks/use-ranked-course-records";
 import type { CourseRankingBucket } from "@/lib/course-rankings";
-import { formatDemoDate } from "@/lib/demo-v1";
+import { formatDisplayDate } from "@/lib/app-content";
 
 const REORDER_END_TARGET = "__end__";
 
@@ -128,7 +128,7 @@ export default function ProfileRankingSection() {
   }
 
   return (
-    <section className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-7 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-8">
+    <section id="rankings" className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-7 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-8">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">
@@ -316,7 +316,7 @@ export default function ProfileRankingSection() {
                         Play count {ranking.playCount}
                       </span>
                       <span className="rounded-full bg-white/80 px-3 py-1.5">
-                        Last played {ranking.lastPlayedAt ? formatDemoDate(ranking.lastPlayedAt) : "Not recorded"}
+                        Last played {ranking.lastPlayedAt ? formatDisplayDate(ranking.lastPlayedAt) : "Not recorded"}
                       </span>
                       {!isReorderMode ? (
                         <span className="rounded-full bg-white/80 px-3 py-1.5">

@@ -1,21 +1,21 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronRight, Code2, Database, RefreshCcw, Route } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Compass, ListChecks, Route, Settings2 } from 'lucide-react';
 import PageHeader from '@/components/dashboard/PageHeader';
 
 const settingGroups = [
   {
-    title: 'Demo mode',
+    title: 'Go to',
     items: [
-      { icon: Route, label: 'Open workspace', action: '/profile' },
-      { icon: Database, label: 'Browse course catalog', action: '/discover' },
-      { icon: RefreshCcw, label: 'Review sync status', action: '/home' },
+      { icon: Route, label: 'View profile', action: '/profile' },
+      { icon: Compass, label: 'Browse courses', action: '/discover' },
+      { icon: ListChecks, label: 'Open curated lists', action: '/lists' },
     ],
   },
   {
-    title: 'Builder notes',
+    title: 'Account',
     items: [
-      { icon: Code2, label: 'Routes preserved for future features' },
-      { icon: Database, label: 'Real data comes from the local NY dataset' },
+      { icon: Settings2, label: 'Signed in with GolfeR account' },
+      { icon: Route, label: 'Friends and rankings sync automatically' },
     ],
   },
 ];
@@ -27,8 +27,8 @@ export default function SettingsPage() {
     <div className="space-y-10">
       <PageHeader
         eyebrow="Settings"
-        title="Developer/demo settings"
-        description="This page is a practical reference point for the current GolfeR shell and its Supabase-backed account state."
+        title="Account settings"
+        description="Quick links for your profile, course browsing, and the parts of GolfeR you are most likely to revisit."
         actions={
           <button
             onClick={() => navigate(-1)}
@@ -62,12 +62,11 @@ export default function SettingsPage() {
         ))}
 
         <div className="rounded-[30px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-deep))] p-6 text-white shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] lg:col-span-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">Current behavior</p>
-          <p className="mt-4 text-2xl">Auth, saved rankings, and friendships now persist.</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">GolfeR account</p>
+          <p className="mt-4 text-2xl">Your rankings, friends, and sign-in stay with you.</p>
           <p className="mt-3 text-sm leading-8 text-white/72">
-            Supabase handles account sessions and ranking storage. The course catalog still ships locally, and the
-            visible product remains focused on discovery, ranking, and friend comparison rather than broader social
-            activity.
+            Use this page as a clean starting point when you want to jump back into discovery, compare lists with your
+            crew, or manage the account you are signed in with.
           </p>
         </div>
       </div>

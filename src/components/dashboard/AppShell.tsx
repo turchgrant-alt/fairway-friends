@@ -5,11 +5,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { path: "/home", label: "Overview", icon: LayoutGrid },
+  { path: "/home", label: "Home", icon: LayoutGrid },
   { path: "/discover", label: "Discover", icon: Compass },
   { path: "/map", label: "Map", icon: MapPinned },
   { path: "/lists", label: "Lists", icon: ListChecks },
-  { path: "/profile", label: "Workspace", icon: UserCircle2 },
+  { path: "/profile", label: "Profile", icon: UserCircle2 },
 ];
 
 function isActivePath(currentPath: string, itemPath: string) {
@@ -21,7 +21,7 @@ export default function AppShell() {
   const { profile, user, signOut } = useAuth();
   const activeItem = navItems.find((item) => isActivePath(location.pathname, item.path));
   const identityLabel =
-    profile?.display_name ?? profile?.username ?? user?.email ?? "Fairway Friends";
+    profile?.display_name ?? profile?.username ?? user?.email ?? "GolfeR";
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,hsl(var(--golfer-mist))_0%,hsl(var(--golfer-cream))_18rem,hsl(var(--background))_60rem)]">
@@ -37,18 +37,13 @@ export default function AppShell() {
                 </span>
                 <div>
                   <p className="font-display text-2xl leading-none">GolfeR</p>
-                  <p className="text-[10px] uppercase tracking-[0.32em] text-white/[0.56]">
-                    Developer demo
-                  </p>
+                  <p className="text-[10px] uppercase tracking-[0.32em] text-white/[0.56]">Course discovery</p>
                 </div>
               </Link>
 
               <div className="hidden items-center gap-2 lg:flex">
                 <div className="rounded-full border border-white/10 bg-white/[0.08] px-3 py-1.5 text-xs text-white/[0.72]">
-                  {activeItem?.label ?? "Workspace"}
-                </div>
-                <div className="rounded-full border border-emerald-300/20 bg-emerald-100/10 px-3 py-1.5 text-xs text-white/[0.72]">
-                  Stored course catalog
+                  {activeItem?.label ?? "Profile"}
                 </div>
               </div>
             </div>
