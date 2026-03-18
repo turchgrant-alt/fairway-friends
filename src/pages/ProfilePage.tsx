@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowRight, ListChecks, Medal, Settings, Users } from 'lucide-react';
+import { ArrowRight, Medal, Settings, Users } from 'lucide-react';
 
 import PageHeader from '@/components/dashboard/PageHeader';
 import FriendsSection from '@/components/friends/FriendsSection';
@@ -20,7 +20,7 @@ function getProfileTitle(value: string | null | undefined) {
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { profile, user } = useAuth();
-  const { rankedCourses, rankedCourseCount } = useCourseRankings();
+  const { rankedCourses, rankedCourseCount, hasTrueRankingThreshold } = useCourseRankings();
   const { data: friends = [] } = useQuery({
     queryKey: ['friends', 'accepted'],
     queryFn: getMyFriends,
@@ -57,7 +57,7 @@ export default function ProfilePage() {
         {[
           { label: 'Courses ranked', value: rankedCourseCount, icon: Medal },
           { label: 'Friends', value: friends.length, icon: Users },
-          { label: 'Curated lists', value: curatedPreviewLists.length, icon: ListChecks },
+          { label: 'Rating mode', value: hasTrueRankingThreshold ? 'Unlocked' : 'Building', icon: Medal },
           { label: 'Last ranked', value: lastRankedAt ? formatDisplayDate(lastRankedAt) : 'Not yet', icon: Medal },
         ].map(({ label, value, icon: Icon }) => (
           <article

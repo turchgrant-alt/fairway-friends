@@ -58,7 +58,7 @@
   "mappableRecordCount": 452,
   "coordinateCoverageRatio": 0.0264,
   "enrichmentNotes": [
-    "CSV file is the stored source of truth for v1 course records.",
+    "CSV file is the source of truth for course records.",
     "Runtime catalog loading is segmented by state so the client does not parse the full national detail dataset for map flows.",
     "Exact coordinates are only shown when the CSV row includes them or a trusted local NY OSM match is available.",
     "Website, status, and ratings remain nullable when the source snapshot does not supply them."

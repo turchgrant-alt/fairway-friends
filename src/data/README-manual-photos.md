@@ -8,7 +8,7 @@ Resolution order:
 - UI placeholder
 
 Rules:
-- use a real `courseId` from the stored course catalog
+- use a real `courseId` from the course catalog
 - keep manual and automatic files separate
 - manual entries always win
 - include attribution fields on every entry

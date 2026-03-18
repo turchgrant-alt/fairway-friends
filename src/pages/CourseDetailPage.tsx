@@ -231,10 +231,10 @@ export default function CourseDetailPage() {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">
-                  Photo curation
+                  Photo details
                 </p>
                 <p className="mt-2 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
-                  Builder-only reference for manual photo overrides.
+                  Helpful when a course image needs a manual update.
                 </p>
               </div>
               <span className="rounded-full border border-[hsl(var(--golfer-line))] bg-white px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep))]">

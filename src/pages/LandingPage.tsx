@@ -14,7 +14,7 @@ import { Link } from "react-router-dom";
 import FeaturedCourseCard from "@/components/marketing/FeaturedCourseCard";
 import SectionHeading from "@/components/marketing/SectionHeading";
 import { Button } from "@/components/ui/button";
-import { catalogStats, curatedPreviewLists, featuredCourses, formatDisplayDate } from "@/lib/app-content";
+import { catalogStats, curatedPreviewLists, featuredCourses } from "@/lib/app-content";
 
 const steps = [
   {

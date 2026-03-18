@@ -22,7 +22,7 @@ function getWelcomeName(value: string | null | undefined) {
 export default function HomePage() {
   const navigate = useNavigate();
   const { profile, user } = useAuth();
-  const { rankedCourses, rankedCourseCount, hasTrueRankingThreshold } = useCourseRankings();
+  const { rankedCourses, rankedCourseCount, hasTrueRankingThreshold, getCourseNumericRating } = useCourseRankings();
   const { data: friends = [] } = useQuery({
     queryKey: ['friends', 'accepted'],
     queryFn: getMyFriends,
@@ -132,8 +132,8 @@ export default function HomePage() {
                             {hasTrueRankingThreshold ? 'Rating' : 'Bucket'}
                           </p>
                           <p className="mt-2 text-xl capitalize">
-                            {hasTrueRankingThreshold && ranking.globalOrder
-                              ? ranking.globalOrder
+                            {hasTrueRankingThreshold
+                              ? (getCourseNumericRating(ranking.courseId)?.toFixed(1) ?? '--')
                               : ranking.bucket}
                           </p>
                         </div>

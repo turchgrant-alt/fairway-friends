@@ -556,7 +556,7 @@
     {
       "id": "starter-featured",
       "title": "Core catalog anchors",
-      "description": "A few recognizable courses to keep the v1 demo grounded while the stored catalog expands.",
+      "description": "A few recognizable courses that help anchor the catalog as it expands.",
       "courses": [
         {
           "id": "ny-farmingdale-the-black-course",

@@ -1,7 +1,16 @@
 import { courseSummary } from "@/lib/course-data";
 
+const CURATED_LIST_DESCRIPTION_OVERRIDES: Record<string, string> = {
+  "starter-public": "Public-access courses worth knowing when you want an easy starting point.",
+  "starter-private": "Private clubs that help round out the dream-trip and best-in-class conversation.",
+  "starter-featured": "Recognizable bucket-list names and standout courses golfers love to compare.",
+};
+
 export const featuredCourses = courseSummary.featuredCourses;
-export const curatedPreviewLists = courseSummary.starterLists;
+export const curatedPreviewLists = courseSummary.starterLists.map((list) => ({
+  ...list,
+  description: CURATED_LIST_DESCRIPTION_OVERRIDES[list.id] ?? list.description,
+}));
 
 export const primaryNavigationCards = [
   {
