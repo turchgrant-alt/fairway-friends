@@ -217,12 +217,13 @@ function mergeManualOrderCourseIds(canonicalCourseIds: string[], manualOrderCour
 }
 
 function buildCanonicalCourses(courses: PlayedCourseRankingRecord[]) {
-  const sortedCourses = [...courses].sort(compareCanonicalCourses);
-
   return COURSE_BUCKET_PRIORITY.flatMap((bucket) => {
     let bucketOrder = 1;
 
-    return sortedCourses
+    // Preserve the caller's bucket-local order here. Helpers like insertCourseIntoBucket
+    // already construct the intended sequence, but the incoming records can still carry
+    // stale bucketOrder values from before the move.
+    return courses
       .filter((course) => course.bucket === bucket)
       .map((course) => ({
         ...course,
@@ -577,7 +578,10 @@ export function updateCourseRanking(state: CourseRankingState, input: UpdateCour
       ? normalizedState.courses.map((course) => (course.courseId === nextCourse.courseId ? nextCourse : course))
       : insertCourseIntoBucket(normalizedState.courses, nextCourse, input.bucketOrder);
 
-  return finalizeCourseRankings(nextCourses, nowIso, normalizedState.manualOrderCourseIds);
+  const nextManualOrderCourseIds =
+    input.bucketOrder != null ? nextCourses.map((course) => course.courseId) : normalizedState.manualOrderCourseIds;
+
+  return finalizeCourseRankings(nextCourses, nowIso, nextManualOrderCourseIds);
 }
 
 export function markCoursePlayed(state: CourseRankingState, input: MarkCoursePlayedInput) {
@@ -603,7 +607,10 @@ export function markCoursePlayed(state: CourseRankingState, input: MarkCoursePla
       ? normalizedState.courses.map((course) => (course.courseId === nextCourse.courseId ? nextCourse : course))
       : insertCourseIntoBucket(normalizedState.courses, nextCourse, input.bucketOrder);
 
-  return finalizeCourseRankings(nextCourses, nowIso, normalizedState.manualOrderCourseIds);
+  const nextManualOrderCourseIds =
+    input.bucketOrder != null ? nextCourses.map((course) => course.courseId) : normalizedState.manualOrderCourseIds;
+
+  return finalizeCourseRankings(nextCourses, nowIso, nextManualOrderCourseIds);
 }
 
 export function saveCourseRoundDetails(state: CourseRankingState, input: SaveCourseRoundDetailsInput) {
