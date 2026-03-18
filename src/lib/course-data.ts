@@ -11,7 +11,7 @@ import type {
   CourseLocationIndexEntry,
   CourseTourHistoryType,
 } from "@/lib/course-data-model";
-import { findUsStateCode } from "@/lib/us-states";
+import { findRegionCode } from "@/lib/us-states";
 
 export type Course = AppGolfCourseRecord;
 export type CoursePreview = CourseIndexRecord;
@@ -175,6 +175,7 @@ export function getCourseSearchTargets(course: CourseListRecord): string[] {
     course.city,
     course.county,
     course.state,
+    "country" in course ? course.country : null,
     course.stateCode,
     course.location,
     course.addressLabel,
@@ -186,7 +187,7 @@ export function searchCourses<T extends CourseListRecord>(courseList: T[], query
   const normalizedQuery = query.trim().toLowerCase();
   if (!normalizedQuery) return courseList;
 
-  const matchingStateCode = findUsStateCode(normalizedQuery);
+  const matchingStateCode = findRegionCode(normalizedQuery);
 
   if (matchingStateCode) {
     return courseList.filter((course) => normalizeCourseStateCode(course.stateCode) === matchingStateCode);

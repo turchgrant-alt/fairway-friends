@@ -77,12 +77,12 @@ export default function DiscoverPage() {
         <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-5 shadow-[0_20px_50px_-42px_rgba(12,25,19,0.35)]">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Coverage</p>
           <p className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">{catalogStats.totalCourses}</p>
-          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">courses ready to browse nationwide</p>
+          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">courses ready to browse across the catalog</p>
         </div>
         <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-5 shadow-[0_20px_50px_-42px_rgba(12,25,19,0.35)]">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">States</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Regions</p>
           <p className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">{catalogStats.statesRepresented}</p>
-          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">places you can search across the country</p>
+          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">places you can search across the catalog</p>
         </div>
         <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-5 shadow-[0_20px_50px_-42px_rgba(12,25,19,0.35)]">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Map-ready</p>
@@ -98,7 +98,7 @@ export default function DiscoverPage() {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search courses, cities, or addresses..."
+              placeholder="Search courses, cities, regions, or addresses..."
               className="w-full rounded-full border border-input bg-[hsl(var(--golfer-cream))] py-3 pl-11 pr-4 text-sm text-card-foreground outline-none focus:border-primary"
             />
             {query ? (

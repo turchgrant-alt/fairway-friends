@@ -103,6 +103,7 @@ export interface CourseIndexRecord {
   courseName: string | null;
   city: string | null;
   state: string | null;
+  country: string | null;
   county: string | null;
   addressLabel: string | null;
   location: string;
@@ -128,7 +129,7 @@ export interface CourseIndexRecord {
 export interface CourseLocationIndexEntry {
   id: string;
   label: string;
-  type: "state" | "city";
+  type: "state" | "county" | "city";
   stateCode: string;
   state: string;
   city: string | null;

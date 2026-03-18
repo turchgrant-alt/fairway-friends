@@ -1,8 +1,8 @@
 {
   "source": "csv_catalog",
-  "sourceFile": "data/course-catalog/source/us_golf_courses_dataset.csv",
-  "importedAt": "2026-03-17T18:45:40.209Z",
-  "recordCount": 17137,
+  "sourceFile": "data/course-catalog/source/us_uk_ie_golf_courses_dataset_enriched.csv",
+  "importedAt": "2026-03-18T18:59:21.875Z",
+  "recordCount": 17197,
   "stateCodes": [
     "AK",
     "AL",
@@ -12,6 +12,7 @@
     "CO",
     "CT",
     "DE",
+    "ENG",
     "FL",
     "GA",
     "HI",
@@ -19,6 +20,7 @@
     "ID",
     "IL",
     "IN",
+    "IRL",
     "KS",
     "KY",
     "LA",
@@ -34,6 +36,7 @@
     "ND",
     "NE",
     "NH",
+    "NIR",
     "NJ",
     "NM",
     "NV",
@@ -44,6 +47,7 @@
     "PA",
     "RI",
     "SC",
+    "SCT",
     "SD",
     "TN",
     "TX",
@@ -55,10 +59,10 @@
     "WV",
     "WY"
   ],
-  "mappableRecordCount": 452,
-  "coordinateCoverageRatio": 0.0264,
+  "mappableRecordCount": 518,
+  "coordinateCoverageRatio": 0.0301,
   "enrichmentNotes": [
-    "CSV file is the source of truth for course records.",
+    "CSV file is the stored source of truth for v1 course records.",
     "Runtime catalog loading is segmented by state so the client does not parse the full national detail dataset for map flows.",
     "Exact coordinates are only shown when the CSV row includes them or a trusted local NY OSM match is available.",
     "Website, status, and ratings remain nullable when the source snapshot does not supply them."

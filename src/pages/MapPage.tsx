@@ -13,19 +13,22 @@ import {
   type Course,
 } from '@/lib/course-data';
 import { useCourseLocationIndex } from '@/hooks/use-course-catalog';
-import { findUsStateCode, getUsStateName } from '@/lib/us-states';
+import { findRegionCode, getRegionName } from '@/lib/us-states';
 import {
   findMapSearchPreset,
   normalizeMapSearchValue,
   type MapBoundsTuple,
+  UK_IRELAND_BOUNDS,
   UNITED_STATES_BOUNDS,
 } from '@/lib/map-search-locations';
 
 type ViewMode = 'map' | 'list';
+type RegionMode = 'us' | 'uk-ireland';
 
 const MAP_PIN_LIMIT = 300;
 const MAP_VIEW_RESULT_PREVIEW_LIMIT = 6;
 const LIST_RESULT_LIMIT = 120;
+const UK_IRELAND_STATE_CODES = ['ENG', 'SCT', 'IRL', 'NIR'] as const;
 
 interface FocusTarget {
   id: string;
@@ -43,6 +46,12 @@ interface ActiveSearch {
   label: string;
   results: Course[];
   stateCodes: string[];
+}
+
+function getLocationMatchMaxZoom(type: 'state' | 'county' | 'city' | undefined) {
+  if (type === 'city') return 10;
+  if (type === 'county') return 8;
+  return 7;
 }
 
 function isCourseInsideBounds(course: Course, bounds: MapBoundsTuple) {
@@ -107,6 +116,7 @@ export default function MapPage() {
   );
 
   const [viewMode, setViewMode] = useState<ViewMode>('map');
+  const [regionMode, setRegionMode] = useState<RegionMode>('us');
   const [query, setQuery] = useState('');
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const [activeSearch, setActiveSearch] = useState<ActiveSearch | null>(null);
@@ -128,7 +138,7 @@ export default function MapPage() {
     [mappableCourses, viewport.bounds],
   );
 
-  const shouldShowPins = activeSearch !== null || viewport.zoom >= 6.5;
+  const shouldShowPins = activeSearch !== null || loadedCourses.length > 0 || viewport.zoom >= 6.5;
   const mapCourses = shouldShowPins ? visibleAreaCourses.slice(0, MAP_PIN_LIMIT) : [];
   const selectedCourse = useMemo(() => {
     const course = selectedCourseId ? courseById.get(selectedCourseId) ?? null : null;
@@ -154,6 +164,7 @@ export default function MapPage() {
     setSelectedCourseId(null);
     setActiveSearch(null);
     setLoadedCourses([]);
+    setRegionMode('us');
     setFocusTarget({
       id: 'united-states',
       label: 'United States',
@@ -162,6 +173,49 @@ export default function MapPage() {
     });
     setSearchMessage(null);
     setViewMode('map');
+  }
+
+  async function focusUkAndIreland() {
+    setQuery('');
+    setIsSearching(true);
+    setSearchMessage(null);
+
+    try {
+      const stateCatalog = await loadCoursesForStates([...UK_IRELAND_STATE_CODES]);
+      const mappableMatches = sortCoursesByName(stateCatalog.filter(hasVerifiedCoordinates));
+
+      setRegionMode('uk-ireland');
+      setLoadedCourses(stateCatalog);
+      setActiveSearch({
+        label: 'UK & Ireland',
+        results: stateCatalog,
+        stateCodes: [...UK_IRELAND_STATE_CODES],
+      });
+      setSelectedCourseId(mappableMatches[0]?.id ?? null);
+      setFocusTarget({
+        id: 'uk-and-ireland',
+        label: 'UK & Ireland',
+        bounds: UK_IRELAND_BOUNDS,
+        maxZoom: 5,
+      });
+      setViewMode('map');
+
+      if (stateCatalog.length === 0) {
+        setSearchMessage('UK & Ireland is available as a map region, but no catalog rows were generated for it yet.');
+        return;
+      }
+
+      if (mappableMatches.length === 0) {
+        setSearchMessage(
+          'UK & Ireland courses are loaded, but this snapshot does not include verified coordinates for those rows yet.',
+        );
+        return;
+      }
+    } catch {
+      setSearchMessage('The UK & Ireland course files could not be loaded. Try again in a moment.');
+    } finally {
+      setIsSearching(false);
+    }
   }
 
   async function handleSearch(event: FormEvent<HTMLFormElement>) {
@@ -182,18 +236,23 @@ export default function MapPage() {
     }
 
     const locationMatches = searchCourseLocationEntries(locationIndex.entries, normalizedQuery);
-    const matchedStateCode = findUsStateCode(trimmedQuery);
+    const matchedStateCode = findRegionCode(trimmedQuery);
+    const presetStateCodes = preset?.id === 'uk-and-ireland' ? [...UK_IRELAND_STATE_CODES] : [];
     const stateCodes = Array.from(
       new Set(
         [
           matchedStateCode,
+          ...presetStateCodes,
           ...locationMatches.map((entry) => entry.stateCode),
         ].filter(Boolean),
       ),
     ) as string[];
 
     const primaryLocationMatch = locationMatches[0] ?? null;
-    const label = primaryLocationMatch?.label ?? preset?.label ?? getUsStateName(matchedStateCode) ?? trimmedQuery;
+    const label =
+      preset?.id === 'uk-and-ireland'
+        ? preset.label
+        : primaryLocationMatch?.label ?? preset?.label ?? getRegionName(matchedStateCode) ?? trimmedQuery;
     const locationBounds = mergeBounds(
       locationMatches
         .map((entry) => entry.bounds)
@@ -212,13 +271,13 @@ export default function MapPage() {
         id: preset?.id ?? `search-${normalizedQuery}`,
         label,
         bounds: preset?.bounds ?? locationBounds ?? UNITED_STATES_BOUNDS,
-        maxZoom: preset?.maxZoom ?? (primaryLocationMatch?.type === 'city' ? 10 : 7),
+        maxZoom: preset?.maxZoom ?? getLocationMatchMaxZoom(primaryLocationMatch?.type),
       });
       setViewMode('map');
       setSearchMessage(
         preset
-          ? `The map moved to ${label}, but the stored catalog does not have a matching state segment to load there yet.`
-          : `No stored catalog region matched "${trimmedQuery}".`,
+          ? `The map moved to ${label}, but the catalog does not have a matching region file to load there yet.`
+          : `No catalog region matched "${trimmedQuery}".`,
       );
       return;
     }
@@ -227,15 +286,17 @@ export default function MapPage() {
 
     try {
       const stateCatalog = await loadCoursesForStates(stateCodes);
-      const datasetMatches = sortCoursesByName(searchCourses(stateCatalog, normalizedQuery));
+      const datasetMatches = sortCoursesByName(
+        preset?.id === 'uk-and-ireland' ? stateCatalog : searchCourses(stateCatalog, normalizedQuery),
+      );
       const mappableMatches = datasetMatches.filter(hasVerifiedCoordinates);
 
       let nextBounds = preset?.bounds ?? locationBounds ?? UNITED_STATES_BOUNDS;
-      let nextMaxZoom = preset?.maxZoom ?? (primaryLocationMatch?.type === 'city' ? 10 : 7);
+      let nextMaxZoom = preset?.maxZoom ?? getLocationMatchMaxZoom(primaryLocationMatch?.type);
 
       if (mappableMatches.length > 0) {
         nextBounds = buildBoundsForCourses(mappableMatches);
-        nextMaxZoom = datasetMatches.length === 1 ? 11 : preset?.maxZoom ?? (primaryLocationMatch?.type === 'city' ? 10 : 8);
+        nextMaxZoom = datasetMatches.length === 1 ? 11 : preset?.maxZoom ?? Math.max(getLocationMatchMaxZoom(primaryLocationMatch?.type), 8);
       }
 
       setLoadedCourses(stateCatalog);
@@ -244,6 +305,11 @@ export default function MapPage() {
         results: datasetMatches,
         stateCodes,
       });
+      setRegionMode(
+        stateCodes.every((stateCode) => UK_IRELAND_STATE_CODES.includes(stateCode as (typeof UK_IRELAND_STATE_CODES)[number]))
+          ? 'uk-ireland'
+          : 'us',
+      );
       setSelectedCourseId(mappableMatches[0]?.id ?? null);
       setFocusTarget({
         id: preset?.id ?? primaryLocationMatch?.id ?? `search-${normalizedQuery}`,
@@ -256,8 +322,8 @@ export default function MapPage() {
       if (datasetMatches.length === 0) {
         setSearchMessage(
           preset || primaryLocationMatch
-            ? `The map moved to ${label}, but the stored catalog does not have matching course records there yet.`
-            : `No courses in the stored catalog matched "${trimmedQuery}".`,
+            ? `The map moved to ${label}, but the catalog does not have matching course records there yet.`
+            : `No courses in the catalog matched "${trimmedQuery}".`,
         );
         return;
       }
@@ -271,7 +337,7 @@ export default function MapPage() {
 
       setSearchMessage(null);
     } catch {
-      setSearchMessage('The matching state catalog could not be loaded. Try the search again.');
+      setSearchMessage('The matching region files could not be loaded. Try the search again.');
     } finally {
       setIsSearching(false);
     }
@@ -289,7 +355,7 @@ export default function MapPage() {
               Search first, then explore the map naturally.
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78] sm:text-base">
-              GolfeR opens on a full U.S. view. Search a city or state, then use the map as the main discovery surface.
+              GolfeR opens on a full U.S. view. Search a city, state, or region, or jump straight to UK & Ireland.
               Pins and list results stay tied to the current visible map area, and only courses with verified coordinates
               can appear there.
             </p>
@@ -316,13 +382,43 @@ export default function MapPage() {
           </div>
         </div>
 
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
+            Start from
+          </span>
+          {[
+            { value: 'us' as const, label: 'US' },
+            { value: 'uk-ireland' as const, label: 'UK & Ireland' },
+          ].map(({ value, label }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => {
+                if (value === 'us') {
+                  resetToUnitedStates();
+                  return;
+                }
+
+                void focusUkAndIreland();
+              }}
+              className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                regionMode === value
+                  ? 'border-[hsl(var(--golfer-deep))] bg-[hsl(var(--golfer-deep))] text-white'
+                  : 'border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep))]'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         <form onSubmit={handleSearch} className="mt-6 flex flex-col gap-3 lg:flex-row">
           <div className="relative flex-1">
             <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search by city or state, like Scottsdale or Arizona"
+              placeholder="Search by city, state, or region"
               className="w-full rounded-full border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] py-3.5 pl-11 pr-4 text-sm text-card-foreground outline-none transition focus:border-[hsl(var(--golfer-deep))]"
             />
           </div>
@@ -337,13 +433,13 @@ export default function MapPage() {
             onClick={resetToUnitedStates}
             className="inline-flex items-center justify-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-5 py-3.5 text-sm font-medium text-[hsl(var(--golfer-deep))]"
           >
-            Reset U.S. view
+            Reset map
           </button>
         </form>
 
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-            Search uses a lightweight location index first, then loads only the matching state data. Pan or zoom the map to
+            Search uses a lightweight location index first, then loads only the matching region files. Pan or zoom the map to
             narrow the active results.
           </p>
           <div className="flex flex-wrap items-center gap-2">
@@ -424,7 +520,7 @@ export default function MapPage() {
               <p className="mt-2 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
                 {shouldShowPins
                   ? 'Results update after each completed pan or zoom. Only courses inside the visible bounds stay active.'
-                  : 'Search a city or state to load map pins from the stored dataset.'}
+                  : 'Search a city, state, or region to load map pins from the catalog.'}
               </p>
               {mapCourseOverflow > 0 ? (
                 <p className="mt-2 text-xs text-[hsl(var(--golfer-deep-soft))]/[0.68]">
@@ -469,7 +565,7 @@ export default function MapPage() {
           <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-10 text-center text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
             Loading the matching stored course data...
           </div>
-        ) : !activeSearch && viewport.zoom < 7 ? (
+        ) : !activeSearch && loadedCourses.length === 0 && viewport.zoom < 7 ? (
           <div className="rounded-[28px] border border-dashed border-[hsl(var(--golfer-line))] bg-white p-10 text-center">
             <div className="mx-auto max-w-2xl">
               <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
@@ -477,7 +573,7 @@ export default function MapPage() {
               </span>
               <h3 className="mt-5 text-2xl text-[hsl(var(--golfer-deep))]">Search or zoom in to browse results</h3>
               <p className="mt-3 text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-                The initial U.S. view stays intentionally broad. Search for a city or state first, or zoom into a
+                The initial U.S. view stays intentionally broad. Search for a city, state, or region first, or zoom into a
                 tighter region on the map, and the visible-area results will respond automatically.
               </p>
             </div>

@@ -13,6 +13,11 @@ export const UNITED_STATES_BOUNDS: MapBoundsTuple = [
   [49.384358, -66.885444],
 ];
 
+export const UK_IRELAND_BOUNDS: MapBoundsTuple = [
+  [49.8, -11.8],
+  [59.8, 2.2],
+];
+
 export const MAP_SEARCH_PRESETS: MapSearchPreset[] = [
   {
     id: 'united-states',
@@ -30,6 +35,53 @@ export const MAP_SEARCH_PRESETS: MapSearchPreset[] = [
       [45.15, -71.55],
     ],
     maxZoom: 6,
+  },
+  {
+    id: 'scotland',
+    label: 'Scotland',
+    aliases: ['scotland'],
+    bounds: [
+      [54.55, -7.75],
+      [60.95, -0.7],
+    ],
+    maxZoom: 6,
+  },
+  {
+    id: 'england',
+    label: 'England',
+    aliases: ['england'],
+    bounds: [
+      [49.85, -6.5],
+      [55.95, 2.15],
+    ],
+    maxZoom: 6,
+  },
+  {
+    id: 'ireland',
+    label: 'Ireland',
+    aliases: ['ireland', 'republic of ireland'],
+    bounds: [
+      [51.35, -10.8],
+      [55.65, -5.25],
+    ],
+    maxZoom: 6,
+  },
+  {
+    id: 'northern-ireland',
+    label: 'Northern Ireland',
+    aliases: ['northern ireland'],
+    bounds: [
+      [54.0, -8.35],
+      [55.4, -5.1],
+    ],
+    maxZoom: 7,
+  },
+  {
+    id: 'uk-and-ireland',
+    label: 'UK & Ireland',
+    aliases: ['uk', 'united kingdom', 'uk and ireland', 'britain and ireland', 'great britain and ireland'],
+    bounds: UK_IRELAND_BOUNDS,
+    maxZoom: 5,
   },
   {
     id: 'arizona',

@@ -60,7 +60,7 @@ const productHighlights = [
 
 const heroStats = [
   { label: "Courses to explore", value: catalogStats.totalCourses.toString() },
-  { label: "States covered", value: catalogStats.statesRepresented.toString() },
+  { label: "Regions covered", value: catalogStats.statesRepresented.toString() },
   { label: "Curated lists", value: curatedPreviewLists.length.toString() },
 ];
 
@@ -237,7 +237,7 @@ export default function LandingPage() {
                     <Search size={18} />
                   </span>
                   <div>
-                    <p className="text-sm font-semibold text-[hsl(var(--golfer-deep))]">Search by city or state</p>
+                    <p className="text-sm font-semibold text-[hsl(var(--golfer-deep))]">Search by city or region</p>
                     <p className="text-sm text-[hsl(var(--golfer-deep-soft))]/[0.70]">Then let the map narrow the list.</p>
                   </div>
                 </div>

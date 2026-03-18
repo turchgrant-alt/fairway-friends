@@ -5,7 +5,13 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "../..");
 
-const sourceCsvPath = path.join(repoRoot, "data", "course-catalog", "source", "us_golf_courses_dataset.csv");
+const sourceCsvPath = path.join(
+  repoRoot,
+  "data",
+  "course-catalog",
+  "source",
+  "us_uk_ie_golf_courses_dataset_enriched.csv",
+);
 const normalizedDir = path.join(repoRoot, "data", "course-catalog", "normalized");
 const normalizedCatalogPath = path.join(normalizedDir, "us-golf-courses.normalized.json");
 const generatedDir = path.join(repoRoot, "src", "data", "generated");
@@ -20,6 +26,7 @@ const nyOsmCatalogPath = path.join(repoRoot, "data", "golf-course-pipeline", "no
 
 const SOURCE = "csv_catalog";
 const UNITED_STATES = "United States";
+const UNITED_KINGDOM = "United Kingdom";
 const UNKNOWN_ACCESS = "unknown";
 const UNKNOWN_STATUS = "unknown";
 const FEATURED_COURSE_NAMES = [
@@ -80,6 +87,32 @@ const US_STATE_NAMES = {
   WI: "Wisconsin",
   WY: "Wyoming",
   DC: "District of Columbia",
+};
+
+const INTERNATIONAL_REGION_NAMES = {
+  Scotland: "Scotland",
+  England: "England",
+  Ireland: "Ireland",
+  "Northern Ireland": "Northern Ireland",
+};
+
+const INTERNATIONAL_REGION_DETAILS = {
+  Scotland: {
+    stateCode: "SCT",
+    country: UNITED_KINGDOM,
+  },
+  England: {
+    stateCode: "ENG",
+    country: UNITED_KINGDOM,
+  },
+  Ireland: {
+    stateCode: "IRL",
+    country: "Ireland",
+  },
+  "Northern Ireland": {
+    stateCode: "NIR",
+    country: UNITED_KINGDOM,
+  },
 };
 
 function normalizeString(value) {
@@ -165,9 +198,87 @@ function normalizeStateCode(value) {
   return normalizeString(value)?.toUpperCase() ?? null;
 }
 
+function isUsStateCode(stateCode) {
+  if (!stateCode) return false;
+  return Object.prototype.hasOwnProperty.call(US_STATE_NAMES, stateCode);
+}
+
+function resolveRegion(rawStateValue) {
+  const normalizedStateValue = normalizeString(rawStateValue);
+
+  if (!normalizedStateValue) {
+    return {
+      stateCode: "US",
+      stateName: null,
+      country: UNITED_STATES,
+      isUnitedStatesRegion: true,
+    };
+  }
+
+  const normalizedStateCode = normalizeStateCode(normalizedStateValue);
+  if (normalizedStateCode && isUsStateCode(normalizedStateCode)) {
+    return {
+      stateCode: normalizedStateCode,
+      stateName: US_STATE_NAMES[normalizedStateCode],
+      country: UNITED_STATES,
+      isUnitedStatesRegion: true,
+    };
+  }
+
+  for (const [stateName, details] of Object.entries(INTERNATIONAL_REGION_DETAILS)) {
+    if (
+      stateName.toLowerCase() === normalizedStateValue.toLowerCase() ||
+      details.stateCode === normalizedStateCode
+    ) {
+      return {
+        stateCode: details.stateCode,
+        stateName,
+        country: details.country,
+        isUnitedStatesRegion: false,
+      };
+    }
+  }
+
+  return {
+    stateCode: normalizedStateCode ?? normalizedStateValue,
+    stateName: normalizedStateValue,
+    country: UNITED_STATES,
+    isUnitedStatesRegion: false,
+  };
+}
+
 function getStateName(stateCode) {
   if (!stateCode) return null;
-  return US_STATE_NAMES[stateCode] ?? stateCode;
+  if (US_STATE_NAMES[stateCode]) {
+    return US_STATE_NAMES[stateCode];
+  }
+
+  for (const [stateName, details] of Object.entries(INTERNATIONAL_REGION_DETAILS)) {
+    if (details.stateCode === stateCode) {
+      return stateName;
+    }
+  }
+
+  return stateCode;
+}
+
+function getRegionDisplayLabel({ stateCode, stateName, country }) {
+  if (country === UNITED_STATES && isUsStateCode(stateCode)) {
+    return stateCode;
+  }
+
+  return stateName ?? stateCode ?? null;
+}
+
+function getCountyDisplayLabel(county, country) {
+  const normalizedCounty = normalizeString(county);
+  if (!normalizedCounty) return null;
+
+  if (country === UNITED_STATES && !/^county\b/i.test(normalizedCounty)) {
+    return `${normalizedCounty} County`;
+  }
+
+  return normalizedCounty;
 }
 
 function parseInteger(value) {
@@ -266,21 +377,21 @@ function buildDisplayName(facilityName, courseName) {
   return normalizedFacilityName ?? courseLabel ?? normalizedCourseName ?? "Unnamed golf course";
 }
 
-function extractStreetAddress(fullAddress, city, stateCode, postcode) {
+function extractStreetAddress(fullAddress, city, stateCode, stateName, postcode, country = UNITED_STATES) {
   const normalizedAddress = normalizeString(fullAddress);
   if (!normalizedAddress) return null;
 
   const normalizedCity = normalizeString(city);
-  const normalizedStateCode = normalizeStateCode(stateCode);
+  const regionLabel = normalizeString(getRegionDisplayLabel({ stateCode, stateName, country }));
   const normalizedPostcode = normalizeString(postcode);
 
-  if (normalizedCity && normalizedStateCode) {
+  if (normalizedCity && regionLabel) {
     const suffixPattern = normalizedPostcode
       ? new RegExp(
-          `,\\s*${escapeRegex(normalizedCity)},\\s*${escapeRegex(normalizedStateCode)}\\s*${escapeRegex(normalizedPostcode)}$`,
+          `,\\s*${escapeRegex(normalizedCity)},\\s*${escapeRegex(regionLabel)}\\s*${escapeRegex(normalizedPostcode)}$`,
           "i",
         )
-      : new RegExp(`,\\s*${escapeRegex(normalizedCity)},\\s*${escapeRegex(normalizedStateCode)}(?:\\s+[A-Z0-9-]+)?$`, "i");
+      : new RegExp(`,\\s*${escapeRegex(normalizedCity)},\\s*${escapeRegex(regionLabel)}(?:\\s+[A-Z0-9-]+)?$`, "i");
 
     const stripped = normalizedAddress.replace(suffixPattern, "");
     if (stripped !== normalizedAddress) {
@@ -297,13 +408,18 @@ function extractStreetAddress(fullAddress, city, stateCode, postcode) {
   return normalizedFirstSegment;
 }
 
-function buildAddressLabel({ fullAddress, streetAddress, city, stateCode, postcode }) {
+function buildAddressLabel({ fullAddress, streetAddress, city, stateCode, stateName, postcode, country }) {
   const normalizedFullAddress = normalizeString(fullAddress);
   if (normalizedFullAddress) {
     return normalizedFullAddress;
   }
 
-  const locality = [normalizeString(city), normalizeStateCode(stateCode)].filter(Boolean).join(", ");
+  const locality = [
+    normalizeString(city),
+    normalizeString(getRegionDisplayLabel({ stateCode, stateName, country })),
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   if (streetAddress && locality && postcode) {
     return `${streetAddress}, ${locality} ${postcode}`;
@@ -321,12 +437,14 @@ function buildAddressLabel({ fullAddress, streetAddress, city, stateCode, postco
   return null;
 }
 
-function buildLocationLabel({ city, stateCode, stateName, county }) {
-  if (city && stateCode) return `${city}, ${stateCode}`;
-  if (city && stateName) return `${city}, ${stateName}`;
-  if (county && stateCode) return `${county} County, ${stateCode}`;
+function buildLocationLabel({ city, stateCode, stateName, county, country }) {
+  const regionLabel = getRegionDisplayLabel({ stateCode, stateName, country });
+  const countyLabel = getCountyDisplayLabel(county, country);
+
+  if (city && regionLabel) return `${city}, ${regionLabel}`;
+  if (countyLabel && regionLabel) return `${countyLabel}, ${regionLabel}`;
   if (stateName) return stateName;
-  if (stateCode) return stateCode;
+  if (regionLabel) return regionLabel;
   return "Unknown location";
 }
 
@@ -486,7 +604,9 @@ function findNyEnrichment(row, nyIndex) {
     getCsvValue(row, "full_address"),
     getCsvValue(row, "city"),
     getCsvValue(row, "state"),
+    getStateName(stateCode),
     getCsvValue(row, "zip_code"),
+    UNITED_STATES,
   );
   const candidates = nyIndex.byCity.get(cityKey) ?? nyIndex.all;
 
@@ -576,15 +696,16 @@ function ensureUniqueIds(records) {
 }
 
 function buildNormalizedRecord(row, rowIndex, importedAt, nyIndex) {
-  const stateCode = normalizeStateCode(getCsvValue(row, "state")) ?? "US";
-  const stateName = getStateName(stateCode);
+  const region = resolveRegion(getCsvValue(row, "state"));
+  const stateCode = region.stateCode;
+  const stateName = region.stateName ?? getStateName(stateCode);
   const facilityName = normalizeString(getCsvValue(row, "facility_name"));
   const courseName = normalizeString(getCsvValue(row, "course_name"));
   const name = buildDisplayName(facilityName, courseName);
   const fullAddress = normalizeString(getCsvValue(row, "full_address"));
   const city = normalizeString(getCsvValue(row, "city"));
   const postcode = normalizeString(getCsvValue(row, "zip_code"));
-  const streetAddress = extractStreetAddress(fullAddress, city, stateCode, postcode);
+  const streetAddress = extractStreetAddress(fullAddress, city, stateCode, stateName, postcode, region.country);
   const county = normalizeString(getCsvValue(row, "county"));
   const accessTypeRaw = normalizeString(getCsvValue(row, "access_type"));
   const statusRaw = normalizeString(getCsvValue(row, "status"));
@@ -622,8 +743,8 @@ function buildNormalizedRecord(row, rowIndex, importedAt, nyIndex) {
     state: stateName,
     postcode,
     county,
-    country: UNITED_STATES,
-    addressLabel: buildAddressLabel({ fullAddress, streetAddress, city, stateCode, postcode }),
+    country: region.country,
+    addressLabel: buildAddressLabel({ fullAddress, streetAddress, city, stateCode, stateName, postcode, country: region.country }),
     latitude,
     longitude,
     hasVerifiedCoordinates,
@@ -673,6 +794,7 @@ function buildFrontendCourseRecord(record) {
       stateCode: record.stateCode,
       stateName: record.state,
       county: record.county,
+      country: record.country,
     }),
     type: record.accessType && record.accessType !== UNKNOWN_ACCESS ? record.accessType : "course",
     imageUrl: "/placeholder.svg",
@@ -697,6 +819,7 @@ function buildCourseIndexRecord(record) {
     courseName: record.courseName,
     city: record.city,
     state: record.state,
+    country: record.country,
     county: record.county,
     addressLabel: record.addressLabel,
     location: buildLocationLabel({
@@ -704,6 +827,7 @@ function buildCourseIndexRecord(record) {
       stateCode: record.stateCode,
       stateName: record.state,
       county: record.county,
+      country: record.country,
     }),
     latitude: record.latitude,
     longitude: record.longitude,
@@ -796,13 +920,22 @@ function buildBoundsForRecords(records) {
   ];
 }
 
-function buildStateAliases(stateCode, stateName) {
+function buildStateAliases(stateCode, stateName, country) {
   const aliases = new Set();
 
   if (stateCode) aliases.add(stateCode);
   if (stateName) {
     aliases.add(stateName);
-    aliases.add(`${stateName} state`);
+    aliases.add(country === UNITED_STATES ? `${stateName} state` : `${stateName} region`);
+  }
+
+  if (country === UNITED_KINGDOM) {
+    aliases.add("uk");
+    aliases.add("united kingdom");
+  }
+
+  if (stateName === "Ireland") {
+    aliases.add("republic of ireland");
   }
 
   return Array.from(aliases);
@@ -828,14 +961,48 @@ function buildCityAliases(city, stateCode, stateName) {
   return Array.from(aliases);
 }
 
+function buildCountyAliases(county, stateCode, stateName) {
+  const aliases = new Set();
+  const normalizedCounty = normalizeString(county);
+
+  if (!normalizedCounty) return [];
+
+  aliases.add(normalizedCounty);
+
+  const plainCounty = normalizedCounty.replace(/^county\s+/i, "");
+  if (plainCounty !== normalizedCounty) {
+    aliases.add(plainCounty);
+  }
+
+  if (stateCode) {
+    aliases.add(`${normalizedCounty}, ${stateCode}`);
+    aliases.add(`${plainCounty}, ${stateCode}`);
+  }
+
+  if (stateName) {
+    aliases.add(`${normalizedCounty}, ${stateName}`);
+    aliases.add(`${plainCounty}, ${stateName}`);
+  }
+
+  return Array.from(aliases).filter(Boolean);
+}
+
 function buildLocationIndex(indexRecords) {
   const stateBuckets = new Map();
+  const countyBuckets = new Map();
   const cityBuckets = new Map();
 
   for (const record of indexRecords) {
     const stateBucket = stateBuckets.get(record.stateCode) ?? [];
     stateBucket.push(record);
     stateBuckets.set(record.stateCode, stateBucket);
+
+    if (record.country !== UNITED_STATES && record.county) {
+      const countyKey = `${record.stateCode}|${record.county.toLowerCase()}`;
+      const countyBucket = countyBuckets.get(countyKey) ?? [];
+      countyBucket.push(record);
+      countyBuckets.set(countyKey, countyBucket);
+    }
 
     if (record.city) {
       const cityKey = `${record.stateCode}|${record.city.toLowerCase()}`;
@@ -849,6 +1016,7 @@ function buildLocationIndex(indexRecords) {
 
   for (const [stateCode, records] of stateBuckets.entries()) {
     const stateName = records[0]?.state ?? getStateName(stateCode) ?? stateCode;
+    const country = records[0]?.country ?? UNITED_STATES;
 
     entries.push({
       id: `state-${stateCode.toLowerCase()}`,
@@ -857,7 +1025,27 @@ function buildLocationIndex(indexRecords) {
       stateCode,
       state: stateName,
       city: null,
-      aliases: buildStateAliases(stateCode, stateName),
+      aliases: buildStateAliases(stateCode, stateName, country),
+      bounds: buildBoundsForRecords(records),
+      courseCount: records.length,
+      mappableCourseCount: records.filter((record) => record.hasVerifiedCoordinates).length,
+    });
+  }
+
+  for (const [countyKey, records] of countyBuckets.entries()) {
+    const [stateCode] = countyKey.split("|");
+    const county = records[0]?.county ?? null;
+    const stateName = records[0]?.state ?? getStateName(stateCode) ?? stateCode;
+    const countyLabel = getCountyDisplayLabel(county, records[0]?.country ?? null) ?? county ?? stateName;
+
+    entries.push({
+      id: `county-${slugify(`${county}-${stateCode}`)}`,
+      label: stateName ? `${countyLabel}, ${stateName}` : countyLabel,
+      type: "county",
+      stateCode,
+      state: stateName,
+      city: countyLabel,
+      aliases: buildCountyAliases(county, stateCode, stateName),
       bounds: buildBoundsForRecords(records),
       courseCount: records.length,
       mappableCourseCount: records.filter((record) => record.hasVerifiedCoordinates).length,

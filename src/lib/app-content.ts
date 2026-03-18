@@ -20,7 +20,7 @@ export const primaryNavigationCards = [
   },
   {
     title: "Map",
-    description: "Find courses by city, state, or the map in front of you.",
+    description: "Find courses by city, state, region, or the map in front of you.",
     path: "/map",
   },
   {

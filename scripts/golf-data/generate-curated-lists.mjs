@@ -43,9 +43,10 @@ function slugify(value) {
 }
 
 function buildLocationLabel(record) {
-  if (record.city && record.stateCode) return `${record.city}, ${record.stateCode}`;
+  if (record.city && record.country === "United States" && record.stateCode) return `${record.city}, ${record.stateCode}`;
   if (record.city && record.state) return `${record.city}, ${record.state}`;
-  if (record.county && record.stateCode) return `${record.county} County, ${record.stateCode}`;
+  if (record.county && record.country === "United States" && record.stateCode) return `${record.county} County, ${record.stateCode}`;
+  if (record.county && record.state) return `${record.county}, ${record.state}`;
   if (record.state) return record.state;
   if (record.stateCode) return record.stateCode;
   return "Unknown location";
@@ -60,6 +61,7 @@ function buildCoursePreview(record) {
     courseName: record.courseName,
     city: record.city,
     state: record.state,
+    country: record.country,
     county: record.county,
     addressLabel: record.addressLabel,
     location: buildLocationLabel(record),

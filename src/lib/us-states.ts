@@ -52,21 +52,46 @@ export const US_STATE_NAMES: Record<string, string> = {
   DC: "District of Columbia",
 };
 
-export function getUsStateName(stateCode: string | null | undefined) {
-  if (!stateCode) return null;
-  return US_STATE_NAMES[stateCode.toUpperCase()] ?? stateCode.toUpperCase();
+export const INTERNATIONAL_REGION_NAMES: Record<string, string> = {
+  SCT: "Scotland",
+  ENG: "England",
+  IRL: "Ireland",
+  NIR: "Northern Ireland",
+};
+
+export const REGION_NAMES: Record<string, string> = {
+  ...US_STATE_NAMES,
+  ...INTERNATIONAL_REGION_NAMES,
+};
+
+export function isUsStateCode(stateCode: string | null | undefined) {
+  if (!stateCode) return false;
+  return Object.prototype.hasOwnProperty.call(US_STATE_NAMES, stateCode.toUpperCase());
 }
 
-export function findUsStateCode(query: string | null | undefined) {
+export function getRegionName(stateCode: string | null | undefined) {
+  if (!stateCode) return null;
+  return REGION_NAMES[stateCode.toUpperCase()] ?? stateCode.toUpperCase();
+}
+
+export function findRegionCode(query: string | null | undefined) {
   if (!query) return null;
 
   const normalized = query.trim().toLowerCase();
 
-  for (const [code, name] of Object.entries(US_STATE_NAMES)) {
+  for (const [code, name] of Object.entries(REGION_NAMES)) {
     if (code.toLowerCase() === normalized || name.toLowerCase() === normalized) {
       return code;
     }
   }
 
   return null;
+}
+
+export function getUsStateName(stateCode: string | null | undefined) {
+  return getRegionName(stateCode);
+}
+
+export function findUsStateCode(query: string | null | undefined) {
+  return findRegionCode(query);
 }
