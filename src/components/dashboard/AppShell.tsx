@@ -1,6 +1,7 @@
 import { Compass, LayoutGrid, ListChecks, LogOut, MapPinned, Settings, UserCircle2 } from "lucide-react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 
+import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
@@ -97,7 +98,7 @@ export default function AppShell() {
             </div>
           </div>
 
-          <nav className="flex gap-2 overflow-x-auto pb-4 xl:hidden">
+          <nav className="hidden gap-2 overflow-x-auto pb-4 sm:flex xl:hidden">
             {navItems.map(({ path, label, icon: Icon }) => {
               const active = isActivePath(location.pathname, path);
 
@@ -122,10 +123,14 @@ export default function AppShell() {
       </header>
 
       <main className="relative z-10">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
+        <div className="mx-auto max-w-7xl px-4 py-4 pb-24 sm:px-6 sm:py-6 sm:pb-8 lg:px-10 lg:py-10">
           <Outlet />
         </div>
       </main>
+
+      <div className="sm:hidden">
+        <BottomNav />
+      </div>
     </div>
   );
 }

@@ -69,7 +69,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6 sm:space-y-10">
       <PageHeader
         eyebrow="Home"
         title={`Welcome back, ${welcomeName}.`}
@@ -97,11 +97,11 @@ export default function HomePage() {
       />
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
-        <div className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-deep))] p-8 text-white shadow-[0_30px_80px_-48px_rgba(12,25,19,0.55)]">
+        <div className="rounded-[24px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-deep))] p-5 text-white shadow-[0_30px_80px_-48px_rgba(12,25,19,0.55)] sm:rounded-[32px] sm:p-8">
           {rankedCourseCount > 0 ? (
             <>
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/55">Recently ranked</p>
-              <h2 className="mt-5 max-w-xl text-3xl leading-tight sm:text-4xl">
+              <h2 className="mt-3 max-w-xl text-2xl leading-tight sm:mt-5 sm:text-3xl">
                 Your GolfeR list is starting to take shape.
               </h2>
               <p className="mt-5 max-w-2xl text-sm leading-8 text-white/72 sm:text-base">
@@ -146,7 +146,7 @@ export default function HomePage() {
           ) : (
             <>
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/55">Your first ranking</p>
-              <h2 className="mt-5 max-w-xl text-3xl leading-tight sm:text-4xl">
+              <h2 className="mt-3 max-w-xl text-2xl leading-tight sm:mt-5 sm:text-3xl">
                 Start with a course you already have an opinion on.
               </h2>
               <p className="mt-5 max-w-2xl text-sm leading-8 text-white/72 sm:text-base">
@@ -179,12 +179,12 @@ export default function HomePage() {
           ].map(({ label, value, icon: Icon }) => (
             <div
               key={label}
-              className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_60px_-48px_rgba(12,25,19,0.35)]"
+              className="rounded-[20px] border border-[hsl(var(--golfer-line))] bg-white p-4 shadow-[0_24px_60px_-48px_rgba(12,25,19,0.35)] sm:rounded-[28px] sm:p-6"
             >
               <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
                 <Icon size={18} />
               </span>
-              <p className="mt-5 text-3xl text-[hsl(var(--golfer-deep))]">{value}</p>
+              <p className="mt-3 text-2xl text-[hsl(var(--golfer-deep))] sm:mt-5 sm:text-3xl">{value}</p>
               <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">{label}</p>
             </div>
           ))}
@@ -204,29 +204,29 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="space-y-5">
+      <section className="space-y-3 sm:space-y-5">
         <SectionHeader
           title="Jump back in"
           description="Everything you need to browse, rank, and compare without digging through menus."
         />
-        <div className="grid gap-5 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
           {quickLinks.map(({ title, description, path, icon: Icon }) => (
             <button
               key={title}
               onClick={() => navigate(path)}
-              className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-6 text-left shadow-[0_24px_60px_-48px_rgba(12,25,19,0.38)] transition hover:-translate-y-0.5"
+              className="rounded-[20px] border border-[hsl(var(--golfer-line))] bg-white p-4 text-left shadow-[0_24px_60px_-48px_rgba(12,25,19,0.38)] transition hover:-translate-y-0.5 sm:rounded-[28px] sm:p-6"
             >
               <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
                 <Icon size={18} />
               </span>
-              <h3 className="mt-5 text-xl text-[hsl(var(--golfer-deep))]">{title}</h3>
+              <h3 className="mt-3 text-base text-[hsl(var(--golfer-deep))] sm:mt-5 sm:text-xl">{title}</h3>
               <p className="mt-3 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">{description}</p>
             </button>
           ))}
         </div>
       </section>
 
-      <section className="space-y-5">
+      <section className="space-y-3 sm:space-y-5">
         <SectionHeader
           title="Popular courses"
           description="A few of the places golfers keep coming back to, whether you are planning a trip or settling a group chat debate."
@@ -241,7 +241,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="space-y-5">
+      <section className="space-y-3 sm:space-y-5">
         <SectionHeader
           title="Curated lists"
           description="Need a faster answer? Start with a hand-picked list and drill into the courses that fit the trip."
@@ -250,7 +250,7 @@ export default function HomePage() {
           {curatedPreviewLists.map((list) => (
             <article
               key={list.id}
-              className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_60px_-48px_rgba(12,25,19,0.38)]"
+              className="rounded-[20px] border border-[hsl(var(--golfer-line))] bg-white p-4 shadow-[0_24px_60px_-48px_rgba(12,25,19,0.38)] sm:rounded-[28px] sm:p-6"
             >
               <h3 className="text-xl text-[hsl(var(--golfer-deep))]">{list.title}</h3>
               <p className="mt-3 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">{list.description}</p>

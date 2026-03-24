@@ -16,7 +16,7 @@ export default function PageHeader({ eyebrow, title, description, actions }: Pag
             {eyebrow}
           </p>
         ) : null}
-        <h1 className="mt-3 text-3xl leading-tight text-[hsl(var(--golfer-deep))] sm:text-4xl">{title}</h1>
+        <h1 className="mt-3 text-2xl leading-tight text-[hsl(var(--golfer-deep))] sm:text-3xl lg:text-4xl">{title}</h1>
         {description ? (
           <p className="mt-3 max-w-2xl text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78] sm:text-base">
             {description}
