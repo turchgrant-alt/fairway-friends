@@ -43,7 +43,9 @@ export default function CoursePhotoGallerySection({
     try {
       await onUploadPhotos(nextFiles);
       toast.success(
-        nextFiles.length === 1 ? "Course photo uploaded." : `${nextFiles.length} course photos uploaded.`,
+        nextFiles.length === 1
+          ? "Photo added! Thanks for contributing."
+          : `${nextFiles.length} photos added! Thanks for contributing.`,
       );
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Course photo upload failed.");

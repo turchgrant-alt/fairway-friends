@@ -60,7 +60,7 @@
     ],
     "mappableCourses": 518,
     "coordinateCoveragePercent": 3,
-    "lastImportedAt": "2026-03-18T20:58:18.883Z"
+    "lastImportedAt": "2026-03-18T23:31:28.149Z"
   },
   "featuredCourses": [
     {
@@ -94,7 +94,7 @@
         "public",
         "world-top-100"
       ],
-      "imageUrl": "/placeholder.svg",
+      "imageUrl": "https://images.unsplash.com/photo-1593111774240-004412c0d235?w=800&q=80",
       "overallRating": null,
       "priceRange": null
     },
@@ -129,7 +129,7 @@
         "private",
         "36-hole"
       ],
-      "imageUrl": "/placeholder.svg",
+      "imageUrl": "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=80",
       "overallRating": null,
       "priceRange": null
     },
@@ -165,7 +165,7 @@
         "27-hole",
         "world-top-100"
       ],
-      "imageUrl": "/placeholder.svg",
+      "imageUrl": "https://images.unsplash.com/photo-1600007370700-545eb0525a87?w=800&q=80",
       "overallRating": null,
       "priceRange": null
     }
@@ -207,7 +207,7 @@
             "public",
             "18-hole"
           ],
-          "imageUrl": "/placeholder.svg",
+          "imageUrl": "https://images.unsplash.com/photo-1540539234-c14a20fb7c7b?w=800&q=80",
           "overallRating": null,
           "priceRange": null
         },
@@ -241,7 +241,7 @@
           "tags": [
             "public"
           ],
-          "imageUrl": "/placeholder.svg",
+          "imageUrl": "https://images.unsplash.com/photo-1622397815765-53a970a096c2?w=800&q=80",
           "overallRating": null,
           "priceRange": null
         },
@@ -276,7 +276,7 @@
             "public",
             "9-hole"
           ],
-          "imageUrl": "/placeholder.svg",
+          "imageUrl": "https://images.unsplash.com/photo-1540539234-c14a20fb7c7b?w=800&q=80",
           "overallRating": null,
           "priceRange": null
         },
@@ -311,7 +311,7 @@
             "public",
             "9-hole"
           ],
-          "imageUrl": "/placeholder.svg",
+          "imageUrl": "https://images.unsplash.com/photo-1540539234-c14a20fb7c7b?w=800&q=80",
           "overallRating": null,
           "priceRange": null
         },
@@ -346,7 +346,7 @@
             "semi-private",
             "9-hole"
           ],
-          "imageUrl": "/placeholder.svg",
+          "imageUrl": "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=80",
           "overallRating": null,
           "priceRange": null
         },
@@ -381,7 +381,7 @@
             "semi-private",
             "9-hole"
           ],
-          "imageUrl": "/placeholder.svg",
+          "imageUrl": "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&q=80",
           "overallRating": null,
           "priceRange": null
         }
@@ -423,7 +423,7 @@
             "private",
             "18-hole"
           ],
-          "imageUrl": "/placeholder.svg",
+          "imageUrl": "https://images.unsplash.com/photo-1632932693498-58789a4746d4?w=800&q=80",
           "overallRating": null,
           "priceRange": null
         },
@@ -458,7 +458,7 @@
             "private",
             "18-hole"
           ],
-          "imageUrl": "/placeholder.svg",
+          "imageUrl": "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&q=80",
           "overallRating": null,
           "priceRange": null
         },
@@ -493,7 +493,7 @@
             "private",
             "18-hole"
           ],
-          "imageUrl": "/placeholder.svg",
+          "imageUrl": "https://images.unsplash.com/photo-1540539234-c14a20fb7c7b?w=800&q=80",
           "overallRating": null,
           "priceRange": null
         },
@@ -528,7 +528,7 @@
             "private",
             "18-hole"
           ],
-          "imageUrl": "/placeholder.svg",
+          "imageUrl": "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=80",
           "overallRating": null,
           "priceRange": null
         },
@@ -563,7 +563,7 @@
             "private",
             "9-hole"
           ],
-          "imageUrl": "/placeholder.svg",
+          "imageUrl": "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&q=80",
           "overallRating": null,
           "priceRange": null
         },
@@ -598,7 +598,7 @@
             "private",
             "9-hole"
           ],
-          "imageUrl": "/placeholder.svg",
+          "imageUrl": "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=80",
           "overallRating": null,
           "priceRange": null
         }
@@ -640,7 +640,7 @@
             "public",
             "world-top-100"
           ],
-          "imageUrl": "/placeholder.svg",
+          "imageUrl": "https://images.unsplash.com/photo-1593111774240-004412c0d235?w=800&q=80",
           "overallRating": null,
           "priceRange": null
         },
@@ -675,7 +675,7 @@
             "private",
             "36-hole"
           ],
-          "imageUrl": "/placeholder.svg",
+          "imageUrl": "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=80",
           "overallRating": null,
           "priceRange": null
         },
@@ -711,7 +711,7 @@
             "27-hole",
             "world-top-100"
           ],
-          "imageUrl": "/placeholder.svg",
+          "imageUrl": "https://images.unsplash.com/photo-1600007370700-545eb0525a87?w=800&q=80",
           "overallRating": null,
           "priceRange": null
         }

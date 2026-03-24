@@ -1,7 +1,7 @@
 {
   "source": "csv_catalog",
   "sourceFile": "data/course-catalog/source/us_uk_ie_golf_courses_dataset_enriched.csv",
-  "importedAt": "2026-03-18T20:58:18.883Z",
+  "importedAt": "2026-03-18T23:31:28.149Z",
   "recordCount": 17197,
   "stateCodes": [
     "AK",
