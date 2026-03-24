@@ -1,11 +1,10 @@
-import { ArrowUpRight, Camera, Globe, MapPin, Star, Trophy } from 'lucide-react';
+import { ArrowUpRight, Globe, MapPin, Star, Trophy } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import type { CourseListRecord } from '@/lib/course-data';
 import CoursePhotoSurface from '@/components/CoursePhotoSurface';
 import { useCourseRankings } from '@/hooks/use-course-rankings';
 import { getCoursePar, registerCourseCatalogPar } from '@/lib/course-par';
-import { getCoursePhotoResolution } from '@/utils/coursePhoto';
 
 interface CourseCardProps {
   course: CourseListRecord;
@@ -17,8 +16,6 @@ export default function CourseCard({ course, variant = 'default' }: CourseCardPr
   const location = useLocation();
   const { rankingState } = useCourseRankings();
   const shouldShowPhoto = !location.pathname.startsWith('/map');
-  const photoResolution = shouldShowPhoto ? getCoursePhotoResolution(course.id) : null;
-  const isPlaceholderImage = photoResolution?.state === 'placeholder';
   const ratingLabel = course.overallRating != null ? `${course.overallRating}` : 'New';
   registerCourseCatalogPar(course.id, course.par);
   const resolvedPar = getCoursePar(course.id, rankingState);
@@ -39,21 +36,14 @@ export default function CourseCard({ course, variant = 'default' }: CourseCardPr
         onClick={() => navigate(`/course/${course.id}`)}
         className="flex items-center gap-4 rounded-[24px] border border-[hsl(var(--golfer-line))] bg-white p-4 text-left shadow-[0_24px_60px_-48px_rgba(12,25,19,0.4)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_70px_-48px_rgba(12,25,19,0.45)]"
       >
-        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[18px]">
-          <CoursePhotoSurface
-            courseId={course.id}
-            courseName={course.name}
-            disablePhoto={!shouldShowPhoto}
-            className="h-full w-full"
-            imageClassName="h-full w-full rounded-[18px] object-cover"
-            placeholderClassName="h-full w-full rounded-[18px] bg-[hsl(var(--golfer-cream))]"
-          />
-          {isPlaceholderImage ? (
-            <div className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/30 text-white/70">
-              <Camera size={14} />
-            </div>
-          ) : null}
-        </div>
+        <CoursePhotoSurface
+          courseId={course.id}
+          courseName={course.name}
+          disablePhoto={!shouldShowPhoto}
+          className="h-20 w-20 shrink-0 overflow-hidden rounded-[18px]"
+          imageClassName="h-full w-full rounded-[18px] object-cover"
+          placeholderClassName="h-full w-full rounded-[18px] bg-[hsl(var(--golfer-cream))]"
+        />
         <div className="min-w-0 flex-1">
           <h4 className="truncate text-base font-semibold text-card-foreground">{course.name}</h4>
           <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
@@ -87,22 +77,15 @@ export default function CourseCard({ course, variant = 'default' }: CourseCardPr
         onClick={() => navigate(`/course/${course.id}`)}
         className="group relative w-full overflow-hidden rounded-[30px] border border-white/10 text-left shadow-[0_32px_80px_-55px_rgba(0,0,0,0.75)]"
       >
-        <div className="relative h-64 w-full overflow-hidden">
-          <CoursePhotoSurface
-            courseId={course.id}
-            courseName={course.name}
-            disablePhoto={!shouldShowPhoto}
-            lazy
-            className="h-64 w-full overflow-hidden"
-            imageClassName="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-            placeholderClassName="h-64 w-full bg-[linear-gradient(135deg,hsl(var(--golfer-cream)),hsl(var(--golfer-mist)))]"
-          />
-          {isPlaceholderImage ? (
-            <div className="absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full bg-black/30 text-white/70">
-              <Camera size={14} />
-            </div>
-          ) : null}
-        </div>
+        <CoursePhotoSurface
+          courseId={course.id}
+          courseName={course.name}
+          disablePhoto={!shouldShowPhoto}
+          lazy
+          className="h-64 w-full overflow-hidden"
+          imageClassName="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          placeholderClassName="h-64 w-full bg-[linear-gradient(135deg,hsl(var(--golfer-cream)),hsl(var(--golfer-mist)))]"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6">
           {top100Badge ? <div className="mb-3">{top100Badge}</div> : null}
@@ -157,11 +140,6 @@ export default function CourseCard({ course, variant = 'default' }: CourseCardPr
             </span>
           )}
         </div>
-        {isPlaceholderImage ? (
-          <div className="absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full bg-black/30 text-white/70">
-            <Camera size={14} />
-          </div>
-        ) : null}
       </div>
       <div className="p-5">
         {top100Badge ? <div className="mb-3">{top100Badge}</div> : null}

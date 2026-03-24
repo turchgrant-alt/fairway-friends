@@ -1,7 +1,7 @@
-import { useMemo, useRef, useState, type ChangeEvent } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Camera, CheckCircle2, Copy, Database, Globe, MapPin, RotateCcw, Star, Trophy, Users } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Copy, Database, Globe, MapPin, RotateCcw, Star, Trophy, Users } from 'lucide-react';
 
 import CourseCard from '@/components/CourseCard';
 import CoursePhotoGallerySection from '@/components/course-photos/CoursePhotoGallerySection';
@@ -18,7 +18,6 @@ import { formatDisplayDate } from '@/lib/app-content';
 import { getMyFriends } from '@/lib/friends';
 import { getCourseAverageRating, getCourseFriendsAverageRating } from '@/lib/rankings';
 import { resolveCoursePhoto } from '@/utils/coursePhoto';
-import { toast } from '@/components/ui/sonner';
 
 type Tab = 'overview' | 'source' | 'nearby';
 
@@ -29,7 +28,6 @@ export default function CourseDetailPage() {
   const [isPlayedDialogOpen, setIsPlayedDialogOpen] = useState(false);
   const [playedDialogMode, setPlayedDialogMode] = useState<'play' | 'rerank'>('play');
   const [courseIdCopied, setCourseIdCopied] = useState(false);
-  const photoUploadInputRef = useRef<HTMLInputElement | null>(null);
   const { data: course, isLoading } = useCourseRecord(id);
   const { data: stateCourseCatalog = [] } = useStateCourseCatalog(course?.stateCode);
   const {
@@ -114,7 +112,6 @@ export default function CourseDetailPage() {
     courseRanking?.pricePaid != null ||
     userRoundTags.length > 0 ||
     Boolean(courseRanking?.notes);
-  const photoIsPlaceholder = photoResolution.state === 'placeholder';
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'overview', label: 'Overview' },
@@ -134,41 +131,8 @@ export default function CourseDetailPage() {
     }
   };
 
-  const handlePhotoUpload = () => {
-    if (!uploadsConfigured) {
-      toast.message('Photo uploads coming soon.');
-      return;
-    }
-
-    photoUploadInputRef.current?.click();
-  };
-
-  const handlePhotoFileSelection = async (event: ChangeEvent<HTMLInputElement>) => {
-    const nextFiles = Array.from(event.target.files ?? []);
-    event.target.value = '';
-
-    if (nextFiles.length === 0) {
-      return;
-    }
-
-    try {
-      await uploadPhotos(nextFiles);
-      toast.success('Photo added! Thanks for contributing.');
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Course photo upload failed.');
-    }
-  };
-
   return (
     <div className="space-y-10">
-      <input
-        ref={photoUploadInputRef}
-        type="file"
-        accept="image/*"
-        multiple
-        className="hidden"
-        onChange={handlePhotoFileSelection}
-      />
       <PageHeader
         eyebrow="Course detail"
         title={course.name}
@@ -287,23 +251,6 @@ export default function CourseDetailPage() {
               placeholderClassName="h-[24rem] w-full rounded-[28px] bg-[linear-gradient(135deg,hsl(var(--golfer-cream)),hsl(var(--golfer-mist)))] sm:h-[28rem]"
             />
           </div>
-
-          {photoIsPlaceholder ? (
-            <div className="rounded-[24px] border border-dashed border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] p-5 text-center shadow-[0_20px_50px_-40px_rgba(12,25,19,0.25)]">
-              <p className="text-sm font-medium text-[hsl(var(--golfer-deep))]">Played this course?</p>
-              <p className="mt-1 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.68]">
-                Be the first to add a real photo and help other golfers.
-              </p>
-              <button
-                onClick={handlePhotoUpload}
-                disabled={isUploading}
-                className="mt-3 inline-flex items-center gap-2 rounded-full bg-[hsl(var(--golfer-deep))] px-4 py-2 text-xs font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-65"
-              >
-                <Camera size={14} />
-                {isUploading ? 'Uploading...' : 'Upload a photo'}
-              </button>
-            </div>
-          ) : null}
 
           <CoursePhotoGallerySection
             courseId={course.id}

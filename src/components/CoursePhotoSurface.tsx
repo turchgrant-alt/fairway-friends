@@ -1,6 +1,6 @@
 import { Flag } from 'lucide-react';
 
-import { resolveCoursePhoto, type CoursePhoto } from '@/utils/coursePhoto';
+import { getCoursePhoto, type CoursePhoto } from '@/utils/coursePhoto';
 
 interface CoursePhotoSurfaceProps {
   courseId: string;
@@ -31,9 +31,7 @@ export default function CoursePhotoSurface({
   linkToCover = false,
   photoOverride,
 }: CoursePhotoSurfaceProps) {
-  const fallbackResolution = disablePhoto ? null : resolveCoursePhoto(courseId);
-  const photo = photoOverride ?? fallbackResolution?.photo ?? null;
-  const isPlaceholder = photo?.photoSource === 'placeholder';
+  const photo = photoOverride ?? (disablePhoto ? null : getCoursePhoto(courseId));
   const imageElement = photo ? (
     <img
       src={photo.thumbnailUrl}
@@ -63,11 +61,6 @@ export default function CoursePhotoSurface({
           {showAttribution && (photo.photoCredit || photo.photoLicense) ? (
             <p className="mt-3 text-xs leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.72]">
               Photo: {[photo.photoCredit, photo.photoLicense].filter(Boolean).join(' · ')}
-            </p>
-          ) : null}
-          {isPlaceholder ? (
-            <p className="mt-3 text-xs leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.72]">
-              Placeholder image until a real course photo is added.
             </p>
           ) : null}
         </>

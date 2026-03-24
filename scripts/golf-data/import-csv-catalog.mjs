@@ -34,20 +34,6 @@ const FEATURED_COURSE_NAMES = [
   "Oak Hill Country Club (East Course)",
   "Pebble Beach Golf Links",
 ];
-const PLACEHOLDER_IMAGES = [
-  "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&q=80",
-  "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&q=80",
-  "https://images.unsplash.com/photo-1593111774240-004412c0d235?w=800&q=80",
-  "https://images.unsplash.com/photo-1592919505780-303950717480?w=800&q=80",
-  "https://images.unsplash.com/photo-1600007370700-545eb0525a87?w=800&q=80",
-  "https://images.unsplash.com/photo-1611374243147-44a702c2d44c?w=800&q=80",
-  "https://images.unsplash.com/photo-1632932693498-58789a4746d4?w=800&q=80",
-  "https://images.unsplash.com/photo-1622397815765-53a970a096c2?w=800&q=80",
-  "https://images.unsplash.com/photo-1596727362302-b8d891c42ab8?w=800&q=80",
-  "https://images.unsplash.com/photo-1540539234-c14a20fb7c7b?w=800&q=80",
-  "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?w=800&q=80",
-  "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=80",
-];
 
 const US_STATE_NAMES = {
   AL: "Alabama",
@@ -329,20 +315,6 @@ function slugify(value) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .replace(/-{2,}/g, "-");
-}
-
-function hashString(value) {
-  let hash = 0;
-
-  for (let index = 0; index < value.length; index += 1) {
-    hash = ((hash << 5) - hash + value.charCodeAt(index)) | 0;
-  }
-
-  return Math.abs(hash);
-}
-
-function getPlaceholderImage(courseId) {
-  return PLACEHOLDER_IMAGES[hashString(courseId) % PLACEHOLDER_IMAGES.length];
 }
 
 function escapeRegex(value) {
@@ -840,7 +812,7 @@ function buildFrontendCourseRecord(record) {
       country: record.country,
     }),
     type: record.accessType && record.accessType !== UNKNOWN_ACCESS ? record.accessType : "course",
-    imageUrl: getPlaceholderImage(record.id),
+    imageUrl: "/placeholder.svg",
     overallRating: null,
     reviewCount: 0,
     playedCount: 0,
@@ -888,7 +860,7 @@ function buildCourseIndexRecord(record) {
     pgaLpgaTourHistorySourceUrl: record.pgaLpgaTourHistorySourceUrl,
     worldTop100Rank: record.worldTop100Rank,
     tags: record.tags,
-    imageUrl: getPlaceholderImage(record.id),
+    imageUrl: "/placeholder.svg",
     overallRating: null,
     priceRange: null,
   };
