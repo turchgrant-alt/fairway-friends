@@ -129,16 +129,16 @@ export default function ProfileRankingSection() {
   }
 
   return (
-    <section id="rankings" className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-7 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-8">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <section id="rankings" className="rounded-2xl border border-[hsl(var(--golfer-line))] bg-white p-4 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">
             My rankings
           </p>
-          <h2 className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">
+          <h2 className="mt-2 text-xl text-[hsl(var(--golfer-deep))]">
             {hasTrueRankingThreshold ? "My GolfeR ranking" : "My ranking is taking shape"}
           </h2>
-          <p className="mt-3 max-w-3xl text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
             One full saved list with visible bucket labels. After manual reorder, the persisted display order becomes
             the source of truth for bucket assignment and the numeric rating values once they unlock.
           </p>
@@ -146,7 +146,7 @@ export default function ProfileRankingSection() {
 
         <div className="flex flex-wrap items-center gap-2">
           <span
-            className={`rounded-full px-4 py-2 text-sm font-medium ${
+            className={`rounded-full px-3 py-1.5 text-xs font-medium ${
               hasTrueRankingThreshold
                 ? "bg-[hsl(var(--golfer-deep))] text-white"
                 : "bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]"
@@ -154,7 +154,7 @@ export default function ProfileRankingSection() {
           >
             {rankedCourseCount} ranked course{rankedCourseCount === 1 ? "" : "s"}
           </span>
-          <span className="rounded-full bg-[hsl(var(--golfer-cream))] px-4 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
+          <span className="rounded-full bg-[hsl(var(--golfer-cream))] px-3 py-1.5 text-xs font-medium text-[hsl(var(--golfer-deep))]">
             {hasTrueRankingThreshold ? "Full ranking mode" : "Early-stage mode"}
           </span>
           {rankedCourseCount > 0 ? (
@@ -163,7 +163,7 @@ export default function ProfileRankingSection() {
                 setIsReorderMode((currentValue) => !currentValue);
                 clearDragState();
               }}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+              className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 isReorderMode
                   ? "bg-[hsl(var(--golfer-deep))] text-white"
                   : "border border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep))]"
@@ -177,7 +177,7 @@ export default function ProfileRankingSection() {
       </div>
 
       <div
-        className={`mt-6 rounded-[24px] px-5 py-4 text-sm leading-7 ${
+        className={`mt-3 rounded-xl px-4 py-3 text-sm leading-6 ${
           hasTrueRankingThreshold
             ? "bg-[hsl(var(--golfer-deep))] text-white/88"
             : "bg-[hsl(var(--golfer-cream))] text-[hsl(var(--golfer-deep-soft))]/[0.76]"
@@ -198,35 +198,35 @@ export default function ProfileRankingSection() {
       </div>
 
       {isReorderMode && rankedCourseCount > 0 ? (
-        <div className="mt-4 rounded-[22px] bg-[hsl(var(--golfer-cream))] px-5 py-4 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.76]">
+        <div className="mt-2 rounded-xl bg-[hsl(var(--golfer-cream))] px-3 py-2 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.76]">
           Drag rows into any order. Dropping a course into a different bucket region reassigns its bucket and recalculates
           its numeric rating.
         </div>
       ) : null}
 
-      <div className="mt-8">
+      <div className="mt-4">
         {rankedCourseCount === 0 ? (
-          <div className="rounded-[28px] border border-dashed border-[hsl(var(--golfer-line))] bg-white p-10 text-center">
+          <div className="rounded-xl border border-dashed border-[hsl(var(--golfer-line))] bg-white p-6 text-center">
             <div className="mx-auto max-w-2xl">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
-                <ListOrdered size={18} />
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
+                <ListOrdered size={16} />
               </span>
-              <h3 className="mt-5 text-2xl text-[hsl(var(--golfer-deep))]">No ranked courses yet</h3>
-              <p className="mt-3 text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+              <h3 className="mt-3 text-lg text-[hsl(var(--golfer-deep))]">No ranked courses yet</h3>
+              <p className="mt-2 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
                 Open a course page and use the Played this course popup to start building your saved ranking.
               </p>
             </div>
           </div>
         ) : isRankedCoursesLoading ? (
-          <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-6 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+          <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-4 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
             Loading ranked course details...
           </div>
         ) : hasRankedCoursesError ? (
-          <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-6 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+          <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-4 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
             Your saved rankings loaded, but one or more course detail files could not be resolved for display.
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-2">
             {rankedCourseRecords.map(({ ranking, course, fallbackName, fallbackLocation }) => {
               const bucketStyle = BUCKET_STYLES[ranking.bucket];
               const numericRating = hasTrueRankingThreshold ? getCourseNumericRating(ranking.courseId) : null;
@@ -244,9 +244,9 @@ export default function ProfileRankingSection() {
                   onDragEnd={clearDragState}
                   onDragOver={(event) => handleRowDragOver(event, ranking.courseId)}
                   onDrop={() => handleRowDrop(ranking.courseId)}
-                  className={`relative grid gap-4 rounded-[28px] border p-5 shadow-[0_18px_44px_-42px_rgba(12,25,19,0.35)] transition ${
+                  className={`relative grid gap-3 rounded-xl border p-3 shadow-[0_18px_44px_-42px_rgba(12,25,19,0.35)] transition ${
                     hasTrueRankingThreshold ? bucketStyle.rowClassName : "border-[hsl(var(--golfer-line))] bg-white"
-                  } ${isReorderMode ? "cursor-grab" : ""} ${isDragged ? "opacity-55" : ""} sm:grid-cols-[5rem_minmax(0,1fr)_auto]`}
+                  } ${isReorderMode ? "cursor-grab" : ""} ${isDragged ? "opacity-55" : ""} sm:grid-cols-[4rem_minmax(0,1fr)_auto]`}
                 >
                   {showTopDropIndicator ? (
                     <span className="absolute inset-x-5 top-0 h-[3px] -translate-y-1/2 rounded-full bg-[hsl(var(--golfer-deep))]" />
@@ -258,18 +258,18 @@ export default function ProfileRankingSection() {
                   <div className="flex items-center gap-3">
                     {hasTrueRankingThreshold ? (
                       <span
-                        className={`inline-flex h-12 min-w-12 items-center justify-center rounded-full px-3 text-base font-semibold ${bucketStyle.numberClassName}`}
+                        className={`inline-flex h-9 min-w-9 items-center justify-center rounded-full px-2 text-sm font-semibold ${bucketStyle.numberClassName}`}
                       >
                         {numericRating != null ? numericRating.toFixed(1) : "--"}
                       </span>
                     ) : (
-                      <span className="inline-flex h-12 min-w-12 items-center justify-center rounded-full border border-[hsl(var(--golfer-line))] bg-white px-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.62]">
+                      <span className="inline-flex h-9 min-w-9 items-center justify-center rounded-full border border-[hsl(var(--golfer-line))] bg-white px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.62]">
                         Early
                       </span>
                     )}
                     {isReorderMode ? (
-                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep))]">
-                        <GripVertical size={16} />
+                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep))]">
+                        <GripVertical size={14} />
                       </span>
                     ) : (
                       <div className="sm:hidden">
@@ -282,7 +282,7 @@ export default function ProfileRankingSection() {
 
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-lg font-semibold text-[hsl(var(--golfer-deep))]">
+                      <h3 className="text-sm font-semibold text-[hsl(var(--golfer-deep))]">
                         {course?.name ?? fallbackName}
                       </h3>
                       <span className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${bucketStyle.badgeClassName}`}>
@@ -308,19 +308,19 @@ export default function ProfileRankingSection() {
                       ) : null}
                     </div>
 
-                    <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
+                    <p className="mt-1 text-xs text-[hsl(var(--golfer-deep-soft))]/[0.72]">
                       {course?.location ?? fallbackLocation}
                     </p>
 
-                    <div className="mt-4 flex flex-wrap gap-2 text-xs text-[hsl(var(--golfer-deep-soft))]/[0.74]">
-                      <span className="rounded-full bg-white/80 px-3 py-1.5">
+                    <div className="mt-2 flex flex-wrap gap-1.5 text-xs text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+                      <span className="rounded-full bg-white/80 px-2.5 py-1">
                         Play count {ranking.playCount}
                       </span>
-                      <span className="rounded-full bg-white/80 px-3 py-1.5">
+                      <span className="rounded-full bg-white/80 px-2.5 py-1">
                         Last played {ranking.lastPlayedAt ? formatDisplayDate(ranking.lastPlayedAt) : "Not recorded"}
                       </span>
                       {!isReorderMode ? (
-                        <span className="rounded-full bg-white/80 px-3 py-1.5">
+                        <span className="rounded-full bg-white/80 px-2.5 py-1">
                           Bucket order #{ranking.bucketOrder}
                         </span>
                       ) : null}
@@ -329,21 +329,21 @@ export default function ProfileRankingSection() {
 
                   <div className="flex flex-col items-stretch gap-2 sm:items-end">
                     {isReorderMode ? (
-                      <div className="rounded-[18px] bg-white/80 px-4 py-3 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
+                      <div className="rounded-lg bg-white/80 px-3 py-2 text-xs text-[hsl(var(--golfer-deep-soft))]/[0.72]">
                         Drag to place anywhere
                       </div>
                     ) : (
                       <>
                         <button
                           onClick={() => navigate(`/course/${ranking.courseId}`)}
-                          className="inline-flex items-center justify-center gap-2 rounded-full bg-[hsl(var(--golfer-deep))] px-4 py-2.5 text-sm font-medium text-white"
+                          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[hsl(var(--golfer-deep))] px-3 py-2 text-xs font-medium text-white"
                         >
-                          Open course <ArrowRight size={14} />
+                          Open course <ArrowRight size={12} />
                         </button>
                         <UnrankCourseButton
                           courseId={ranking.courseId}
                           courseName={course?.name ?? fallbackName}
-                          className="inline-flex items-center justify-center gap-2 rounded-full border border-rose-200 bg-white px-4 py-2.5 text-sm font-medium text-rose-700"
+                          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-rose-200 bg-white px-3 py-2 text-xs font-medium text-rose-700"
                           triggerLabel="Unrank course"
                         />
                       </>
@@ -364,7 +364,7 @@ export default function ProfileRankingSection() {
                   });
                 }}
                 onDrop={handleEndZoneDrop}
-                className={`rounded-[24px] border border-dashed px-5 py-5 text-center text-sm transition ${
+                className={`rounded-xl border border-dashed px-4 py-4 text-center text-sm transition ${
                   dropIndicator?.courseId === REORDER_END_TARGET
                     ? "border-[hsl(var(--golfer-deep))] bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]"
                     : "border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep-soft))]/[0.72]"

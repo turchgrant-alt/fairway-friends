@@ -38,7 +38,7 @@ export default function ProfilePage() {
   );
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-4">
       <PageHeader
         eyebrow="Profile"
         title={identityLabel}
@@ -46,14 +46,14 @@ export default function ProfilePage() {
         actions={
           <button
             onClick={() => navigate('/settings')}
-            className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep))]"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep))]"
           >
-            <Settings size={18} />
+            <Settings size={16} />
           </button>
         }
       />
 
-      <section className="grid gap-6 lg:grid-cols-4">
+      <section className="grid gap-3 lg:grid-cols-4">
         {[
           { label: 'Courses ranked', value: rankedCourseCount, icon: Medal },
           { label: 'Friends', value: friends.length, icon: Users },
@@ -62,51 +62,51 @@ export default function ProfilePage() {
         ].map(({ label, value, icon: Icon }) => (
           <article
             key={label}
-            className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.38)]"
+            className="rounded-xl border border-[hsl(var(--golfer-line))] bg-white p-3 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.38)]"
           >
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
-              <Icon size={18} />
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
+              <Icon size={15} />
             </span>
-            <p className="mt-5 text-2xl text-[hsl(var(--golfer-deep))]">{value}</p>
-            <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">{label}</p>
+            <p className="mt-2 text-xl text-[hsl(var(--golfer-deep))]">{value}</p>
+            <p className="mt-0.5 text-xs text-[hsl(var(--golfer-deep-soft))]/[0.72]">{label}</p>
           </article>
         ))}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-        <div className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-7 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.38)] sm:p-8">
+      <section className="grid gap-3 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+        <div className="rounded-2xl border border-[hsl(var(--golfer-line))] bg-white p-4 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.38)]">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">Account</p>
-          <h2 className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">{identityLabel}</h2>
-          <p className="mt-4 text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+          <h2 className="mt-2 text-lg text-[hsl(var(--golfer-deep))]">{identityLabel}</h2>
+          <p className="mt-1 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
             Keep your rankings moving, jump back into discovery, and see how your crew stacks the courses they have
             played.
           </p>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
             {primaryNavigationCards.map((card) => (
               <button
                 key={card.path}
                 onClick={() => navigate(card.path)}
-                className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-5 text-left transition hover:bg-[hsl(var(--golfer-mist))]"
+                className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3 text-left transition hover:bg-[hsl(var(--golfer-mist))]"
               >
-                <p className="text-lg font-semibold text-[hsl(var(--golfer-deep))]">{card.title}</p>
-                <p className="mt-2 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.72]">{card.description}</p>
-                <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
-                  Open <ArrowRight size={14} />
+                <p className="text-sm font-semibold text-[hsl(var(--golfer-deep))]">{card.title}</p>
+                <p className="mt-1 text-xs leading-5 text-[hsl(var(--golfer-deep-soft))]/[0.72]">{card.description}</p>
+                <span className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-[hsl(var(--golfer-deep))]">
+                  Open <ArrowRight size={12} />
                 </span>
               </button>
             ))}
           </div>
         </div>
 
-        <div className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-7 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-8">
+        <div className="rounded-2xl border border-[hsl(var(--golfer-line))] bg-white p-4 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">Curated lists</p>
-          <div className="mt-6 space-y-4">
+          <div className="mt-3 space-y-2">
             {curatedPreviewLists.map((list) => (
-              <div key={list.id} className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-5">
-                <h3 className="text-lg text-[hsl(var(--golfer-deep))]">{list.title}</h3>
-                <p className="mt-2 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.72]">{list.description}</p>
-                <p className="mt-3 text-sm font-medium text-[hsl(var(--golfer-deep))]">{list.courses.length} courses</p>
+              <div key={list.id} className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
+                <h3 className="text-sm text-[hsl(var(--golfer-deep))]">{list.title}</h3>
+                <p className="mt-1 text-xs leading-5 text-[hsl(var(--golfer-deep-soft))]/[0.72]">{list.description}</p>
+                <p className="mt-1.5 text-xs font-medium text-[hsl(var(--golfer-deep))]">{list.courses.length} courses</p>
               </div>
             ))}
           </div>

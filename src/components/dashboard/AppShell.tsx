@@ -30,14 +30,14 @@ export default function AppShell() {
 
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[rgba(9,28,20,0.82)] backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
-          <div className="flex min-h-16 items-center justify-between gap-4 py-3">
+          <div className="flex min-h-14 items-center justify-between gap-4 py-2">
             <div className="flex items-center gap-4">
               <Link to="/" className="flex items-center gap-3 text-white">
                 <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/10 text-lg font-semibold">
                   G
                 </span>
                 <div>
-                  <p className="font-display text-2xl leading-none">GolfeR</p>
+                  <p className="font-display text-xl leading-none">GolfeR</p>
                   <p className="text-[10px] uppercase tracking-[0.32em] text-white/[0.56]">Course discovery</p>
                 </div>
               </Link>
@@ -123,7 +123,7 @@ export default function AppShell() {
       </header>
 
       <main className="relative z-10">
-        <div className="mx-auto max-w-7xl px-4 py-4 pb-24 sm:px-6 sm:py-6 sm:pb-8 lg:px-10 lg:py-10">
+        <div className="mx-auto max-w-7xl px-4 py-3 pb-16 sm:px-6 sm:py-5 sm:pb-8 lg:px-10 lg:py-8">
           <Outlet />
         </div>
       </main>

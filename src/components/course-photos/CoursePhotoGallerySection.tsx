@@ -60,7 +60,7 @@ export default function CoursePhotoGallerySection({
   };
 
   return (
-    <section className="rounded-[30px] border border-[hsl(var(--golfer-line))] bg-white p-5 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-6">
+    <section className="rounded-2xl border border-[hsl(var(--golfer-line))] bg-white p-4 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]">
       <input
         ref={fileInputRef}
         type="file"
@@ -70,12 +70,12 @@ export default function CoursePhotoGallerySection({
         onChange={handleFileSelection}
       />
 
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">
             Course photos
           </p>
-          <h2 className="mt-3 text-2xl text-[hsl(var(--golfer-deep))]">Community gallery</h2>
+          <h2 className="mt-2 text-lg text-[hsl(var(--golfer-deep))]">Community gallery</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.76]">
             Upload course photos tied to <code className="text-xs">{courseId}</code>. The first uploaded photo becomes
             the course cover unless you explicitly choose another one.
@@ -89,7 +89,7 @@ export default function CoursePhotoGallerySection({
           <button
             onClick={handleChooseFiles}
             disabled={!uploadsConfigured || isUploading}
-            className="inline-flex items-center gap-2 rounded-full bg-[hsl(var(--golfer-deep))] px-4 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-full bg-[hsl(var(--golfer-deep))] px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isUploading ? <LoaderCircle size={15} className="animate-spin" /> : <ImagePlus size={15} />}
             {isUploading ? "Uploading..." : "Upload photo"}
@@ -98,32 +98,32 @@ export default function CoursePhotoGallerySection({
       </div>
 
       {!uploadsConfigured ? (
-        <div className="mt-5 rounded-[22px] border border-dashed border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-4 py-3 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.76]">
+        <div className="mt-4 rounded-xl border border-dashed border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-4 py-3 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.76]">
           Uploads are ready in code, but this app still needs Supabase env vars and the `course_photos` table/bucket
           configured before the button can send real files.
         </div>
       ) : null}
 
       {isLoading ? (
-        <div className="mt-5 flex min-h-40 items-center justify-center rounded-[22px] bg-[hsl(var(--golfer-cream))] text-sm text-[hsl(var(--golfer-deep-soft))]/[0.76]">
+        <div className="mt-4 flex min-h-28 items-center justify-center rounded-xl bg-[hsl(var(--golfer-cream))] text-sm text-[hsl(var(--golfer-deep-soft))]/[0.76]">
           Loading uploaded course photos...
         </div>
       ) : uploadedPhotos.length === 0 ? (
-        <div className="mt-5 flex min-h-40 flex-col items-center justify-center rounded-[24px] border border-dashed border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-6 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-[hsl(var(--golfer-deep))] shadow-sm">
-            <Camera size={20} />
+        <div className="mt-4 flex min-h-28 flex-col items-center justify-center rounded-xl border border-dashed border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-6 text-center">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[hsl(var(--golfer-deep))] shadow-sm">
+            <Camera size={18} />
           </div>
-          <p className="mt-4 text-base font-medium text-[hsl(var(--golfer-deep))]">No uploaded photos yet</p>
+          <p className="mt-3 text-base font-medium text-[hsl(var(--golfer-deep))]">No uploaded photos yet</p>
           <p className="mt-2 max-w-md text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.76]">
             Add the first course photo here. If there is no uploaded cover yet, the first successful upload becomes it.
           </p>
         </div>
       ) : (
-        <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {uploadedPhotos.map((photo) => (
             <article
               key={photo.id}
-              className={`overflow-hidden rounded-[24px] border bg-white shadow-[0_24px_60px_-48px_rgba(12,25,19,0.35)] ${
+              className={`overflow-hidden rounded-xl border bg-white shadow-[0_24px_60px_-48px_rgba(12,25,19,0.35)] ${
                 photo.isCover
                   ? "border-[hsl(var(--golfer-deep))]"
                   : "border-[hsl(var(--golfer-line))]"
@@ -133,10 +133,10 @@ export default function CoursePhotoGallerySection({
                 src={photo.thumbnailUrl}
                 alt="Course upload"
                 loading="lazy"
-                className="h-44 w-full object-cover"
+                className="h-28 w-full object-cover"
               />
 
-              <div className="p-4">
+              <div className="p-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-medium text-[hsl(var(--golfer-deep))]">

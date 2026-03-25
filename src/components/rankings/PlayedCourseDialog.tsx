@@ -435,24 +435,24 @@ export default function PlayedCourseDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[calc(100dvh-2rem)] min-h-0 max-w-3xl flex-col overflow-hidden rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-0 shadow-[0_32px_90px_-55px_rgba(12,25,19,0.5)]">
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[32px]">
-          <div className="shrink-0 border-b border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-5 py-4 sm:px-6 sm:py-5">
+      <DialogContent className="flex max-h-[calc(100dvh-2rem)] min-h-0 max-w-3xl flex-col overflow-hidden rounded-2xl border border-[hsl(var(--golfer-line))] bg-white p-0 shadow-[0_32px_90px_-55px_rgba(12,25,19,0.5)]">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl">
+          <div className="shrink-0 border-b border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-4 py-3">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">
               Played flow
             </p>
-            <DialogTitle className="mt-2 text-[1.85rem] leading-tight text-[hsl(var(--golfer-deep))] sm:text-[2rem]">
+            <DialogTitle className="mt-1 text-xl leading-tight text-[hsl(var(--golfer-deep))]">
               {renderHeaderTitle()}
             </DialogTitle>
-            <DialogDescription className="mt-2 max-w-2xl text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
+            <DialogDescription className="mt-1 max-w-2xl text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
               {renderHeaderDescription()}
             </DialogDescription>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4 sm:px-6 sm:py-5">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3">
             {step === "bucket" ? (
-              <div className="space-y-4 pb-1">
-                <div className="grid gap-4 md:grid-cols-3">
+              <div className="space-y-3 pb-1">
+                <div className="grid gap-3 md:grid-cols-3">
                   {COURSE_BUCKET_PRIORITY.map((bucket) => {
                     const bucketCourses = getBucketCourses(bucket).filter((course) => course.courseId !== courseId);
                     const bucketCopy = BUCKET_COPY[bucket];
@@ -461,19 +461,19 @@ export default function PlayedCourseDialog({
                       <button
                         key={bucket}
                         onClick={() => handleSelectBucket(bucket)}
-                        className={`rounded-[28px] border p-5 text-left transition hover:-translate-y-0.5 ${bucketCopy.accentClassName}`}
+                        className={`rounded-xl border p-3 text-left transition hover:-translate-y-0.5 ${bucketCopy.accentClassName}`}
                       >
                         <div className="flex items-start justify-between gap-3">
-                          <span className="text-xl font-semibold">{bucketCopy.label}</span>
+                          <span className="text-base font-semibold">{bucketCopy.label}</span>
                           <span className={`rounded-full px-3 py-1 text-xs font-medium ${bucketCopy.badgeClassName}`}>
                             {bucketCourses.length === 0 ? "Empty bucket" : `${bucketCourses.length} ranked`}
                           </span>
                         </div>
-                        <p className="mt-4 text-sm leading-7 opacity-90">{bucketCopy.description}</p>
+                        <p className="mt-2 text-sm leading-6 opacity-90">{bucketCopy.description}</p>
                         {isRerankMode && currentCourseRanking?.bucket === bucket ? (
                           <p className="mt-3 text-xs uppercase tracking-[0.18em] opacity-70">Current bucket</p>
                         ) : null}
-                        <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium">
+                        <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium">
                           Choose bucket <ArrowRight size={15} />
                         </span>
                       </button>
@@ -481,7 +481,7 @@ export default function PlayedCourseDialog({
                   })}
                 </div>
 
-                <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] px-4 py-3 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
+                <div className="rounded-xl bg-[hsl(var(--golfer-cream))] px-3 py-2 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
                   The full numbered ranking only needs to feel strict after at least {MINIMUM_TRUE_RANKING_COUNT} ranked
                   courses. This popup already stores the same underlying order locally.
                 </div>
@@ -492,7 +492,7 @@ export default function PlayedCourseDialog({
                   </span>
                   <button
                     onClick={handleClose}
-                    className="rounded-full border border-[hsl(var(--golfer-line))] bg-white px-5 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]"
+                    className="rounded-full border border-[hsl(var(--golfer-line))] bg-white px-3 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]"
                   >
                     Cancel
                   </button>
@@ -501,53 +501,53 @@ export default function PlayedCourseDialog({
             ) : null}
 
             {step === "compare" && selectedBucket ? (
-              <div className="space-y-4 pb-1">
-                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-stretch">
+              <div className="space-y-3 pb-1">
+                <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-stretch">
                   <button
                     onClick={() => handleComparisonDecision(false)}
                     disabled={currentComparedRecord == null}
-                    className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-6 text-left shadow-[0_20px_55px_-46px_rgba(12,25,19,0.35)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-xl border border-[hsl(var(--golfer-line))] bg-white p-4 text-left shadow-[0_20px_55px_-46px_rgba(12,25,19,0.35)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
                       Already ranked
                     </p>
-                    <h3 className="mt-4 text-2xl text-[hsl(var(--golfer-deep))]">
+                    <h3 className="mt-2 text-lg text-[hsl(var(--golfer-deep))]">
                       {currentComparedRecord?.course?.name ?? currentComparedRecord?.fallbackName ?? "Loading course..."}
                     </h3>
-                    <p className="mt-3 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+                    <p className="mt-2 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
                       {currentComparedRecord
                         ? `Currently #${currentComparedRecord.ranking.bucketOrder} in ${formatBucketLabel(selectedBucket)}`
                         : isRankedBucketRecordsLoading
                           ? "Loading local comparison target..."
                           : "Comparison target unavailable"}
                     </p>
-                    <span className="mt-8 inline-flex items-center gap-2 rounded-full bg-[hsl(var(--golfer-cream))] px-4 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
+                    <span className="mt-4 inline-flex items-center gap-2 rounded-full bg-[hsl(var(--golfer-cream))] px-3 py-1.5 text-sm font-medium text-[hsl(var(--golfer-deep))]">
                       Prefer this course <ArrowRight size={14} />
                     </span>
                   </button>
 
                   <div className="flex items-center justify-center">
-                    <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
-                      <Scale size={18} />
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
+                      <Scale size={16} />
                     </span>
                   </div>
 
                   <button
                     onClick={() => handleComparisonDecision(true)}
-                    className="rounded-[28px] border border-[hsl(var(--golfer-deep))] bg-[hsl(var(--golfer-deep))] p-6 text-left text-white shadow-[0_28px_70px_-52px_rgba(12,25,19,0.65)] transition hover:-translate-y-0.5"
+                    className="rounded-xl border border-[hsl(var(--golfer-deep))] bg-[hsl(var(--golfer-deep))] p-4 text-left text-white shadow-[0_28px_70px_-52px_rgba(12,25,19,0.65)] transition hover:-translate-y-0.5"
                   >
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">New course</p>
-                    <h3 className="mt-4 text-2xl">{courseName}</h3>
-                    <p className="mt-3 text-sm leading-7 text-white/78">
+                    <h3 className="mt-2 text-lg">{courseName}</h3>
+                    <p className="mt-2 text-sm leading-6 text-white/78">
                       Click here if this new round belongs above the ranked course on the left.
                     </p>
-                    <span className="mt-8 inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-2 text-sm font-medium text-white">
+                    <span className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-1.5 text-sm font-medium text-white">
                       Prefer this course <ArrowRight size={14} />
                     </span>
                   </button>
                 </div>
 
-                <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] px-4 py-3 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
+                <div className="rounded-xl bg-[hsl(var(--golfer-cream))] px-3 py-2 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
                   {comparisonHint ??
                     `GolfeR is narrowing a ${formatBucketLabel(selectedBucket).toLowerCase()} insertion point using the current bucket order.`}
                 </div>
@@ -556,21 +556,21 @@ export default function PlayedCourseDialog({
                   <div className="flex flex-wrap items-center gap-3">
                     <button
                       onClick={handleBack}
-                      className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-5 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]"
+                      className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-3 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]"
                     >
                       <ArrowLeft size={15} /> {comparisonHistory.length > 0 ? "Undo" : "Back"}
                     </button>
                     <button
                       onClick={handleTooHardToDecide}
                       disabled={!canSkipComparison(comparisonState)}
-                      className="rounded-full border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-5 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))] disabled:cursor-not-allowed disabled:opacity-55"
+                      className="rounded-full border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-3 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))] disabled:cursor-not-allowed disabled:opacity-55"
                     >
                       Too hard to decide
                     </button>
                   </div>
                   <button
                     onClick={handleClose}
-                    className="rounded-full bg-[hsl(var(--golfer-deep))] px-5 py-3 text-sm font-medium text-white"
+                    className="rounded-full bg-[hsl(var(--golfer-deep))] px-3 py-2 text-sm font-medium text-white"
                   >
                     Close
                   </button>
@@ -579,10 +579,10 @@ export default function PlayedCourseDialog({
             ) : null}
 
             {step === "details" && selectedBucket ? (
-              <div className="space-y-4 pb-1">
-                <div className="rounded-[22px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-4 py-3">
+              <div className="space-y-3 pb-1">
+                <div className="rounded-xl border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-4 py-3">
                   <div className="flex flex-wrap items-center gap-3">
-                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white text-[hsl(var(--golfer-deep))]">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-[hsl(var(--golfer-deep))]">
                       <CheckCircle2 size={16} />
                     </span>
                     <div className="min-w-0 flex-1">
@@ -615,8 +615,8 @@ export default function PlayedCourseDialog({
                   </div>
                 </div>
 
-                <div className="grid gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-                  <div className="space-y-4">
+                <div className="grid gap-3 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+                  <div className="space-y-3">
                     {showParField ? (
                       <div className="space-y-2">
                         <div className="flex items-center justify-between gap-3">
@@ -683,7 +683,7 @@ export default function PlayedCourseDialog({
                               scoreShot: event.target.value,
                             }))
                           }
-                          className="h-10 rounded-[16px] border-[hsl(var(--golfer-line))]"
+                          className="h-9 rounded-xl border-[hsl(var(--golfer-line))]"
                         />
                       </div>
 
@@ -712,10 +712,10 @@ export default function PlayedCourseDialog({
                     </div>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-[hsl(var(--golfer-deep))]">Tags</label>
-                      <div className="rounded-[18px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] p-3">
+                      <div className="rounded-xl border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] p-3">
                         <div className="flex flex-wrap gap-2">
                           {COURSE_TAGS.map((tag) => {
                             const isSelected = roundDetailsForm.tags.includes(tag);
@@ -765,7 +765,7 @@ export default function PlayedCourseDialog({
                 <div className="sticky bottom-0 z-10 flex flex-wrap items-center justify-between gap-3 border-t border-[hsl(var(--golfer-line))] bg-white/95 pt-3 backdrop-blur supports-[backdrop-filter]:bg-white/85">
                   <button
                     onClick={handleBack}
-                    className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-5 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]"
+                    className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-3 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]"
                   >
                     <ArrowLeft size={15} /> Back
                   </button>
@@ -773,13 +773,13 @@ export default function PlayedCourseDialog({
                   <div className="flex flex-wrap items-center gap-3">
                     <button
                       onClick={handleClose}
-                      className="rounded-full border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-5 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]"
+                      className="rounded-full border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] px-3 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]"
                     >
                       Skip
                     </button>
                     <button
                       onClick={handleSaveRoundDetails}
-                      className="rounded-full bg-[hsl(var(--golfer-deep))] px-5 py-3 text-sm font-medium text-white"
+                      className="rounded-full bg-[hsl(var(--golfer-deep))] px-3 py-2 text-sm font-medium text-white"
                     >
                       Save
                     </button>

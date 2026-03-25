@@ -33,7 +33,7 @@ export default function RankingsPage() {
   );
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-4">
       <PageHeader
         eyebrow="Catalog"
         title="More ways to browse courses."
@@ -41,14 +41,14 @@ export default function RankingsPage() {
         actions={
           <button
             onClick={() => navigate('/discover')}
-            className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-4 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]"
+            className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-3 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]"
           >
-            Open discovery <ArrowRight size={16} />
+            Open discovery <ArrowRight size={14} />
           </button>
         }
       />
 
-      <section className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-8">
+      <section className="rounded-2xl border border-[hsl(var(--golfer-line))] bg-white p-4 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]">
         <div className="flex flex-wrap gap-2">
           {(['alphabetical', 'metadata'] as Tab[]).map((value) => (
             <button
@@ -63,41 +63,41 @@ export default function RankingsPage() {
           ))}
         </div>
 
-        <div className="mt-6">
+        <div className="mt-3">
           {isLoading ? (
-            <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-6 text-sm text-muted-foreground">
+            <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-4 text-sm text-muted-foreground">
               Loading courses...
             </div>
           ) : tab === 'alphabetical' ? (
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="grid gap-2 lg:grid-cols-2">
               {alphabeticalCourses.map((course, index) => (
                 <button
                   key={course.id}
                   onClick={() => navigate(`/course/${course.id}`)}
-                  className="flex w-full items-center gap-4 rounded-[24px] bg-[hsl(var(--golfer-cream))] p-4 text-left transition hover:-translate-y-0.5"
+                  className="flex w-full items-center gap-3 rounded-xl bg-[hsl(var(--golfer-cream))] p-3 text-left transition hover:-translate-y-0.5"
                 >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-sm font-bold text-[hsl(var(--golfer-deep))]">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-[hsl(var(--golfer-deep))]">
                     {index + 1}
                   </span>
-                  <img src={course.imageUrl} alt={course.name} className="h-16 w-16 rounded-[18px] object-cover" />
+                  <img src={course.imageUrl} alt={course.name} className="h-10 w-10 rounded-lg object-cover" />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-base font-semibold text-card-foreground">{course.name}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{course.location}</p>
+                    <p className="truncate text-sm font-semibold text-card-foreground">{course.name}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{course.location}</p>
                   </div>
                 </button>
               ))}
             </div>
           ) : (
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="grid gap-2 lg:grid-cols-2">
               {metadataRichCourses.map((course) => (
                 <button
                   key={course.id}
                   onClick={() => navigate(`/course/${course.id}`)}
-                  className="rounded-[26px] bg-[hsl(var(--golfer-cream))] p-5 text-left transition hover:-translate-y-0.5"
+                  className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3 text-left transition hover:-translate-y-0.5"
                 >
-                  <h3 className="text-base font-semibold text-card-foreground">{course.name}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{course.location}</p>
-                  <div className="mt-4 flex flex-wrap gap-2">
+                  <h3 className="text-sm font-semibold text-card-foreground">{course.name}</h3>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{course.location}</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
                     {course.website ? <span className="rounded-full bg-white px-3 py-1 text-xs text-[hsl(var(--golfer-deep))]">Website</span> : null}
                     {course.phone ? <span className="rounded-full bg-white px-3 py-1 text-xs text-[hsl(var(--golfer-deep))]">Phone</span> : null}
                     {course.addressLabel ? <span className="rounded-full bg-white px-3 py-1 text-xs text-[hsl(var(--golfer-deep))]">Address</span> : null}

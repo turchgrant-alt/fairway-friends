@@ -132,7 +132,7 @@ export default function CourseDetailPage() {
   };
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-4">
       <PageHeader
         eyebrow="Course detail"
         title={course.name}
@@ -141,7 +141,7 @@ export default function CourseDetailPage() {
           <>
             <button
               onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-4 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]"
+              className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-3 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]"
             >
               <ArrowLeft size={16} /> Back
             </button>
@@ -150,7 +150,7 @@ export default function CourseDetailPage() {
                 href={course.website}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-[hsl(var(--golfer-deep))] px-4 py-3 text-sm font-medium text-white"
+                className="inline-flex items-center gap-2 rounded-full bg-[hsl(var(--golfer-deep))] px-3 py-2 text-sm font-medium text-white"
               >
                 <Globe size={15} /> Visit website
               </a>
@@ -168,21 +168,21 @@ export default function CourseDetailPage() {
         </section>
       ) : null}
 
-      <section className="grid gap-4 md:grid-cols-2">
-        <article className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_60px_-48px_rgba(12,25,19,0.35)]">
-          <div className="flex items-start justify-between gap-4">
+      <section className="grid gap-3 md:grid-cols-2">
+        <article className="rounded-xl border border-[hsl(var(--golfer-line))] bg-white p-4 shadow-[0_24px_60px_-48px_rgba(12,25,19,0.35)]">
+          <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
                 Community avg
               </p>
               {isCommunityAverageLoading ? (
-                <p className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">Loading...</p>
+                <p className="mt-2 text-xl text-[hsl(var(--golfer-deep))]">Loading...</p>
               ) : hasCommunityAverageError ? (
-                <p className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">Unavailable</p>
+                <p className="mt-2 text-xl text-[hsl(var(--golfer-deep))]">Unavailable</p>
               ) : communityAverage?.average != null ? (
-                <p className="mt-4 text-4xl text-[hsl(var(--golfer-deep))]">{communityAverage.average.toFixed(1)}</p>
+                <p className="mt-2 text-2xl text-[hsl(var(--golfer-deep))]">{communityAverage.average.toFixed(1)}</p>
               ) : (
-                <p className="mt-4 text-2xl text-[hsl(var(--golfer-deep))]">No ratings yet</p>
+                <p className="mt-2 text-lg text-[hsl(var(--golfer-deep))]">No ratings yet</p>
               )}
               <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
                 {isCommunityAverageLoading
@@ -194,28 +194,28 @@ export default function CourseDetailPage() {
                       : 'Be the first to set the tone.'}
               </p>
             </div>
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
-              <Globe size={18} />
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
+              <Globe size={16} />
             </span>
           </div>
         </article>
 
-        <article className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_60px_-48px_rgba(12,25,19,0.35)]">
-          <div className="flex items-start justify-between gap-4">
+        <article className="rounded-xl border border-[hsl(var(--golfer-line))] bg-white p-4 shadow-[0_24px_60px_-48px_rgba(12,25,19,0.35)]">
+          <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
                 Friends avg
               </p>
               {isFriendsLoading || isFriendsAverageLoading ? (
-                <p className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">Loading...</p>
+                <p className="mt-2 text-xl text-[hsl(var(--golfer-deep))]">Loading...</p>
               ) : friends.length === 0 ? (
-                <p className="mt-4 text-2xl text-[hsl(var(--golfer-deep))]">Add friends</p>
+                <p className="mt-2 text-lg text-[hsl(var(--golfer-deep))]">Add friends</p>
               ) : hasFriendsAverageError ? (
-                <p className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">Unavailable</p>
+                <p className="mt-2 text-xl text-[hsl(var(--golfer-deep))]">Unavailable</p>
               ) : friendsAverage?.average != null ? (
-                <p className="mt-4 text-4xl text-[hsl(var(--golfer-deep))]">{friendsAverage.average.toFixed(1)}</p>
+                <p className="mt-2 text-2xl text-[hsl(var(--golfer-deep))]">{friendsAverage.average.toFixed(1)}</p>
               ) : (
-                <p className="mt-4 text-2xl text-[hsl(var(--golfer-deep))]">No friend ratings yet</p>
+                <p className="mt-2 text-lg text-[hsl(var(--golfer-deep))]">No friend ratings yet</p>
               )}
               <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
                 {isFriendsLoading || isFriendsAverageLoading
@@ -229,16 +229,16 @@ export default function CourseDetailPage() {
                         : 'No one in your crew has rated it yet.'}
               </p>
             </div>
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
-              <Users size={18} />
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
+              <Users size={16} />
             </span>
           </div>
         </article>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_22rem]">
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_22rem]">
         <div className="space-y-4">
-          <div className="overflow-hidden rounded-[34px] border border-[hsl(var(--golfer-line))] bg-white shadow-[0_32px_90px_-55px_rgba(12,25,19,0.45)]">
+          <div className="overflow-hidden rounded-2xl border border-[hsl(var(--golfer-line))] bg-white shadow-[0_32px_90px_-55px_rgba(12,25,19,0.45)]">
             <CoursePhotoSurface
               courseId={course.id}
               courseName={course.name}
@@ -247,8 +247,8 @@ export default function CourseDetailPage() {
               linkToCover
               photoOverride={photoResolution.photo}
               className="p-3"
-              imageClassName="h-[24rem] w-full rounded-[28px] object-cover sm:h-[28rem]"
-              placeholderClassName="h-[24rem] w-full rounded-[28px] bg-[linear-gradient(135deg,hsl(var(--golfer-cream)),hsl(var(--golfer-mist)))] sm:h-[28rem]"
+              imageClassName="h-48 w-full rounded-xl object-cover sm:h-56"
+              placeholderClassName="h-48 w-full rounded-xl bg-[linear-gradient(135deg,hsl(var(--golfer-cream)),hsl(var(--golfer-mist)))] sm:h-56"
             />
           </div>
 
@@ -265,11 +265,11 @@ export default function CourseDetailPage() {
         </div>
 
         <aside className="space-y-4">
-          <div className="rounded-[30px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]">
+          <div className="rounded-2xl border border-[hsl(var(--golfer-line))] bg-white p-4 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]">
             {course.overallRating != null ? (
-              <div className="flex items-center gap-2 rounded-full bg-gold/15 px-4 py-2 text-gold">
-                <Star size={16} fill="currentColor" />
-                <span className="text-2xl font-bold">{course.overallRating}</span>
+              <div className="flex items-center gap-2 rounded-full bg-gold/15 px-3 py-1.5 text-gold">
+                <Star size={14} fill="currentColor" />
+                <span className="text-lg font-bold">{course.overallRating}</span>
                 <span className="text-xs uppercase tracking-[0.18em] text-gold">rating</span>
               </div>
             ) : (
@@ -278,7 +278,7 @@ export default function CourseDetailPage() {
               </div>
             )}
 
-            <div className="mt-5 flex flex-wrap gap-2">
+            <div className="mt-3 flex flex-wrap gap-2">
               <span className="rounded-full bg-secondary px-3 py-1.5 text-xs font-medium capitalize text-secondary-foreground">{course.type}</span>
               {course.holes != null ? <span className="rounded-full bg-secondary px-3 py-1.5 text-xs text-secondary-foreground">{course.holes} holes</span> : null}
               {resolvedPar ? (
@@ -297,13 +297,13 @@ export default function CourseDetailPage() {
             </div>
 
             {courseHasTourHistory ? (
-              <div className="mt-5 rounded-[22px] bg-[hsl(var(--golfer-cream))] px-4 py-3">
+              <div className="mt-3 rounded-xl bg-[hsl(var(--golfer-cream))] px-4 py-3">
                 <p className="inline-flex items-center gap-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
                   <Trophy size={14} />
                   {tourHistoryLabel ?? 'PGA / LPGA host'}
                 </p>
                 {course.pgaLpgaTourHistoryNote ? (
-                  <p className="mt-2 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.76]">
+                  <p className="mt-2 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.76]">
                     {course.pgaLpgaTourHistoryNote}
                   </p>
                 ) : null}
@@ -321,16 +321,16 @@ export default function CourseDetailPage() {
             ) : null}
           </div>
 
-          <div className="rounded-[30px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]">
+          <div className="rounded-2xl border border-[hsl(var(--golfer-line))] bg-white p-4 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">Core metadata</p>
-            <div className="mt-4 space-y-3 text-sm text-muted-foreground">
+            <div className="mt-3 space-y-3 text-sm text-muted-foreground">
               <p className="flex items-center gap-2"><MapPin size={14} /> {course.addressLabel ?? course.location}</p>
               <p className="flex items-center gap-2"><Database size={14} /> {course.source} / {course.sourceId}</p>
               <p className="flex items-center gap-2"><Star size={14} /> Updated {formatDisplayDate(course.lastSyncedAt)}</p>
             </div>
           </div>
 
-          <div className="rounded-[26px] border border-dashed border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-mist))]/[0.45] p-5">
+          <div className="rounded-2xl border border-dashed border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-mist))]/[0.45] p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">
@@ -352,7 +352,7 @@ export default function CourseDetailPage() {
             </div>
 
             <div className="mt-4 space-y-3 text-sm">
-              <div className="rounded-[18px] bg-white/80 p-3">
+              <div className="rounded-lg bg-white/80 p-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Course ID</p>
@@ -369,7 +369,7 @@ export default function CourseDetailPage() {
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-[18px] bg-white/80 p-3">
+                <div className="rounded-lg bg-white/80 p-3">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Photo state</p>
                   <p className="mt-2 text-sm text-[hsl(var(--golfer-deep))]">
                     {photoResolution.state === 'manual'
@@ -381,19 +381,19 @@ export default function CourseDetailPage() {
                         : 'Using placeholder'}
                   </p>
                 </div>
-                <div className="rounded-[18px] bg-white/80 p-3">
+                <div className="rounded-lg bg-white/80 p-3">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Photo source</p>
                   <p className="mt-2 break-words text-sm text-[hsl(var(--golfer-deep))]">
                     {photoResolution.photo?.photoSource ?? 'None'}
                   </p>
                 </div>
-                <div className="rounded-[18px] bg-white/80 p-3">
+                <div className="rounded-lg bg-white/80 p-3">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Photo credit</p>
                   <p className="mt-2 break-words text-sm text-[hsl(var(--golfer-deep))]">
                     {photoResolution.photo?.photoCredit ?? 'None'}
                   </p>
                 </div>
-                <div className="rounded-[18px] bg-white/80 p-3">
+                <div className="rounded-lg bg-white/80 p-3">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Photo license</p>
                   <p className="mt-2 break-words text-sm text-[hsl(var(--golfer-deep))]">
                     {photoResolution.photo?.photoLicense ?? 'None'}
@@ -409,25 +409,25 @@ export default function CourseDetailPage() {
                 setPlayedDialogMode('play');
                 setIsPlayedDialogOpen(true);
               }}
-              className="flex w-full items-center justify-center gap-2 rounded-[24px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] py-4 text-sm font-medium text-[hsl(var(--golfer-deep))] transition hover:bg-[hsl(var(--golfer-mist))]"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] py-3 text-sm font-medium text-[hsl(var(--golfer-deep))] transition hover:bg-[hsl(var(--golfer-mist))]"
             >
               <CheckCircle2 size={14} /> Played this course
             </button>
           ) : (
-            <div className="rounded-[24px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] p-5">
+            <div className="rounded-xl border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] p-3">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
                 Saved ranking
               </p>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-[20px] bg-white/80 p-4">
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <div className="rounded-lg bg-white/80 p-3">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Bucket</p>
-                  <p className="mt-2 text-base capitalize text-[hsl(var(--golfer-deep))]">{courseRanking?.bucket ?? 'Unknown'}</p>
+                  <p className="mt-1.5 text-sm capitalize text-[hsl(var(--golfer-deep))]">{courseRanking?.bucket ?? 'Unknown'}</p>
                 </div>
-                <div className="rounded-[20px] bg-white/80 p-4">
+                <div className="rounded-lg bg-white/80 p-3">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
                     {hasTrueRankingThreshold ? 'Numeric rating' : 'Ranking stage'}
                   </p>
-                  <p className="mt-2 text-base text-[hsl(var(--golfer-deep))]">
+                  <p className="mt-1.5 text-sm text-[hsl(var(--golfer-deep))]">
                     {hasTrueRankingThreshold
                       ? courseNumericRating != null
                         ? courseNumericRating.toFixed(1)
@@ -435,45 +435,45 @@ export default function CourseDetailPage() {
                       : 'Early list'}
                   </p>
                 </div>
-                <div className="rounded-[20px] bg-white/80 p-4">
+                <div className="rounded-lg bg-white/80 p-3">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Bucket position</p>
-                  <p className="mt-2 text-base text-[hsl(var(--golfer-deep))]">
+                  <p className="mt-1.5 text-sm text-[hsl(var(--golfer-deep))]">
                     {courseRanking?.bucketOrder ? `#${courseRanking.bucketOrder} in ${courseRanking.bucket}` : 'Unknown'}
                   </p>
                 </div>
-                <div className="rounded-[20px] bg-white/80 p-4">
+                <div className="rounded-lg bg-white/80 p-3">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Play count</p>
-                  <p className="mt-2 text-base text-[hsl(var(--golfer-deep))]">
+                  <p className="mt-1.5 text-sm text-[hsl(var(--golfer-deep))]">
                     {courseRanking?.playCount ?? 0} time{courseRanking?.playCount === 1 ? '' : 's'}
                   </p>
                 </div>
               </div>
-              <p className="mt-4 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+              <p className="mt-3 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
                 {hasTrueRankingThreshold
                   ? `Numeric rating follows the current Profile order and bucket score band. `
                   : 'Numeric rating unlocks after 5 ranked courses. '}
                 Last played {courseRanking?.lastPlayedAt ? formatDisplayDate(courseRanking.lastPlayedAt) : 'not recorded yet'}.
               </p>
-              <div className="mt-5 flex flex-col gap-3">
+              <div className="mt-3 flex flex-col gap-2">
                 <button
                   onClick={() => {
                     setPlayedDialogMode('rerank');
                     setIsPlayedDialogOpen(true);
                   }}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-[20px] border border-[hsl(var(--golfer-line))] bg-white px-4 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[hsl(var(--golfer-line))] bg-white px-4 py-2.5 text-sm font-medium text-[hsl(var(--golfer-deep))]"
                 >
                   <RotateCcw size={14} /> Rerank
                 </button>
                 <button
                   onClick={() => markPlayedCourse({ courseId: course.id })}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-[20px] bg-[hsl(var(--golfer-deep))] px-4 py-3 text-sm font-medium text-white"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[hsl(var(--golfer-deep))] px-4 py-2.5 text-sm font-medium text-white"
                 >
                   <CheckCircle2 size={14} /> Played again
                 </button>
                 <UnrankCourseButton
                   courseId={course.id}
                   courseName={course.name}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-[20px] border border-rose-200 bg-white px-4 py-3 text-sm font-medium text-rose-700 transition hover:bg-rose-50"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-medium text-rose-700 transition hover:bg-rose-50"
                 />
               </div>
             </div>
@@ -481,7 +481,7 @@ export default function CourseDetailPage() {
 
           <button
             onClick={() => navigate('/map')}
-            className="flex w-full items-center justify-center gap-2 rounded-[24px] bg-[hsl(var(--golfer-deep))] py-4 text-sm font-medium text-white transition hover:opacity-95"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[hsl(var(--golfer-deep))] py-3 text-sm font-medium text-white transition hover:opacity-95"
           >
             <MapPin size={14} /> Open map view
           </button>
@@ -489,13 +489,13 @@ export default function CourseDetailPage() {
       </section>
 
       {isPlayed && hasRoundDetails ? (
-        <section className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-8">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <section className="rounded-2xl border border-[hsl(var(--golfer-line))] bg-white p-4 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">
                 Your round
               </p>
-              <h2 className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">Most recent round details on this device</h2>
+              <h2 className="mt-2 text-lg text-[hsl(var(--golfer-deep))]">Most recent round details on this device</h2>
             </div>
             {courseRanking?.roundDate ? (
               <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-4 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
@@ -504,9 +504,9 @@ export default function CourseDetailPage() {
             ) : null}
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
             {resolvedPar ? (
-              <div className="rounded-[22px] bg-[hsl(var(--golfer-cream))] p-4">
+              <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Par</p>
                 <p className="mt-2 text-base text-[hsl(var(--golfer-deep))]">
                   {resolvedPar.par}
@@ -518,21 +518,21 @@ export default function CourseDetailPage() {
             ) : null}
 
             {courseRanking?.scoreShot != null ? (
-              <div className="rounded-[22px] bg-[hsl(var(--golfer-cream))] p-4">
+              <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Score shot</p>
                 <p className="mt-2 text-base text-[hsl(var(--golfer-deep))]">{courseRanking.scoreShot}</p>
               </div>
             ) : null}
 
             {courseRanking?.pricePaid != null ? (
-              <div className="rounded-[22px] bg-[hsl(var(--golfer-cream))] p-4">
+              <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Price paid</p>
                 <p className="mt-2 text-base text-[hsl(var(--golfer-deep))]">${courseRanking.pricePaid}</p>
               </div>
             ) : null}
 
             {courseRanking?.roundDate ? (
-              <div className="rounded-[22px] bg-[hsl(var(--golfer-cream))] p-4">
+              <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Round date</p>
                 <p className="mt-2 text-base text-[hsl(var(--golfer-deep))]">{formatDisplayDate(courseRanking.roundDate)}</p>
               </div>
@@ -540,7 +540,7 @@ export default function CourseDetailPage() {
           </div>
 
           {userRoundTags.length > 0 ? (
-            <div className="mt-6 flex flex-wrap gap-2">
+            <div className="mt-3 flex flex-wrap gap-2">
               {userRoundTags.map((tag) => (
                 <span
                   key={tag}
@@ -553,12 +553,12 @@ export default function CourseDetailPage() {
           ) : null}
 
           {courseRanking?.notes ? (
-            <p className="mt-5 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.76]">{courseRanking.notes}</p>
+            <p className="mt-3 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.76]">{courseRanking.notes}</p>
           ) : null}
         </section>
       ) : null}
 
-      <section className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-8">
+      <section className="rounded-2xl border border-[hsl(var(--golfer-line))] bg-white p-4 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]">
         <div className="flex flex-wrap gap-2">
           {tabs.map((value) => (
             <button
@@ -573,36 +573,36 @@ export default function CourseDetailPage() {
           ))}
         </div>
 
-        <div className="mt-6">
+        <div className="mt-4">
           {tab === 'overview' ? (
             <div className="space-y-4">
-              <p className="max-w-4xl text-sm leading-8 text-muted-foreground">
+              <p className="max-w-4xl text-sm leading-6 text-muted-foreground">
                 {course.description ?? 'This course is included because it appears in the current stored GolfeR catalog. Some fields are still sparse, which is expected when the source snapshot does not provide them.'}
               </p>
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-5">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Address</p>
                   <p className="mt-2 text-sm font-medium text-card-foreground">{course.addressLabel ?? 'Unknown'}</p>
                 </div>
-                <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-5">
+                <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Access</p>
                   <p className="mt-2 text-sm font-medium capitalize text-card-foreground">{course.accessType ?? course.type}</p>
                 </div>
-                <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-5">
+                <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Par</p>
                   <p className="mt-2 text-sm font-medium text-card-foreground">{course.par ?? 'Unknown'}</p>
                 </div>
-                <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-5">
+                <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Holes</p>
                   <p className="mt-2 text-sm font-medium text-card-foreground">{course.holes ?? 'Unknown'}</p>
                 </div>
               </div>
               <div className="grid gap-4 lg:grid-cols-2">
-                <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-5">
+                <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Website</p>
                   <p className="mt-2 text-sm font-medium text-card-foreground">{course.website ?? 'Not available'}</p>
                 </div>
-                <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-5">
+                <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Phone</p>
                   <p className="mt-2 text-sm font-medium text-card-foreground">{course.phone ?? 'Not available'}</p>
                 </div>
@@ -611,28 +611,28 @@ export default function CourseDetailPage() {
           ) : null}
 
           {tab === 'source' ? (
-            <div className="grid gap-4 lg:grid-cols-2">
-              <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-5">
+            <div className="grid gap-3 lg:grid-cols-2">
+              <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Source</p>
                 <p className="mt-2 text-sm font-medium text-card-foreground">{course.source}</p>
               </div>
-              <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-5">
+              <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Source ID</p>
                 <p className="mt-2 break-all text-sm font-medium text-card-foreground">{course.sourceId}</p>
               </div>
-              <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-5">
+              <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Coordinates</p>
                 <p className="mt-2 text-sm font-medium text-card-foreground">
                   {course.latitude != null && course.longitude != null ? `${course.latitude}, ${course.longitude}` : 'Not available'}
                 </p>
               </div>
-              <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-5">
+              <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Last synced</p>
                 <p className="mt-2 text-sm font-medium text-card-foreground">{formatDisplayDate(course.lastSyncedAt)}</p>
               </div>
-              <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-5 lg:col-span-2">
+              <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3 lg:col-span-2">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Pipeline note</p>
-                <p className="mt-2 text-sm leading-7 text-card-foreground">
+                <p className="mt-2 text-sm leading-6 text-card-foreground">
                   These source details show where the course information came from and how it is mapped inside
                   GolfeR. The page keeps the clean, readable fields up front so browsing stays simple.
                 </p>
@@ -642,13 +642,13 @@ export default function CourseDetailPage() {
 
           {tab === 'nearby' ? (
             nearbyCourses.length > 0 ? (
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {nearbyCourses.map((candidate) => (
                   <CourseCard key={candidate.id} course={candidate} />
                 ))}
               </div>
             ) : (
-              <div className="rounded-[24px] bg-[hsl(var(--golfer-cream))] p-5 text-sm leading-7 text-muted-foreground">
+              <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3 text-sm leading-6 text-muted-foreground">
                 No nearby comparison set is available yet for this course record.
               </div>
             )

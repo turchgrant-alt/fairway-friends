@@ -61,32 +61,32 @@ export default function SavedListsPage() {
   const featuredLists = useMemo(() => generatedLists.slice(0, 6), [generatedLists]);
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-4">
       <PageHeader
         eyebrow="Lists"
         title="Curated golf lists, refreshed every week."
         description="From bucket-list tracks and tour hosts to state standouts and trip-ready public courses, these lists are built to help you decide faster."
         actions={
-          <div className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-4 py-3 text-sm font-medium text-[hsl(var(--golfer-deep))]">
-            <CalendarSync size={16} /> Updated weekly
+          <div className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-3 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
+            <CalendarSync size={14} /> Updated weekly
           </div>
         }
       />
 
-      <section className="grid gap-4 rounded-[30px] border border-[hsl(var(--golfer-line))] bg-white/85 p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,0.9fr)]">
-        <div className="space-y-4">
-          <p className="inline-flex items-center gap-2 rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]">
-            <Sparkles size={14} /> Fresh picks
+      <section className="grid gap-3 rounded-2xl border border-[hsl(var(--golfer-line))] bg-white/85 p-4 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,0.9fr)]">
+        <div className="space-y-2">
+          <p className="inline-flex items-center gap-2 rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]">
+            <Sparkles size={12} /> Fresh picks
           </p>
-          <h2 className="max-w-3xl text-3xl text-[hsl(var(--golfer-deep))]">
+          <h2 className="max-w-3xl text-xl text-[hsl(var(--golfer-deep))]">
             New ways to browse the best golf trips, day-round ideas, and bucket-list courses.
           </h2>
-          <p className="max-w-3xl text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
+          <p className="max-w-3xl text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
             Every list starts from real course details like location, access type, holes, and tour history so the
             results feel specific instead of generic.
           </p>
         </div>
-        <div className="grid gap-3 rounded-[24px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] p-5 text-sm text-[hsl(var(--golfer-deep-soft))]">
+        <div className="grid gap-2 rounded-xl border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] p-3 text-sm text-[hsl(var(--golfer-deep-soft))]">
           <div className="flex items-center justify-between gap-3">
             <span className="text-xs font-semibold uppercase tracking-[0.24em]">This week</span>
             <ListChecks size={16} className="text-[hsl(var(--golfer-deep))]" />
@@ -103,43 +103,43 @@ export default function SavedListsPage() {
       </section>
 
       {isLoading ? (
-        <section className="grid gap-5 lg:grid-cols-3">
+        <section className="grid gap-3 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
             <div
               key={index}
-              className="h-64 animate-pulse rounded-[30px] border border-[hsl(var(--golfer-line))] bg-white/70"
+              className="h-32 animate-pulse rounded-xl border border-[hsl(var(--golfer-line))] bg-white/70"
             />
           ))}
         </section>
       ) : null}
 
       {isError ? (
-        <section className="rounded-[30px] border border-[hsl(var(--golfer-line))] bg-white p-8 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.8] shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]">
+        <section className="rounded-xl border border-[hsl(var(--golfer-line))] bg-white p-4 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.8] shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]">
           Curated lists are not available right now. Try again in a moment.
         </section>
       ) : null}
 
       {featuredLists.length > 0 ? (
-        <section className="grid gap-5 lg:grid-cols-3">
+        <section className="grid gap-3 lg:grid-cols-3">
           {featuredLists.map((list) => (
             <article
               key={list.id}
-              className="rounded-[30px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]"
+              className="rounded-xl border border-[hsl(var(--golfer-line))] bg-white p-3 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]"
             >
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
                     {getListTypeLabel(list.listType)}
                   </p>
-                  <h2 className="mt-4 text-2xl text-[hsl(var(--golfer-deep))]">{list.title}</h2>
+                  <h2 className="mt-2 text-lg text-[hsl(var(--golfer-deep))]">{list.title}</h2>
                 </div>
-                <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
+                <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-2.5 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
                   {list.itemCount} courses
                 </span>
               </div>
-              <p className="mt-3 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">{list.subtitle}</p>
-              <p className="mt-4 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">{list.description}</p>
-              <div className="mt-6 flex flex-wrap gap-2">
+              <p className="mt-1.5 text-xs leading-5 text-[hsl(var(--golfer-deep-soft))]/[0.74]">{list.subtitle}</p>
+              <p className="mt-1.5 text-xs leading-5 text-[hsl(var(--golfer-deep-soft))]/[0.78]">{list.description}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
                 {list.criteriaSummary.slice(0, 2).map((criterion) => (
                   <span
                     key={criterion}
@@ -151,7 +151,7 @@ export default function SavedListsPage() {
               </div>
               <a
                 href={`#${list.slug}`}
-                className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-[hsl(var(--golfer-deep))]"
+                className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-[hsl(var(--golfer-deep))]"
               >
                 View list <ArrowRight size={14} />
               </a>
@@ -160,15 +160,15 @@ export default function SavedListsPage() {
         </section>
       ) : null}
 
-      <section className="space-y-6">
+      <section className="space-y-3">
         {generatedLists.map((list) => (
           <article
             key={list.id}
             id={list.slug}
-            className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] lg:p-8"
+            className="rounded-2xl border border-[hsl(var(--golfer-line))] bg-white p-4 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]"
           >
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-              <div className="max-w-3xl space-y-3">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div className="max-w-3xl space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[hsl(var(--golfer-deep))]">
                     {getListTypeLabel(list.listType)}
@@ -178,15 +178,15 @@ export default function SavedListsPage() {
                   </span>
                 </div>
                 <div>
-                  <h2 className="text-3xl text-[hsl(var(--golfer-deep))]">{list.title}</h2>
-                  <p className="mt-2 text-base text-[hsl(var(--golfer-deep-soft))]/[0.78]">{list.subtitle}</p>
+                  <h2 className="text-xl text-[hsl(var(--golfer-deep))]">{list.title}</h2>
+                  <p className="mt-1 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.78]">{list.subtitle}</p>
                 </div>
-                <p className="text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.82]">{list.description}</p>
+                <p className="text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.82]">{list.description}</p>
                 {list.rationale ? (
-                  <p className="text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">{list.rationale}</p>
+                  <p className="text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.78]">{list.rationale}</p>
                 ) : null}
               </div>
-              <div className="grid min-w-[240px] gap-3 rounded-[24px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] p-5 text-sm text-[hsl(var(--golfer-deep-soft))]">
+              <div className="grid min-w-[200px] gap-2 rounded-xl border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] p-3 text-sm text-[hsl(var(--golfer-deep-soft))]">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-xs font-semibold uppercase tracking-[0.24em]">List summary</span>
                   <Flag size={16} className="text-[hsl(var(--golfer-deep))]" />
@@ -196,7 +196,7 @@ export default function SavedListsPage() {
               </div>
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-2">
+            <div className="mt-3 flex flex-wrap gap-2">
               {list.criteriaSummary.map((criterion) => (
                 <span
                   key={criterion}
@@ -207,14 +207,14 @@ export default function SavedListsPage() {
               ))}
             </div>
 
-            <div className="mt-8 space-y-3">
+            <div className="mt-4 space-y-2">
               {list.courses.map((course, index) => (
                 <button
                   key={course.id}
                   onClick={() => navigate(`/course/${course.id}`)}
-                  className="flex w-full items-start gap-4 rounded-[22px] border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] p-4 text-left transition hover:border-[hsl(var(--golfer-deep))]/20 hover:bg-[hsl(var(--golfer-mist))]"
+                  className="flex w-full items-start gap-3 rounded-xl border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] p-2.5 text-left transition hover:border-[hsl(var(--golfer-deep))]/20 hover:bg-[hsl(var(--golfer-mist))]"
                 >
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--golfer-deep))] text-sm font-semibold text-white">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--golfer-deep))] text-xs font-semibold text-white">
                     {index + 1}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -226,7 +226,7 @@ export default function SavedListsPage() {
                         </span>
                       ) : null}
                     </div>
-                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-[hsl(var(--golfer-deep-soft))]/[0.78]">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[hsl(var(--golfer-deep-soft))]/[0.78]">
                       {buildCourseMeta(course).map((item) => (
                         <span key={item} className="inline-flex items-center gap-1">
                           <MapPin size={12} />

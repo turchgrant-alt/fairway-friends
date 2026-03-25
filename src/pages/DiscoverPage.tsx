@@ -159,7 +159,7 @@ export default function DiscoverPage() {
   const resultOverflow = Math.max(filtered.length - displayedResults.length, 0);
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-4">
       <PageHeader
         eyebrow="Discovery"
         title="Discover courses"
@@ -167,7 +167,7 @@ export default function DiscoverPage() {
         actions={
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-medium transition ${
+            className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-medium transition ${
               showFilters
                 ? 'border-[hsl(var(--golfer-deep))] bg-[hsl(var(--golfer-deep))] text-white'
                 : 'border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep))]'
@@ -179,33 +179,33 @@ export default function DiscoverPage() {
         }
       />
 
-      <section className="grid gap-4 lg:grid-cols-3">
-        <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-5 shadow-[0_20px_50px_-42px_rgba(12,25,19,0.35)]">
+      <section className="grid gap-3 lg:grid-cols-3">
+        <div className="rounded-xl border border-[hsl(var(--golfer-line))] bg-white p-3 shadow-[0_20px_50px_-42px_rgba(12,25,19,0.35)]">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Catalog</p>
-          <p className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">{catalogStats.totalCourses}</p>
-          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">courses in our catalog</p>
+          <p className="mt-2 text-xl text-[hsl(var(--golfer-deep))]">{catalogStats.totalCourses}</p>
+          <p className="mt-0.5 text-xs text-[hsl(var(--golfer-deep-soft))]/[0.74]">courses in our catalog</p>
         </div>
-        <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-5 shadow-[0_20px_50px_-42px_rgba(12,25,19,0.35)]">
+        <div className="rounded-xl border border-[hsl(var(--golfer-line))] bg-white p-3 shadow-[0_20px_50px_-42px_rgba(12,25,19,0.35)]">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Regions</p>
-          <p className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">{catalogStats.statesRepresented}</p>
-          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">regions covered across the catalog</p>
+          <p className="mt-2 text-xl text-[hsl(var(--golfer-deep))]">{catalogStats.statesRepresented}</p>
+          <p className="mt-0.5 text-xs text-[hsl(var(--golfer-deep-soft))]/[0.74]">regions covered across the catalog</p>
         </div>
-        <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-5 shadow-[0_20px_50px_-42px_rgba(12,25,19,0.35)]">
+        <div className="rounded-xl border border-[hsl(var(--golfer-line))] bg-white p-3 shadow-[0_20px_50px_-42px_rgba(12,25,19,0.35)]">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">Map-ready</p>
-          <p className="mt-3 text-3xl text-[hsl(var(--golfer-deep))]">{catalogStats.mappableCourses}</p>
-          <p className="mt-2 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">courses currently pinned on the map</p>
+          <p className="mt-2 text-xl text-[hsl(var(--golfer-deep))]">{catalogStats.mappableCourses}</p>
+          <p className="mt-0.5 text-xs text-[hsl(var(--golfer-deep-soft))]/[0.74]">courses currently pinned on the map</p>
         </div>
       </section>
 
-      <section className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-8">
+      <section className="rounded-2xl border border-[hsl(var(--golfer-line))] bg-white p-4 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]">
         <div className="flex flex-col gap-4 lg:flex-row">
           <div className="relative flex-1">
-            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search by name, city, state, type, tags..."
-              className="w-full rounded-full border border-input bg-[hsl(var(--golfer-cream))] py-3 pl-11 pr-4 text-sm text-card-foreground outline-none focus:border-primary"
+              className="h-9 w-full rounded-full border border-input bg-[hsl(var(--golfer-cream))] pl-9 pr-4 text-sm text-card-foreground outline-none focus:border-primary"
             />
             {query ? (
               <button onClick={() => setQuery('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
@@ -221,7 +221,7 @@ export default function DiscoverPage() {
                   : [...currentTags, 'world-top-100'],
               )
             }
-            className={`inline-flex items-center justify-center gap-2 rounded-full border px-4 py-3 text-sm font-medium transition ${
+            className={`inline-flex items-center justify-center gap-2 rounded-full border px-3 py-2 text-sm font-medium transition ${
               isWorldTop100FilterActive
                 ? 'border-amber-300 bg-amber-100 text-amber-900'
                 : 'border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep))]'
@@ -232,7 +232,7 @@ export default function DiscoverPage() {
           </button>
         </div>
 
-        <div className={`mt-6 grid gap-5 ${showFilters ? 'block' : 'hidden'} lg:grid lg:grid-cols-2`}>
+        <div className={`mt-4 grid gap-3 ${showFilters ? 'block' : 'hidden'} lg:grid lg:grid-cols-2`}>
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">Course Type</p>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -271,18 +271,18 @@ export default function DiscoverPage() {
         </div>
       </section>
 
-      <section className="space-y-5">
+      <section className="space-y-2">
         <SectionHeader
           title={query ? `Results for "${query}"` : 'Browse courses'}
           description={`${filtered.length} courses matching your current search and filters.`}
         />
         {isLoading ? (
-          <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-10 text-center text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+          <div className="rounded-xl border border-[hsl(var(--golfer-line))] bg-white p-6 text-center text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
             Loading courses...
           </div>
         ) : filtered.length > 0 ? (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
               {displayedResults.map((course) => (
                 <CourseCard key={course.id} course={course} />
               ))}
@@ -294,7 +294,7 @@ export default function DiscoverPage() {
             ) : null}
           </div>
         ) : (
-          <div className="rounded-[28px] border border-dashed border-[hsl(var(--golfer-line))] bg-white p-10 text-center text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+          <div className="rounded-xl border border-dashed border-[hsl(var(--golfer-line))] bg-white p-6 text-center text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
             {activeQuery || selectedType !== 'All' || selectedTags.length > 0
               ? 'No courses match the current search and filters. Try a broader query or clear a few filters.'
               : 'No courses are available yet.'}

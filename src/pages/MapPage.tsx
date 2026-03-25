@@ -344,17 +344,17 @@ export default function MapPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white/85 p-6 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] backdrop-blur-sm sm:p-8">
-        <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+    <div className="space-y-3">
+      <section className="rounded-2xl border border-[hsl(var(--golfer-line))] bg-white/85 p-4 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] backdrop-blur-sm">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[hsl(var(--golfer-deep-soft))]/[0.62]">
               Map Discovery
             </p>
-            <h1 className="mt-3 text-3xl leading-tight text-[hsl(var(--golfer-deep))] sm:text-4xl">
+            <h1 className="mt-1 text-xl leading-tight text-[hsl(var(--golfer-deep))]">
               Search first, then explore the map naturally.
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78] sm:text-base">
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
               GolfeR opens on a full U.S. view. Search a city, state, or region, or jump straight to UK & Ireland.
               Pins and list results stay tied to the current visible map area, and only courses with verified coordinates
               can appear there.
@@ -369,7 +369,7 @@ export default function MapPage() {
               <button
                 key={value}
                 onClick={() => setViewMode(value)}
-                className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition ${
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium transition ${
                   viewMode === value
                     ? 'bg-[hsl(var(--golfer-deep))] text-white shadow-[0_18px_38px_-28px_rgba(12,25,19,0.5)]'
                     : 'text-[hsl(var(--golfer-deep-soft))]/[0.82] hover:text-[hsl(var(--golfer-deep))]'
@@ -382,7 +382,7 @@ export default function MapPage() {
           </div>
         </div>
 
-        <div className="mt-5 flex flex-wrap items-center gap-2">
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           <span className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
             Start from
           </span>
@@ -401,7 +401,7 @@ export default function MapPage() {
 
                 void focusUkAndIreland();
               }}
-              className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+              className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
                 regionMode === value
                   ? 'border-[hsl(var(--golfer-deep))] bg-[hsl(var(--golfer-deep))] text-white'
                   : 'border-[hsl(var(--golfer-line))] bg-white text-[hsl(var(--golfer-deep))]'
@@ -412,26 +412,26 @@ export default function MapPage() {
           ))}
         </div>
 
-        <form onSubmit={handleSearch} className="mt-6 flex flex-col gap-3 lg:flex-row">
+        <form onSubmit={handleSearch} className="mt-3 flex flex-col gap-2 lg:flex-row">
           <div className="relative flex-1">
-            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search by city, state, or region"
-              className="w-full rounded-full border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] py-3.5 pl-11 pr-4 text-sm text-card-foreground outline-none transition focus:border-[hsl(var(--golfer-deep))]"
+              className="h-9 w-full rounded-full border border-[hsl(var(--golfer-line))] bg-[hsl(var(--golfer-cream))] pl-9 pr-4 text-sm text-card-foreground outline-none transition focus:border-[hsl(var(--golfer-deep))]"
             />
           </div>
           <button
             type="submit"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-[hsl(var(--golfer-deep))] px-5 py-3.5 text-sm font-medium text-white transition hover:opacity-95"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-[hsl(var(--golfer-deep))] px-4 py-2 text-sm font-medium text-white transition hover:opacity-95"
           >
-            Search area <ArrowRight size={16} />
+            Search area <ArrowRight size={14} />
           </button>
           <button
             type="button"
             onClick={resetToUnitedStates}
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-5 py-3.5 text-sm font-medium text-[hsl(var(--golfer-deep))]"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-[hsl(var(--golfer-line))] bg-white px-4 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]"
           >
             Reset map
           </button>
@@ -461,14 +461,14 @@ export default function MapPage() {
         </div>
 
         {searchMessage ? (
-          <p className="mt-4 rounded-[22px] bg-[hsl(var(--golfer-cream))] px-4 py-3 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
+          <p className="mt-3 rounded-xl bg-[hsl(var(--golfer-cream))] px-3 py-2 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
             {searchMessage}
           </p>
         ) : null}
       </section>
 
-      <section className="relative overflow-hidden rounded-[34px] border border-[hsl(var(--golfer-line))] bg-white shadow-[0_32px_90px_-55px_rgba(12,25,19,0.45)]">
-        <div className="h-[72vh] min-h-[34rem]">
+      <section className="relative overflow-hidden rounded-2xl border border-[hsl(var(--golfer-line))] bg-white shadow-[0_32px_90px_-55px_rgba(12,25,19,0.45)]">
+        <div className="h-[60vh] min-h-[24rem]">
           <CourseDiscoveryMap
             courses={mapCourses}
             selectedCourseId={selectedCourseId}
@@ -480,18 +480,18 @@ export default function MapPage() {
 
         {selectedCourse && hasVerifiedCoordinates(selectedCourse) ? (
           <div className="pointer-events-none absolute inset-x-4 bottom-4 z-[500] sm:left-6 sm:right-auto sm:max-w-xl">
-            <div className="pointer-events-auto overflow-hidden rounded-[28px] bg-white shadow-[0_24px_70px_-45px_rgba(12,25,19,0.45)]">
+            <div className="pointer-events-auto overflow-hidden rounded-xl bg-white shadow-[0_24px_70px_-45px_rgba(12,25,19,0.45)]">
               <button
                 onClick={() => setSelectedCourseId(null)}
-                className="absolute right-4 top-4 z-10 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]"
+                className="absolute right-3 top-3 z-10 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]"
               >
                 Close
               </button>
               <button onClick={() => navigate(`/course/${selectedCourse.id}`)} className="flex w-full flex-col text-left sm:flex-row">
-                <img src={selectedCourse.imageUrl} alt={selectedCourse.name} className="h-40 w-full shrink-0 object-cover sm:h-auto sm:w-40" />
-                <div className="flex-1 p-5">
-                  <h2 className="text-xl font-semibold text-card-foreground">{selectedCourse.name}</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">{selectedCourse.location}</p>
+                <img src={selectedCourse.imageUrl} alt={selectedCourse.name} className="h-28 w-full shrink-0 object-cover sm:h-auto sm:w-28" />
+                <div className="flex-1 p-3">
+                  <h2 className="text-base font-semibold text-card-foreground">{selectedCourse.name}</h2>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{selectedCourse.location}</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] capitalize text-secondary-foreground">
                       {selectedCourse.type}
@@ -513,11 +513,11 @@ export default function MapPage() {
           </div>
         ) : (
           <div className="pointer-events-none absolute bottom-4 left-4 z-[500] sm:left-6">
-            <div className="rounded-[24px] border border-white/70 bg-white/92 px-4 py-3 shadow-[0_18px_50px_-36px_rgba(12,25,19,0.45)] backdrop-blur-sm">
+            <div className="rounded-xl border border-white/70 bg-white/92 px-3 py-2 shadow-[0_18px_50px_-36px_rgba(12,25,19,0.45)] backdrop-blur-sm">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
                 Map first
               </p>
-              <p className="mt-2 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
+              <p className="mt-1 text-xs leading-5 text-[hsl(var(--golfer-deep-soft))]/[0.78]">
                 {shouldShowPins
                   ? 'Results update after each completed pan or zoom. Only courses inside the visible bounds stay active.'
                   : 'Search a city, state, or region to load map pins from the catalog.'}
@@ -532,28 +532,28 @@ export default function MapPage() {
         )}
       </section>
 
-      <section className="space-y-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <section className="space-y-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
               {viewMode === 'map' ? 'Results In View' : 'List View'}
             </p>
-            <h2 className="mt-2 text-3xl text-[hsl(var(--golfer-deep))]">
+            <h2 className="mt-1 text-lg text-[hsl(var(--golfer-deep))]">
               Courses inside the current map area
             </h2>
-            <p className="mt-2 text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+            <p className="mt-1 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
               Search sets the starting area. After that, this list follows the visible map bounds and updates when the
               current pan or zoom finishes.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="rounded-full bg-[hsl(var(--golfer-mist))] px-4 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
+            <div className="rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1.5 text-xs font-medium text-[hsl(var(--golfer-deep))]">
               {listCourses.length} result{listCourses.length === 1 ? '' : 's'}
             </div>
             {viewMode === 'map' && listCourses.length > MAP_VIEW_RESULT_PREVIEW_LIMIT ? (
               <button
                 onClick={() => setViewMode('list')}
-                className="rounded-full border border-[hsl(var(--golfer-line))] bg-white px-4 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]"
+                className="rounded-full border border-[hsl(var(--golfer-line))] bg-white px-3 py-1.5 text-xs font-medium text-[hsl(var(--golfer-deep))]"
               >
                 Expand list
               </button>
@@ -562,25 +562,25 @@ export default function MapPage() {
         </div>
 
         {isCatalogLoading ? (
-          <div className="rounded-[28px] border border-[hsl(var(--golfer-line))] bg-white p-10 text-center text-sm leading-7 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+          <div className="rounded-xl border border-[hsl(var(--golfer-line))] bg-white p-6 text-center text-sm text-[hsl(var(--golfer-deep-soft))]/[0.74]">
             Loading the matching stored course data...
           </div>
         ) : !activeSearch && loadedCourses.length === 0 && viewport.zoom < 7 ? (
-          <div className="rounded-[28px] border border-dashed border-[hsl(var(--golfer-line))] bg-white p-10 text-center">
+          <div className="rounded-xl border border-dashed border-[hsl(var(--golfer-line))] bg-white p-6 text-center">
             <div className="mx-auto max-w-2xl">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
-                <Compass size={18} />
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
+                <Compass size={16} />
               </span>
-              <h3 className="mt-5 text-2xl text-[hsl(var(--golfer-deep))]">Search or zoom in to browse results</h3>
-              <p className="mt-3 text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+              <h3 className="mt-3 text-lg text-[hsl(var(--golfer-deep))]">Search or zoom in to browse results</h3>
+              <p className="mt-2 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
                 The initial U.S. view stays intentionally broad. Search for a city, state, or region first, or zoom into a
                 tighter region on the map, and the visible-area results will respond automatically.
               </p>
             </div>
           </div>
         ) : viewMode === 'map' && mapViewPreviewCourses.length > 0 ? (
-          <div className="space-y-4">
-            <div className="grid gap-4 xl:grid-cols-2">
+          <div className="space-y-3">
+            <div className="grid gap-3 xl:grid-cols-2">
               {mapViewPreviewCourses.map((course) => (
                 <CourseCard key={course.id} course={course} variant="compact" />
               ))}
@@ -592,8 +592,8 @@ export default function MapPage() {
             ) : null}
           </div>
         ) : viewMode === 'list' && displayedListCourses.length > 0 ? (
-          <div className="space-y-4">
-            <div className="grid gap-4 xl:grid-cols-2">
+          <div className="space-y-3">
+            <div className="grid gap-3 xl:grid-cols-2">
               {displayedListCourses.map((course) => (
                 <CourseCard key={course.id} course={course} variant="compact" />
               ))}
@@ -605,13 +605,13 @@ export default function MapPage() {
             ) : null}
           </div>
         ) : (
-          <div className="rounded-[28px] border border-dashed border-[hsl(var(--golfer-line))] bg-white p-10 text-center">
+          <div className="rounded-xl border border-dashed border-[hsl(var(--golfer-line))] bg-white p-6 text-center">
             <div className="mx-auto max-w-2xl">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
-                <MapPin size={18} />
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
+                <MapPin size={16} />
               </span>
-              <h3 className="mt-5 text-2xl text-[hsl(var(--golfer-deep))]">No courses to show here yet</h3>
-              <p className="mt-3 text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+              <h3 className="mt-3 text-lg text-[hsl(var(--golfer-deep))]">No courses to show here yet</h3>
+              <p className="mt-2 text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
                 {loadedCourses.length > 0
                   ? 'The current visible map bounds do not contain courses with verified coordinates yet. Pan wider, zoom out, or try another search.'
                   : 'This part of the map does not currently contain courses with verified coordinates in the stored dataset. Try another region.'}

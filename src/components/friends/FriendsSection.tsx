@@ -44,7 +44,7 @@ function ProfileAvatar({
   profile: { username: string | null; display_name: string | null; avatar_url: string | null };
 }) {
   return (
-    <Avatar className="h-12 w-12 border border-[hsl(var(--golfer-line))]">
+    <Avatar className="h-8 w-8 border border-[hsl(var(--golfer-line))]">
       <AvatarImage src={profile.avatar_url ?? undefined} alt={getProfileLabel(profile)} />
       <AvatarFallback className="bg-[hsl(var(--golfer-mist))] text-[hsl(var(--golfer-deep))]">
         {getProfileInitials(profile)}
@@ -65,7 +65,7 @@ function SearchResultRow({
   isSending: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-[20px] bg-[hsl(var(--golfer-cream))] p-4">
+    <div className="flex items-center justify-between gap-3 rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
       <div className="flex min-w-0 items-center gap-3">
         <ProfileAvatar profile={profile} />
         <div className="min-w-0">
@@ -202,50 +202,50 @@ export default function FriendsSection() {
   });
 
   return (
-    <section id="friends" className="rounded-[32px] border border-[hsl(var(--golfer-line))] bg-white p-7 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)] sm:p-8">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <section id="friends" className="rounded-2xl border border-[hsl(var(--golfer-line))] bg-white p-4 shadow-[0_24px_70px_-48px_rgba(12,25,19,0.35)]">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[hsl(var(--golfer-deep-soft))]/[0.58]">
             Friends
           </p>
-          <h2 className="mt-4 text-3xl text-[hsl(var(--golfer-deep))]">Compare with other players</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-8 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
+          <h2 className="mt-2 text-xl text-[hsl(var(--golfer-deep))]">Compare with other players</h2>
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-[hsl(var(--golfer-deep-soft))]/[0.74]">
             Search profiles, manage incoming requests, and open a friend&apos;s saved rankings without leaving GolfeR.
           </p>
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-4 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
+          <span className="rounded-full bg-[hsl(var(--golfer-mist))] px-3 py-1.5 text-xs font-medium text-[hsl(var(--golfer-deep))]">
             {friends.length} friend{friends.length === 1 ? "" : "s"}
           </span>
-          <span className="rounded-full bg-[hsl(var(--golfer-cream))] px-4 py-2 text-sm font-medium text-[hsl(var(--golfer-deep))]">
+          <span className="rounded-full bg-[hsl(var(--golfer-cream))] px-3 py-1.5 text-xs font-medium text-[hsl(var(--golfer-deep))]">
             {pendingRequests.length} pending
           </span>
         </div>
       </div>
 
-      <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-        <div className="rounded-[28px] bg-[hsl(var(--golfer-cream))] p-5">
+      <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+        <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
             Find players
           </p>
-          <div className="relative mt-4">
-            <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[hsl(var(--golfer-deep-soft))]/[0.5]" />
+          <div className="relative mt-3">
+            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--golfer-deep-soft))]/[0.5]" />
             <Input
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               placeholder="Search usernames..."
-              className="rounded-full border-[hsl(var(--golfer-line))] bg-white pl-11"
+              className="h-9 rounded-full border-[hsl(var(--golfer-line))] bg-white pl-9 text-sm"
             />
           </div>
 
-          <div className="mt-4 space-y-3">
+          <div className="mt-3 space-y-2">
             {!canSearch ? (
-              <div className="rounded-[20px] bg-white p-4 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
+              <div className="rounded-xl bg-white p-3 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
                 Enter at least 2 characters to search by username.
               </div>
             ) : isSearching ? (
-              <div className="rounded-[20px] bg-white p-4 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
+              <div className="rounded-xl bg-white p-3 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
                 Searching profiles...
               </div>
             ) : searchResults.length > 0 ? (
@@ -259,32 +259,32 @@ export default function FriendsSection() {
                 />
               ))
             ) : (
-              <div className="rounded-[20px] bg-white p-4 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
+              <div className="rounded-xl bg-white p-3 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
                 No users matched this search.
               </div>
             )}
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="rounded-[28px] bg-[hsl(var(--golfer-cream))] p-5">
+        <div className="space-y-3">
+          <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
             <div className="flex items-center justify-between gap-3">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
                 Pending requests
               </p>
-              <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
+              <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-[hsl(var(--golfer-deep))]">
                 {pendingRequests.length}
               </span>
             </div>
 
-            <div className="mt-4 space-y-3">
+            <div className="mt-3 space-y-2">
               {isPendingRequestsLoading ? (
-                <div className="rounded-[20px] bg-white p-4 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
+                <div className="rounded-xl bg-white p-3 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
                   Loading pending requests...
                 </div>
               ) : pendingRequests.length > 0 ? (
                 pendingRequests.map((request) => (
-                  <div key={request.friendship_id} className="rounded-[20px] bg-white p-4">
+                  <div key={request.friendship_id} className="rounded-xl bg-white p-3">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">
                         <ProfileAvatar profile={request} />
@@ -319,32 +319,32 @@ export default function FriendsSection() {
                   </div>
                 ))
               ) : (
-                <div className="rounded-[20px] bg-white p-4 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
+                <div className="rounded-xl bg-white p-3 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
                   No incoming requests right now.
                 </div>
               )}
             </div>
           </div>
 
-          <div className="rounded-[28px] bg-[hsl(var(--golfer-cream))] p-5">
+          <div className="rounded-xl bg-[hsl(var(--golfer-cream))] p-3">
             <div className="flex items-center justify-between gap-3">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[hsl(var(--golfer-deep-soft))]/[0.56]">
                 My network
               </p>
-              <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-[hsl(var(--golfer-deep))]">
+              <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-[hsl(var(--golfer-deep))]">
                 {friends.length}
               </span>
             </div>
 
-            <div className="mt-4 space-y-3">
+            <div className="mt-3 space-y-2">
               {isFriendsLoading ? (
-                <div className="rounded-[20px] bg-white p-4 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
+                <div className="rounded-xl bg-white p-3 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
                   Loading friends...
                 </div>
               ) : friends.length > 0 ? (
                 friends.map((friend) => (
-                  <div key={friend.friendship_id} className="rounded-[20px] bg-white p-4">
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                  <div key={friend.friendship_id} className="rounded-xl bg-white p-3">
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                       <div className="flex min-w-0 items-center gap-3">
                         <ProfileAvatar profile={friend} />
                         <div className="min-w-0">
@@ -379,7 +379,7 @@ export default function FriendsSection() {
                   </div>
                 ))
               ) : (
-                <div className="rounded-[20px] bg-white p-4 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
+                <div className="rounded-xl bg-white p-3 text-sm text-[hsl(var(--golfer-deep-soft))]/[0.72]">
                   No accepted friends yet. Search for a username above to start building a shared ranking network.
                 </div>
               )}

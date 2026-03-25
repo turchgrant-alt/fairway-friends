@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /Users/grantturchin/fairway-friends/src/components/rankings -type f -name *.tsx)",
+      "Bash(find /Users/grantturchin/fairway-friends/src/components/friends -type f -name *.tsx)",
+      "Bash(find /Users/grantturchin/fairway-friends/src/components/course-photos -type f -name *.tsx)",
+      "Bash(npm run:*)",
+      "Bash(claude plugin:*)"
+    ]
+  }
+}
